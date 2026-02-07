@@ -1,9 +1,0 @@
-node_modules/
-dist/
-build/
-pnpm-lock.yaml
-*.md
-.idea/
-.vscode/
-apps/client/public/
-apps/server/prisma/

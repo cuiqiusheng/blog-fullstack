@@ -1,10 +1,37 @@
 module.exports = {
-  printWidth: 100, // Maximum number of characters per line
-  tabWidth: 2, // Indent 2 spaces
-  useTabs: false, // Don't use tab indentation
-  singleQuote: true, // Single quotes
-  semi: true, // Semicolons at the end of statements
-  trailingComma: "all", // Trailing commas
-  bracketSpacing: true, // Space before and after object brackets
-  arrowParens: "avoid", // Arrow function single parameter omit parentheses
+  // Line length
+  printWidth: 100,
+
+  // Indentation
+  tabWidth: 2,
+  useTabs: false,
+
+  // Quotes
+  singleQuote: true,
+
+  // Semicolons
+  semi: true,
+
+  // Trailing commas
+  trailingComma: 'all',
+
+  // Spacing
+  bracketSpacing: true,
+
+  // Arrow functions
+  arrowParens: 'avoid',
+
+  // End of line
+  endOfLine: 'lf', // Use LF for cross-platform compatibility
+
+  // File-specific overrides (optional)
+  overrides: [
+    {
+      files: '*.md',
+      options: {
+        printWidth: 80,
+        proseWrap: 'always',
+      },
+    },
+  ],
 };
