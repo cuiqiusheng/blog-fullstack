@@ -4,6 +4,11 @@ import dotenv from 'dotenv';
 import { ApolloServer, HeaderMap } from '@apollo/server';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import http from 'http';
+import { createAuthContext } from './middleware/auth';
+import { requestLogger } from './middleware/requestLogger';
+import type { GraphQLContext } from './types/context';
+import { typeDefs } from './graphql/schema';
+import { resolvers } from './graphql/resolvers';
 
 dotenv.config();
 
@@ -12,6 +17,7 @@ const app = express();
 // global middleware
 app.use(cors());
 app.use(express.json());
+app.use(requestLogger);
 
 app.get('/health', (_, res) => {
   res.json({
@@ -22,26 +28,12 @@ app.get('/health', (_, res) => {
   });
 });
 
-// ApolloServer will be created in startServer function
-
 export async function startServer() {
   const httpServer = http.createServer(app);
-  
-  // TODO: import typeDefs and resolvers
-  // import { typeDefs } from './graphql/schema';
-  // import { resolvers } from './graphql/resolvers';
-  
-  const apolloServer = new ApolloServer({
-    typeDefs: `#graphql
-      type Query {
-        hello: String
-      }
-    `,
-    resolvers: {
-      Query: {
-        hello: () => 'Hello from GraphQL!',
-      },
-    },
+
+  const apolloServer = new ApolloServer<GraphQLContext>({
+    typeDefs,
+    resolvers,
     introspection: process.env.NODE_ENV !== 'production',
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
@@ -65,10 +57,9 @@ export async function startServer() {
 
     const response = await apolloServer.executeHTTPGraphQLRequest({
       httpGraphQLRequest,
-      context: async () => {
-        const authHeader = req.headers['authorization'];
-        const token = authHeader?.split(' ')[1];
-        return { token };
+      context: async (): Promise<GraphQLContext> => {
+        const auth = await createAuthContext(req);
+        return { ...auth, req };
       },
     });
 
