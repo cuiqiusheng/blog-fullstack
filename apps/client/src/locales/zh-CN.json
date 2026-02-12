@@ -1,0 +1,36 @@
+{
+  "common": {
+    "loading": "加载中…",
+    "logout": "退出",
+    "logoutConfirmTitle": "确定要退出登录吗？",
+    "ok": "确定",
+    "cancel": "取消"
+  },
+  "nav": {
+    "home": "首页",
+    "posts": "文章",
+    "userSetting": "用户设置",
+    "ai": "AI"
+  },
+  "login": {
+    "title": "登录",
+    "subtitle": "使用邮箱和密码登录",
+    "email": "邮箱",
+    "emailPlaceholder": "your@email.com",
+    "emailRequired": "请输入邮箱",
+    "emailInvalid": "请输入有效邮箱",
+    "password": "密码",
+    "passwordPlaceholder": "密码",
+    "passwordRequired": "请输入密码",
+    "submit": "登录"
+  },
+  "home": {
+    "title": "首页",
+    "welcome": "欢迎回来，这里是首页。"
+  },
+  "placeholders": {
+    "posts": "文章（占位）",
+    "userSetting": "用户设置（占位）",
+    "ai": "AI（占位）"
+  }
+}

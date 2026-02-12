@@ -8,6 +8,7 @@
     "dev": "pnpm -r dev",
     "dev:client": "pnpm --filter @blog-fullstack/client dev",
     "dev:server": "pnpm --filter @blog-fullstack/server dev",
+    "codegen": "pnpm -r codegen",
     "build": "pnpm -r build",
     "lint": "eslint . --ext .js,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.ts,.tsx --fix",

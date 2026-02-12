@@ -1,0 +1,104 @@
+@keyframes login-star-twinkle-1 {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes login-star-twinkle-2 {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}
+
+@keyframes login-gradient-shift {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.97;
+  }
+}
+
+.login-page {
+  --login-bg-from: #f6faf8;
+  --login-bg-mid: #eef5f1;
+  --login-bg-to: #f2f7f4;
+
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(
+    165deg,
+    var(--login-bg-from) 0%,
+    var(--login-bg-mid) 40%,
+    var(--login-bg-to) 100%
+  );
+  animation: login-gradient-shift 12s ease-in-out infinite;
+}
+
+.login-page__lang {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 1;
+}
+
+.login-page__center {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-page__card {
+  box-shadow: 0 8px 32px rgba(107, 171, 144, 0.08);
+}
+
+.login-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at center, rgba(107, 171, 144, 0.85) 2px, transparent 2.5px),
+    radial-gradient(circle at 10px 10px, rgba(107, 171, 144, 0.75) 1.5px, transparent 2px);
+  background-size:
+    72px 72px,
+    56px 56px;
+  background-position:
+    0 0,
+    18px 28px;
+  animation: login-star-twinkle-1 3s ease-in-out infinite;
+}
+
+.login-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle at center,
+    rgba(107, 171, 144, 0.7) 1.5px,
+    transparent 2px
+  );
+  background-size: 64px 64px;
+  background-position: 36px 10px;
+  animation: login-star-twinkle-2 2.6s ease-in-out infinite;
+  animation-delay: 0.8s;
+}

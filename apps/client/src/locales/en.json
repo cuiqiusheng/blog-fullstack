@@ -1,0 +1,36 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "logout": "Logout",
+    "logoutConfirmTitle": "Are you sure you want to log out?",
+    "ok": "OK",
+    "cancel": "Cancel"
+  },
+  "nav": {
+    "home": "Home",
+    "posts": "Posts",
+    "userSetting": "User Setting",
+    "ai": "AI"
+  },
+  "login": {
+    "title": "Login",
+    "subtitle": "Sign in with your email and password",
+    "email": "Email",
+    "emailPlaceholder": "your@email.com",
+    "emailRequired": "Please enter your email",
+    "emailInvalid": "Please enter a valid email",
+    "password": "Password",
+    "passwordPlaceholder": "Password",
+    "passwordRequired": "Please enter your password",
+    "submit": "Sign in"
+  },
+  "home": {
+    "title": "Home",
+    "welcome": "Welcome back. This is the home page."
+  },
+  "placeholders": {
+    "posts": "Posts (placeholder)",
+    "userSetting": "User Setting (placeholder)",
+    "ai": "AI (placeholder)"
+  }
+}
