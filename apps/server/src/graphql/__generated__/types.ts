@@ -121,6 +121,12 @@ export type PostNeighbors = {
   prev?: Maybe<Post>;
 };
 
+export enum PostSortField {
+  CreatedAt = 'CREATED_AT',
+  Subtopic = 'SUBTOPIC',
+  UpdatedAt = 'UPDATED_AT',
+}
+
 export enum PostStatus {
   Archived = 'ARCHIVED',
   Draft = 'DRAFT',
@@ -156,6 +162,8 @@ export type QueryPostsArgs = {
   mine?: InputMaybe<Scalars['Boolean']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<PostSortField>;
+  sortDirection?: InputMaybe<SortDirection>;
   status?: InputMaybe<PostStatus>;
   subtopic?: InputMaybe<Scalars['String']['input']>;
   topic?: InputMaybe<Scalars['String']['input']>;
@@ -175,6 +183,11 @@ export type Role = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
 };
+
+export enum SortDirection {
+  Asc = 'ASC',
+  Desc = 'DESC',
+}
 
 export type User = {
   __typename?: 'User';
@@ -282,9 +295,11 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   Post: ResolverTypeWrapper<Post>;
   PostNeighbors: ResolverTypeWrapper<PostNeighbors>;
+  PostSortField: PostSortField;
   PostStatus: PostStatus;
   Query: ResolverTypeWrapper<{}>;
   Role: ResolverTypeWrapper<Role>;
+  SortDirection: SortDirection;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   User: ResolverTypeWrapper<User>;
 }>;

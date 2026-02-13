@@ -3,6 +3,8 @@ query Posts(
   $subtopic: String
   $status: PostStatus
   $search: String
+  $sortBy: PostSortField
+  $sortDirection: SortDirection
   $mine: Boolean
   $limit: Int
   $offset: Int
@@ -12,6 +14,8 @@ query Posts(
     subtopic: $subtopic
     status: $status
     search: $search
+    sortBy: $sortBy
+    sortDirection: $sortDirection
     mine: $mine
     limit: $limit
     offset: $offset

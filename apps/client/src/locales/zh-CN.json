@@ -59,7 +59,14 @@
       "topic": "主题",
       "subtopic": "子主题",
       "status": "状态",
-      "allStatus": "全部状态"
+      "allStatus": "全部状态",
+      "sortBy": "排序字段",
+      "sortDirection": "排序方向",
+      "sortByCreatedAt": "按创建时间",
+      "sortByUpdatedAt": "按更新时间",
+      "sortBySubtopic": "按子主题",
+      "sortDirectionAsc": "正序",
+      "sortDirectionDesc": "倒序"
     },
     "status": {
       "draft": "草稿",

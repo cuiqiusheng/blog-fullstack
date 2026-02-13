@@ -84,14 +84,28 @@ export function buildPostWhere(options: ListPostsOptions): Prisma.PostWhereInput
   return andClauses.length > 0 ? { AND: andClauses } : {};
 }
 
-export async function listPosts(options: ListPostsOptions = {}) {
-  const where = buildPostWhere(options);
+function buildOrderBy(options: ListPostsOptions): Prisma.PostOrderByWithRelationInput[] {
+  if (options.sortBy) {
+    const direction = options.sortDirection ?? 'desc';
+    if (options.sortBy === 'createdAt') {
+      return [{ createdAt: direction }, { id: direction }];
+    }
+    if (options.sortBy === 'updatedAt') {
+      return [{ updatedAt: direction }, { id: direction }];
+    }
+    return [{ subtopic: direction }, { createdAt: 'asc' }, { id: 'asc' }];
+  }
+
   const hasTopicFilter = Boolean(normalizeOptionalText(options.topic));
   const hasSearch = Boolean(normalizeOptionalText(options.search));
-  const orderBy: Prisma.PostOrderByWithRelationInput[] =
-    hasTopicFilter && !hasSearch
-      ? [{ seriesOrder: 'asc' }, { createdAt: 'asc' }]
-      : [{ createdAt: 'desc' }];
+  return hasTopicFilter && !hasSearch
+    ? [{ seriesOrder: 'asc' }, { createdAt: 'asc' }]
+    : [{ createdAt: 'desc' }];
+}
+
+export async function listPosts(options: ListPostsOptions = {}) {
+  const where = buildPostWhere(options);
+  const orderBy = buildOrderBy(options);
 
   return prisma.post.findMany({
     where,

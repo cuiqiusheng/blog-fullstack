@@ -4,7 +4,13 @@ import { Card, Empty, Input, List, Pagination, Select, Space, Tag, Typography } 
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { createExcerpt, estimateReadMinutes } from '@blog-fullstack/content-utils';
-import { PostsDocument, PostsTotalDocument, PostStatus } from '@/graphql/codegen';
+import {
+  PostsDocument,
+  PostsTotalDocument,
+  PostStatus,
+  PostSortField,
+  SortDirection,
+} from '@/graphql/codegen';
 import { useTranslation } from 'react-i18next';
 
 const { Text } = Typography;
@@ -20,6 +26,17 @@ const statusOptions = [
   { value: PostStatus.Published, labelKey: 'posts.status.published' },
   { value: PostStatus.Draft, labelKey: 'posts.status.draft' },
   { value: PostStatus.Archived, labelKey: 'posts.status.archived' },
+];
+
+const sortFieldOptions = [
+  { value: PostSortField.CreatedAt, labelKey: 'posts.filter.sortByCreatedAt' },
+  { value: PostSortField.UpdatedAt, labelKey: 'posts.filter.sortByUpdatedAt' },
+  { value: PostSortField.Subtopic, labelKey: 'posts.filter.sortBySubtopic' },
+];
+
+const sortDirectionOptions = [
+  { value: SortDirection.Asc, labelKey: 'posts.filter.sortDirectionAsc' },
+  { value: SortDirection.Desc, labelKey: 'posts.filter.sortDirectionDesc' },
 ];
 
 function statusColor(status: PostStatus): string {
@@ -43,6 +60,8 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
   const topicKey = `${paramPrefix}Topic`;
   const subtopicKey = `${paramPrefix}Subtopic`;
   const statusKey = `${paramPrefix}Status`;
+  const sortByKey = `${paramPrefix}SortBy`;
+  const sortDirectionKey = `${paramPrefix}SortDirection`;
 
   const [search, setSearch] = useState(() => searchParams.get(searchKey) ?? '');
   const [topic, setTopic] = useState(() => searchParams.get(topicKey) ?? '');
@@ -58,6 +77,24 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
     ) {
       return value;
     }
+    return PostStatus.Published;
+  });
+  const [sortBy, setSortBy] = useState<PostSortField | undefined>(() => {
+    const value = searchParams.get(sortByKey);
+    if (
+      value === PostSortField.CreatedAt ||
+      value === PostSortField.UpdatedAt ||
+      value === PostSortField.Subtopic
+    ) {
+      return value;
+    }
+    return undefined;
+  });
+  const [sortDirection, setSortDirection] = useState<SortDirection | undefined>(() => {
+    const value = searchParams.get(sortDirectionKey);
+    if (value === SortDirection.Asc || value === SortDirection.Desc) {
+      return value;
+    }
     return undefined;
   });
   const [page, setPage] = useState(() => {
@@ -71,6 +108,8 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
     topic?: string;
     subtopic?: string;
     status?: PostStatus | undefined;
+    sortBy?: PostSortField | undefined;
+    sortDirection?: SortDirection | undefined;
   }) => {
     const next = new URLSearchParams(searchParams);
     const nextPage = patch.page ?? page;
@@ -80,6 +119,12 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
     const nextStatus = Object.prototype.hasOwnProperty.call(patch, 'status')
       ? patch.status
       : status;
+    const nextSortBy = Object.prototype.hasOwnProperty.call(patch, 'sortBy')
+      ? patch.sortBy
+      : sortBy;
+    const nextSortDirection = Object.prototype.hasOwnProperty.call(patch, 'sortDirection')
+      ? patch.sortDirection
+      : sortDirection;
 
     if (nextPage > 1) {
       next.set(pageKey, String(nextPage));
@@ -105,6 +150,16 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
       next.set(statusKey, nextStatus);
     } else {
       next.delete(statusKey);
+    }
+    if (nextSortBy) {
+      next.set(sortByKey, nextSortBy);
+    } else {
+      next.delete(sortByKey);
+    }
+    if (nextSortDirection) {
+      next.set(sortDirectionKey, nextSortDirection);
+    } else {
+      next.delete(sortDirectionKey);
     }
     if (next.toString() !== searchParams.toString()) {
       setSearchParams(next, { replace: true });
@@ -142,6 +197,16 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
       } else {
         next.delete(statusKey);
       }
+      if (sortBy) {
+        next.set(sortByKey, sortBy);
+      } else {
+        next.delete(sortByKey);
+      }
+      if (sortDirection) {
+        next.set(sortDirectionKey, sortDirection);
+      } else {
+        next.delete(sortDirectionKey);
+      }
       next.delete(pageKey);
       if (next.toString() !== searchParams.toString()) {
         setSearchParams(next, { replace: true });
@@ -156,11 +221,15 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
     subtopic,
     search,
     status,
+    sortBy,
+    sortDirection,
     pageKey,
     searchKey,
     topicKey,
     subtopicKey,
     statusKey,
+    sortByKey,
+    sortDirectionKey,
     searchParams,
     setSearchParams,
   ]);
@@ -173,8 +242,10 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
       subtopic: subtopic || undefined,
       search: search || undefined,
       status,
+      sortBy,
+      sortDirection,
     }),
-    [mode, topic, subtopic, search, status],
+    [mode, topic, subtopic, search, status, sortBy, sortDirection],
   );
 
   const { data, loading } = useQuery(PostsDocument, {
@@ -239,6 +310,36 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
             applyParams({ page: 1, status: value });
           }}
           options={statusOptions.map(option => ({
+            value: option.value,
+            label: t(option.labelKey),
+          }))}
+        />
+        <Select<PostSortField | undefined>
+          allowClear
+          placeholder={t('posts.filter.sortBy')}
+          style={{ width: 180 }}
+          value={sortBy}
+          onChange={value => {
+            setPage(1);
+            setSortBy(value);
+            applyParams({ page: 1, sortBy: value });
+          }}
+          options={sortFieldOptions.map(option => ({
+            value: option.value,
+            label: t(option.labelKey),
+          }))}
+        />
+        <Select<SortDirection | undefined>
+          allowClear
+          placeholder={t('posts.filter.sortDirection')}
+          style={{ width: 160 }}
+          value={sortDirection}
+          onChange={value => {
+            setPage(1);
+            setSortDirection(value);
+            applyParams({ page: 1, sortDirection: value });
+          }}
+          options={sortDirectionOptions.map(option => ({
             value: option.value,
             label: t(option.labelKey),
           }))}

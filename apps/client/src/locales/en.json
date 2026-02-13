@@ -59,7 +59,14 @@
       "topic": "Topic",
       "subtopic": "Subtopic",
       "status": "Status",
-      "allStatus": "All status"
+      "allStatus": "All status",
+      "sortBy": "Sort by",
+      "sortDirection": "Direction",
+      "sortByCreatedAt": "Created time",
+      "sortByUpdatedAt": "Updated time",
+      "sortBySubtopic": "Subtopic",
+      "sortDirectionAsc": "Ascending",
+      "sortDirectionDesc": "Descending"
     },
     "status": {
       "draft": "Draft",

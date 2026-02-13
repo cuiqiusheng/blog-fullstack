@@ -9,7 +9,11 @@ import {
   listPosts,
   type TopicGenerationPlan,
 } from '@/service';
-import { PostStatus as GqlPostStatus } from '../__generated__/types';
+import {
+  PostStatus as GqlPostStatus,
+  PostSortField as GqlPostSortField,
+  SortDirection as GqlSortDirection,
+} from '../__generated__/types';
 import type {
   GeneratePostsInput,
   MutationGeneratePostsArgs,
@@ -40,6 +44,17 @@ const prismaToGqlStatus: Record<PrismaPostStatus, GqlPostStatus> = {
   [PrismaPostStatus.DRAFT]: GqlPostStatus.Draft,
   [PrismaPostStatus.PUBLISHED]: GqlPostStatus.Published,
   [PrismaPostStatus.ARCHIVED]: GqlPostStatus.Archived,
+};
+
+const gqlToServiceSortField: Record<GqlPostSortField, 'createdAt' | 'updatedAt' | 'subtopic'> = {
+  [GqlPostSortField.CreatedAt]: 'createdAt',
+  [GqlPostSortField.UpdatedAt]: 'updatedAt',
+  [GqlPostSortField.Subtopic]: 'subtopic',
+};
+
+const gqlToServiceSortDirection: Record<GqlSortDirection, 'asc' | 'desc'> = {
+  [GqlSortDirection.Asc]: 'asc',
+  [GqlSortDirection.Desc]: 'desc',
 };
 
 export const postResolvers = {
@@ -84,6 +99,10 @@ export const postResolvers = {
         subtopic: args.subtopic ?? undefined,
         status: args.status ? gqlToPrismaStatus[args.status] : undefined,
         search: args.search ?? undefined,
+        sortBy: args.sortBy ? gqlToServiceSortField[args.sortBy] : undefined,
+        sortDirection: args.sortDirection
+          ? gqlToServiceSortDirection[args.sortDirection]
+          : undefined,
         mine: args.mine ?? undefined,
         authorId: args.mine ? user.id : undefined,
         limit: args.limit ?? 20,

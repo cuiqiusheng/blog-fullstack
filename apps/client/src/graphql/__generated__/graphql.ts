@@ -119,6 +119,12 @@ export type PostNeighbors = {
   prev?: Maybe<Post>;
 };
 
+export enum PostSortField {
+  CreatedAt = 'CREATED_AT',
+  Subtopic = 'SUBTOPIC',
+  UpdatedAt = 'UPDATED_AT',
+}
+
 export enum PostStatus {
   Archived = 'ARCHIVED',
   Draft = 'DRAFT',
@@ -154,6 +160,8 @@ export type QueryPostsArgs = {
   mine?: InputMaybe<Scalars['Boolean']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<PostSortField>;
+  sortDirection?: InputMaybe<SortDirection>;
   status?: InputMaybe<PostStatus>;
   subtopic?: InputMaybe<Scalars['String']['input']>;
   topic?: InputMaybe<Scalars['String']['input']>;
@@ -173,6 +181,11 @@ export type Role = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
 };
+
+export enum SortDirection {
+  Asc = 'ASC',
+  Desc = 'DESC',
+}
 
 export type User = {
   __typename?: 'User';
@@ -236,6 +249,8 @@ export type PostsQueryVariables = Exact<{
   subtopic?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<PostStatus>;
   search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<PostSortField>;
+  sortDirection?: InputMaybe<SortDirection>;
   mine?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -555,6 +570,16 @@ export const PostsDocument = {
         },
         {
           kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sortBy' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'PostSortField' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sortDirection' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'SortDirection' } },
+        },
+        {
+          kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'mine' } },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
         },
@@ -595,6 +620,16 @@ export const PostsDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'search' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'search' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sortBy' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sortBy' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sortDirection' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sortDirection' } },
               },
               {
                 kind: 'Argument',
