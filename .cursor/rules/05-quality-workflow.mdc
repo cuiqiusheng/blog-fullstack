@@ -1,0 +1,66 @@
+---
+description: Quality, safety, and delivery workflow
+alwaysApply: true
+---
+
+# 05 Quality and Workflow Rules
+
+## Engineering Quality
+
+- Favor small, composable changes with clear intent.
+- Keep naming consistent with existing files and module boundaries.
+- Avoid broad refactors unless requested or necessary to prevent regressions.
+- Prefer explicit code over clever code.
+- Keep functions focused; avoid multi-responsibility blocks.
+- Reuse existing utilities/components before adding new abstractions.
+
+## Code Style Consistency
+
+- Match surrounding code style in the touched module (imports, naming, component/function style, error handling pattern).
+- Avoid introducing a second style in the same module.
+- Do not mix unrelated formatting or rename-only churn in functional PRs.
+
+## Type Safety and Robustness
+
+- Prefer strict types and explicit interfaces for public module boundaries.
+- Avoid `any` unless unavoidable and documented inline.
+- Handle expected failure paths (network, null/undefined, auth, validation) explicitly.
+- Keep user-facing errors actionable and safe (no sensitive leakage).
+
+## Performance and Reusability
+
+- Avoid unnecessary repeated computations and duplicate network calls.
+- Keep render-sensitive code simple; avoid creating expensive objects/functions in hot paths without reason.
+- Extract repeated logic into shared modules only when reused or clearly reusable.
+- Do not prematurely abstract single-use logic.
+
+## Safety Checks
+
+- After meaningful changes, run relevant validation (`build`, `lint`, and/or local targeted checks).
+- If a check cannot be run, explicitly state what was not verified and how to verify it.
+- Do not introduce secret values into tracked files.
+
+## Backward Compatibility
+
+- Preserve existing behavior unless change request explicitly requires behavior changes.
+- For UX-affecting changes, keep route paths and auth flow predictable (unless migration is part of request).
+
+## Monorepo Execution
+
+- Use workspace-aware commands (`pnpm --filter <pkg> ...` or root scripts).
+- Limit blast radius: only change the package(s) required by the task.
+
+## Documentation of Decisions
+
+- For structural or architectural edits, document rationale in change summary.
+- When introducing new pattern/rule, ensure it does not conflict with files under `.cursor/rules/`.
+
+## Output Checklist (for each substantive change)
+
+Before considering the task complete, ensure:
+
+1. Folder/file placement matches architectural layer.
+2. Naming follows project conventions.
+3. i18n / schema / generated-artifact workflows (if involved) are respected.
+4. Build/lint status or verification caveat is reported.
+

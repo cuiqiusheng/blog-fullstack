@@ -1,0 +1,58 @@
+{
+  "common": {
+    "loading": "加载中…",
+    "logout": "退出",
+    "logoutConfirmTitle": "确定要退出登录吗？",
+    "ok": "确定",
+    "cancel": "取消"
+  },
+  "nav": {
+    "home": "首页",
+    "posts": "文章",
+    "userSetting": "用户设置",
+    "ai": "AI"
+  },
+  "auth": {
+    "login": {
+      "title": "登录",
+      "subtitle": "使用邮箱和密码登录",
+      "email": "邮箱",
+      "emailPlaceholder": "your@email.com",
+      "emailRequired": "请输入邮箱",
+      "emailInvalid": "请输入有效邮箱",
+      "password": "密码",
+      "passwordPlaceholder": "密码",
+      "passwordRequired": "请输入密码",
+      "submit": "登录"
+    },
+    "register": {
+      "title": "注册",
+      "subtitle": "创建账号，使用邮箱和密码",
+      "email": "邮箱",
+      "emailPlaceholder": "your@email.com",
+      "emailRequired": "请输入邮箱",
+      "emailInvalid": "请输入有效邮箱",
+      "password": "密码",
+      "passwordPlaceholder": "密码",
+      "passwordRequired": "请输入密码",
+      "confirmPassword": "确认密码",
+      "confirmPasswordPlaceholder": "再次输入密码",
+      "confirmPasswordRequired": "请确认密码",
+      "confirmPasswordMismatch": "两次输入的密码不一致",
+      "submit": "注册"
+    },
+    "noAccount": "没有账号？",
+    "goToRegister": "去注册",
+    "hasAccount": "已有账号？",
+    "goToLogin": "去登录"
+  },
+  "home": {
+    "title": "首页",
+    "welcome": "欢迎回来，这里是首页。"
+  },
+  "placeholders": {
+    "posts": "文章（占位）",
+    "userSetting": "用户设置（占位）",
+    "ai": "AI（占位）"
+  }
+}

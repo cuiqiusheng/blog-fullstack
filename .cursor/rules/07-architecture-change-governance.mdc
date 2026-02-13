@@ -1,0 +1,48 @@
+---
+description: Governance for architecture evolution and explicit user visibility
+alwaysApply: true
+---
+
+# 07 Architecture Change Governance
+
+## Purpose
+
+Architecture is evolvable, but changes must be deliberate, visible, and justified.
+
+## What Counts as an Architecture Change
+
+Any of the following requires governance flow:
+
+- New top-level or layer-level directory convention.
+- Moving modules across layers (e.g., `features` -> `shared`, `service` -> `graphql`).
+- Introducing/removing major stack patterns (state management, styling system, API paradigm).
+- Changing naming conventions or folder taxonomy.
+- Converting app-local code to shared package (`packages/*`) or vice versa.
+
+## Mandatory Proposal Before Implementation
+
+Before applying such change, provide:
+
+1. **Current pain**: specific limitation in current structure.
+2. **Proposal**: what will change and where.
+3. **Alternatives**: at least one alternative + why rejected.
+4. **Benefits**: why this is better (maintainability/readability/performance/delivery speed).
+5. **Cost/Risk**: migration effort, compatibility risk, rollback complexity.
+6. **Impact scope**: folders/files/import paths/scripts/docs/tests affected.
+7. **Rollout plan**: one-step or phased migration.
+
+Then ask for explicit approval. No approval -> no architecture change.
+
+## After Approval
+
+- Execute with minimal safe migration steps.
+- Keep commits/logical changes easy to review.
+- Provide final summary:
+  - what changed,
+  - why this is better than previous architecture,
+  - any follow-up tasks.
+
+## Guardrail
+
+Do not hide architecture edits inside feature work.
+

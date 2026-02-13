@@ -1,14 +1,19 @@
-import { authTypeDefs } from './auth';
+import fs from 'fs';
+import path from 'path';
 
-const rootTypeDefs = `#graphql
-  type Query {
-    hello: String
-    _empty: String
-  }
-  type Mutation {
-    _empty: String
-  }
-`;
+const SCHEMA_DIR = path.join(__dirname, '.');
 
-export const typeDefs = [rootTypeDefs, authTypeDefs];
-export { authTypeDefs } from './auth';
+function loadGraphQL(filename: string): string {
+  const filepath = path.join(SCHEMA_DIR, filename);
+  return fs.readFileSync(filepath, 'utf-8');
+}
+
+/**
+ * Schema SDL loaded from .graphql files (base + domain modules).
+ * Used by Apollo Server and by codegen for type generation.
+ */
+export const typeDefs = [
+  loadGraphQL('base.graphql'),
+  loadGraphQL('auth.graphql'),
+  loadGraphQL('post.graphql'),
+];

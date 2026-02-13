@@ -1,0 +1,9 @@
+# Root types: required for extend-type domains to merge
+type Query {
+  hello: String
+  _empty: String
+}
+
+type Mutation {
+  _empty: String
+}

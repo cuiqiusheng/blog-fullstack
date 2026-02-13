@@ -1,0 +1,32 @@
+---
+description: GraphQL BFF and codegen contract rules
+alwaysApply: true
+---
+
+# 04 GraphQL BFF Contract Rules
+
+## Contract-First Alignment
+
+- Server schema (`apps/server/src/graphql/schema/*.graphql`) is the source of truth for API shape.
+- Client operations (`apps/client/src/graphql/operations/*.graphql`) must align with server schema and auth policy.
+- Keep auth contract consistent (`login`, `register`, `me`, token-based context).
+
+## Codegen Discipline
+
+- Treat generated files as generated (`apps/client/src/graphql/__generated__`, `apps/server/src/graphql/__generated__`).
+- Prefer changing source `.graphql` files + running existing codegen scripts over manual edits in generated files.
+- Keep operation naming explicit and domain-meaningful.
+
+## BFF Layering
+
+- BFF responsibilities: schema orchestration, auth/context handling, resolver delegation.
+- Domain/business rules should live in server `service/`, not be duplicated in client.
+- Keep client-side GraphQL usage typed and document-driven.
+
+## Change Workflow for API Additions
+
+1. Update server schema and resolver logic.
+2. Update/extend client operation documents.
+3. Run codegen for affected workspace(s).
+4. Update UI/use-cases consuming the new contract.
+

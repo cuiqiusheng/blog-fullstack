@@ -1,0 +1,38 @@
+query Me {
+  me {
+    id
+    email
+    roles {
+      id
+      name
+    }
+  }
+}
+
+mutation Login($email: String!, $password: String!) {
+  login(email: $email, password: $password) {
+    token
+    user {
+      id
+      email
+      roles {
+        id
+        name
+      }
+    }
+  }
+}
+
+mutation Register($email: String!, $password: String!) {
+  register(email: $email, password: $password) {
+    token
+    user {
+      id
+      email
+      roles {
+        id
+        name
+      }
+    }
+  }
+}
