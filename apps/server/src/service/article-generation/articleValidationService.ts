@@ -33,6 +33,69 @@ function extractJsonSegment(value: string): string | null {
   return value.slice(first, last + 1);
 }
 
+function extractJsonStringField(source: string, key: string): string | null {
+  const keyToken = `"${key}"`;
+  const keyIndex = source.indexOf(keyToken);
+  if (keyIndex === -1) {
+    return null;
+  }
+
+  const colonIndex = source.indexOf(':', keyIndex + keyToken.length);
+  if (colonIndex === -1) {
+    return null;
+  }
+
+  let i = colonIndex + 1;
+  while (i < source.length && /\s/.test(source[i])) {
+    i += 1;
+  }
+  if (source[i] !== '"') {
+    return null;
+  }
+  i += 1;
+
+  let escaped = false;
+  let raw = '';
+  while (i < source.length) {
+    const ch = source[i];
+    if (escaped) {
+      raw += ch;
+      escaped = false;
+      i += 1;
+      continue;
+    }
+    if (ch === '\\') {
+      raw += ch;
+      escaped = true;
+      i += 1;
+      continue;
+    }
+    if (ch === '"') {
+      try {
+        return JSON.parse(`"${raw}"`) as string;
+      } catch {
+        return null;
+      }
+    }
+    raw += ch;
+    i += 1;
+  }
+
+  return null;
+}
+
+function extractArticleFromJsonLike(value: string): RawGeneratedArticle | null {
+  if (!value.includes('"title"') || !value.includes('"content"')) {
+    return null;
+  }
+  const title = extractJsonStringField(value, 'title');
+  const content = extractJsonStringField(value, 'content');
+  if (!title || !content) {
+    return null;
+  }
+  return { title, content };
+}
+
 function fallbackExtractArticle(value: string): RawGeneratedArticle {
   const lines = value
     .split('\n')
@@ -61,6 +124,11 @@ export function parseArticleFromModelOutput(output: string): RawGeneratedArticle
     }
   }
 
+  const jsonLikeParsed = extractArticleFromJsonLike(cleaned);
+  if (jsonLikeParsed) {
+    return jsonLikeParsed;
+  }
+
   return fallbackExtractArticle(cleaned);
 }
 
@@ -85,8 +153,18 @@ export function validateGeneratedArticle(
   if (!title) {
     throw new Error('Generated article title is empty');
   }
+  if (title === '{') {
+    throw new Error('Generated article title malformed: raw JSON wrapper leaked');
+  }
   if (!content) {
     throw new Error('Generated article content is empty');
+  }
+  if (
+    (content.startsWith('{') || content.startsWith('```')) &&
+    content.includes('"title"') &&
+    content.includes('"content"')
+  ) {
+    throw new Error('Generated article content malformed: raw JSON wrapper leaked');
   }
 
   const wordCount = readableWordCount(content);

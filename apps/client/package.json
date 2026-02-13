@@ -11,6 +11,8 @@
     "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
+    "@blog-fullstack/content-utils": "workspace:*",
+    "@blog-fullstack/markdown-renderer": "workspace:*",
     "@apollo/client": "^4.1.4",
     "@graphql-typed-document-node/core": "^3.2.0",
     "antd": "^6.3.0",

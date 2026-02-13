@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { logger } from '@/utils/logger';
-import { runBatchGeneration, type TopicGenerationPlan } from '@/service/articleGenerationService';
+import { runBatchGeneration, type TopicGenerationPlan } from '@/service';
 
 interface ParsedArgs {
   plans: TopicGenerationPlan[];

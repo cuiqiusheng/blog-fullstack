@@ -2,7 +2,7 @@ import { useMutation } from '@apollo/client/react';
 import { Form, Input, Button, Card, Alert, Typography, Dropdown } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LoginDocument, type LoginMutation } from '@/graphql/__generated__';
+import { LoginDocument, type LoginMutation } from '@/graphql/codegen';
 import { setToken } from '@/lib/auth';
 import { setLocale, type Locale } from '@/lib/i18n';
 import './auth.css';

@@ -13,6 +13,10 @@ function PlaceholderPage({ name }: { name: 'posts' | 'userSetting' | 'ai' }) {
 const LoginPage = lazy(() => import('@/pages/auth').then(m => ({ default: m.LoginPage })));
 const RegisterPage = lazy(() => import('@/pages/auth').then(m => ({ default: m.RegisterPage })));
 const HomePage = lazy(() => import('@/pages/home').then(m => ({ default: m.HomePage })));
+const PostListPage = lazy(() => import('@/pages/posts').then(m => ({ default: m.PostListPage })));
+const PostDetailPage = lazy(() =>
+  import('@/pages/posts').then(m => ({ default: m.PostDetailPage })),
+);
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -81,7 +85,17 @@ export function AppRoutes() {
           element={
             <ProtectedRoute>
               <AppLayout>
-                <PlaceholderPage name="posts" />
+                <PostListPage />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/posts/:id"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <PostDetailPage />
               </AppLayout>
             </ProtectedRoute>
           }

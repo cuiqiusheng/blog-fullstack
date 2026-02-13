@@ -104,6 +104,8 @@ export type Post = {
   generationBatchId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   publishedAt?: Maybe<Scalars['String']['output']>;
+  seriesKey?: Maybe<Scalars['String']['output']>;
+  seriesOrder?: Maybe<Scalars['Int']['output']>;
   source?: Maybe<Scalars['String']['output']>;
   status: PostStatus;
   subtopic?: Maybe<Scalars['String']['output']>;
@@ -111,6 +113,12 @@ export type Post = {
   topic?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['String']['output'];
   wordCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type PostNeighbors = {
+  __typename?: 'PostNeighbors';
+  next?: Maybe<Post>;
+  prev?: Maybe<Post>;
 };
 
 export enum PostStatus {
@@ -125,16 +133,37 @@ export type Query = {
   generationBatch: GenerationBatchReport;
   hello?: Maybe<Scalars['String']['output']>;
   me?: Maybe<User>;
+  post?: Maybe<Post>;
+  postNeighbors: PostNeighbors;
   posts: Array<Post>;
+  postsTotal: Scalars['Int']['output'];
 };
 
 export type QueryGenerationBatchArgs = {
   batchId: Scalars['String']['input'];
 };
 
+export type QueryPostArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type QueryPostNeighborsArgs = {
+  id: Scalars['ID']['input'];
+};
+
 export type QueryPostsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
+  mine?: InputMaybe<Scalars['Boolean']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<PostStatus>;
+  subtopic?: InputMaybe<Scalars['String']['input']>;
+  topic?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type QueryPostsTotalArgs = {
+  mine?: InputMaybe<Scalars['Boolean']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<PostStatus>;
   subtopic?: InputMaybe<Scalars['String']['input']>;
   topic?: InputMaybe<Scalars['String']['input']>;
@@ -252,6 +281,7 @@ export type ResolversTypes = ResolversObject<{
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
   Post: ResolverTypeWrapper<Post>;
+  PostNeighbors: ResolverTypeWrapper<PostNeighbors>;
   PostStatus: PostStatus;
   Query: ResolverTypeWrapper<{}>;
   Role: ResolverTypeWrapper<Role>;
@@ -272,6 +302,7 @@ export type ResolversParentTypes = ResolversObject<{
   Int: Scalars['Int']['output'];
   Mutation: {};
   Post: Post;
+  PostNeighbors: PostNeighbors;
   Query: {};
   Role: Role;
   String: Scalars['String']['output'];
@@ -361,6 +392,8 @@ export type PostResolvers<
   generationBatchId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  seriesKey?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  seriesOrder?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   source?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['PostStatus'], ParentType, ContextType>;
   subtopic?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -368,6 +401,15 @@ export type PostResolvers<
   topic?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   wordCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PostNeighborsResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['PostNeighbors'] = ResolversParentTypes['PostNeighbors'],
+> = ResolversObject<{
+  next?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType>;
+  prev?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -384,7 +426,25 @@ export type QueryResolvers<
   >;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  post?: Resolver<
+    Maybe<ResolversTypes['Post']>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryPostArgs, 'id'>
+  >;
+  postNeighbors?: Resolver<
+    ResolversTypes['PostNeighbors'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryPostNeighborsArgs, 'id'>
+  >;
   posts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryPostsArgs>>;
+  postsTotal?: Resolver<
+    ResolversTypes['Int'],
+    ParentType,
+    ContextType,
+    Partial<QueryPostsTotalArgs>
+  >;
 }>;
 
 export type RoleResolvers<
@@ -413,6 +473,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   GenerationItemResult?: GenerationItemResultResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
+  PostNeighbors?: PostNeighborsResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Role?: RoleResolvers<ContextType>;
   User?: UserResolvers<ContextType>;

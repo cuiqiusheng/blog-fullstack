@@ -50,6 +50,39 @@
     "title": "Home",
     "welcome": "Welcome back. This is the home page."
   },
+  "posts": {
+    "allListTitle": "All Articles",
+    "myListTitle": "My Articles",
+    "empty": "No posts yet",
+    "filter": {
+      "searchPlaceholder": "Search title, content, topic, subtopic",
+      "topic": "Topic",
+      "subtopic": "Subtopic",
+      "status": "Status",
+      "allStatus": "All status"
+    },
+    "status": {
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "meta": {
+      "author": "Author",
+      "createdAt": "Created",
+      "updatedAt": "Updated",
+      "readTime": "Read time",
+      "minuteUnit": "min",
+      "seriesOrder": "Part {{order}}",
+      "totalCount": "Total {{count}} posts"
+    },
+    "detail": {
+      "invalidId": "Invalid post id",
+      "notFound": "Post not found",
+      "backToList": "Back to list",
+      "prev": "Previous",
+      "next": "Next"
+    }
+  },
   "placeholders": {
     "posts": "Posts (placeholder)",
     "userSetting": "User Setting (placeholder)",

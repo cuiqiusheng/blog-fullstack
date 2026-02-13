@@ -1,5 +1,5 @@
 import { startServer } from './app';
-import { startArticleGenerationScheduler } from './service/articleSchedulerService';
+import { startArticleGenerationScheduler } from './service';
 import { logger } from './utils/logger';
 
 const PORT = process.env.PORT || 4000;
