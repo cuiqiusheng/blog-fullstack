@@ -10,7 +10,8 @@ function PlaceholderPage({ name }: { name: 'posts' | 'userSetting' | 'ai' }) {
   return <div style={{ color: 'rgba(0, 0, 0, 0.65)' }}>{t(`placeholders.${name}`)}</div>;
 }
 
-const LoginPage = lazy(() => import('@/pages/login').then(m => ({ default: m.LoginPage })));
+const LoginPage = lazy(() => import('@/pages/auth').then(m => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import('@/pages/auth').then(m => ({ default: m.RegisterPage })));
 const HomePage = lazy(() => import('@/pages/home').then(m => ({ default: m.HomePage })));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -54,6 +55,14 @@ export function AppRoutes() {
           element={
             <PublicOnlyRoute>
               <LoginPage />
+            </PublicOnlyRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicOnlyRoute>
+              <RegisterPage />
             </PublicOnlyRoute>
           }
         />

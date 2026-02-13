@@ -1,11 +1,11 @@
 import { useMutation } from '@apollo/client/react';
 import { Form, Input, Button, Card, Alert, Typography, Dropdown } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LoginDocument, type LoginMutation } from '@/graphql/__generated__';
 import { setToken } from '@/lib/auth';
 import { setLocale, type Locale } from '@/lib/i18n';
-import './login.css';
+import './auth.css';
 
 const { Title, Text } = Typography;
 
@@ -33,8 +33,8 @@ export function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-page__lang">
+    <div className="auth-page">
+      <div className="auth-page__lang">
         <Dropdown
           menu={{
             items: langItems,
@@ -58,17 +58,13 @@ export function LoginPage() {
           </Button>
         </Dropdown>
       </div>
-      <div className="login-page__center">
-        <Card
-          style={{ width: '100%', maxWidth: 400 }}
-          className="login-page__card"
-          bordered={false}
-        >
+      <div className="auth-page__center">
+        <Card style={{ width: '100%', maxWidth: 400 }} className="auth-page__card" bordered={false}>
           <Title level={3} style={{ marginBottom: 8 }}>
-            {t('login.title')}
+            {t('auth.login.title')}
           </Title>
           <Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>
-            {t('login.subtitle')}
+            {t('auth.login.subtitle')}
           </Text>
           {error && (
             <Alert type="error" message={error.message} showIcon style={{ marginBottom: 16 }} />
@@ -76,31 +72,39 @@ export function LoginPage() {
           <Form form={form} layout="vertical" onFinish={onFinish} requiredMark={false}>
             <Form.Item
               name="email"
-              label={t('login.email')}
+              label={t('auth.login.email')}
               rules={[
-                { required: true, message: t('login.emailRequired') },
-                { type: 'email', message: t('login.emailInvalid') },
+                { required: true, message: t('auth.login.emailRequired') },
+                { type: 'email', message: t('auth.login.emailInvalid') },
               ]}
             >
-              <Input placeholder={t('login.emailPlaceholder')} size="large" autoComplete="email" />
+              <Input
+                placeholder={t('auth.login.emailPlaceholder')}
+                size="large"
+                autoComplete="email"
+              />
             </Form.Item>
             <Form.Item
               name="password"
-              label={t('login.password')}
-              rules={[{ required: true, message: t('login.passwordRequired') }]}
+              label={t('auth.login.password')}
+              rules={[{ required: true, message: t('auth.login.passwordRequired') }]}
             >
               <Input.Password
-                placeholder={t('login.passwordPlaceholder')}
+                placeholder={t('auth.login.passwordPlaceholder')}
                 size="large"
                 autoComplete="current-password"
               />
             </Form.Item>
             <Form.Item style={{ marginBottom: 0, marginTop: 24 }}>
               <Button type="primary" htmlType="submit" loading={loading} block size="large">
-                {t('login.submit')}
+                {t('auth.login.submit')}
               </Button>
             </Form.Item>
           </Form>
+          <div className="auth-page__footer">
+            {t('auth.noAccount')}
+            <Link to="/register">{t('auth.goToRegister')}</Link>
+          </div>
         </Card>
       </div>
     </div>

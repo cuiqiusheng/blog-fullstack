@@ -12,17 +12,39 @@
     "userSetting": "User Setting",
     "ai": "AI"
   },
-  "login": {
-    "title": "Login",
-    "subtitle": "Sign in with your email and password",
-    "email": "Email",
-    "emailPlaceholder": "your@email.com",
-    "emailRequired": "Please enter your email",
-    "emailInvalid": "Please enter a valid email",
-    "password": "Password",
-    "passwordPlaceholder": "Password",
-    "passwordRequired": "Please enter your password",
-    "submit": "Sign in"
+  "auth": {
+    "login": {
+      "title": "Login",
+      "subtitle": "Sign in with your email and password",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "emailRequired": "Please enter your email",
+      "emailInvalid": "Please enter a valid email",
+      "password": "Password",
+      "passwordPlaceholder": "Password",
+      "passwordRequired": "Please enter your password",
+      "submit": "Sign in"
+    },
+    "register": {
+      "title": "Register",
+      "subtitle": "Create an account with your email and password",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "emailRequired": "Please enter your email",
+      "emailInvalid": "Please enter a valid email",
+      "password": "Password",
+      "passwordPlaceholder": "Password",
+      "passwordRequired": "Please enter your password",
+      "confirmPassword": "Confirm password",
+      "confirmPasswordPlaceholder": "Enter password again",
+      "confirmPasswordRequired": "Please confirm your password",
+      "confirmPasswordMismatch": "Passwords do not match",
+      "submit": "Register"
+    },
+    "noAccount": "Don't have an account?",
+    "goToRegister": "Register",
+    "hasAccount": "Already have an account?",
+    "goToLogin": "Log in"
   },
   "home": {
     "title": "Home",

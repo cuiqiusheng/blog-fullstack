@@ -1,4 +1,4 @@
-@keyframes login-star-twinkle-1 {
+@keyframes auth-star-twinkle-1 {
   0%,
   100% {
     opacity: 0.2;
@@ -8,7 +8,7 @@
   }
 }
 
-@keyframes login-star-twinkle-2 {
+@keyframes auth-star-twinkle-2 {
   0%,
   100% {
     opacity: 0.6;
@@ -18,7 +18,7 @@
   }
 }
 
-@keyframes login-gradient-shift {
+@keyframes auth-gradient-shift {
   0%,
   100% {
     opacity: 1;
@@ -28,10 +28,10 @@
   }
 }
 
-.login-page {
-  --login-bg-from: #f6faf8;
-  --login-bg-mid: #eef5f1;
-  --login-bg-to: #f2f7f4;
+.auth-page {
+  --auth-bg-from: #f6faf8;
+  --auth-bg-mid: #eef5f1;
+  --auth-bg-to: #f2f7f4;
 
   min-height: 100vh;
   position: relative;
@@ -41,21 +41,21 @@
   padding: 24px;
   background: linear-gradient(
     165deg,
-    var(--login-bg-from) 0%,
-    var(--login-bg-mid) 40%,
-    var(--login-bg-to) 100%
+    var(--auth-bg-from) 0%,
+    var(--auth-bg-mid) 40%,
+    var(--auth-bg-to) 100%
   );
-  animation: login-gradient-shift 12s ease-in-out infinite;
+  animation: auth-gradient-shift 12s ease-in-out infinite;
 }
 
-.login-page__lang {
+.auth-page__lang {
   position: absolute;
   top: 20px;
   right: 24px;
   z-index: 1;
 }
 
-.login-page__center {
+.auth-page__center {
   position: relative;
   z-index: 1;
   width: 100%;
@@ -64,11 +64,11 @@
   justify-content: center;
 }
 
-.login-page__card {
+.auth-page__card {
   box-shadow: 0 8px 32px rgba(107, 171, 144, 0.08);
 }
 
-.login-page::before {
+.auth-page::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -83,10 +83,10 @@
   background-position:
     0 0,
     18px 28px;
-  animation: login-star-twinkle-1 3s ease-in-out infinite;
+  animation: auth-star-twinkle-1 3s ease-in-out infinite;
 }
 
-.login-page::after {
+.auth-page::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -99,6 +99,22 @@
   );
   background-size: 64px 64px;
   background-position: 36px 10px;
-  animation: login-star-twinkle-2 2.6s ease-in-out infinite;
+  animation: auth-star-twinkle-2 2.6s ease-in-out infinite;
   animation-delay: 0.8s;
+}
+
+.auth-page__footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.auth-page__footer a {
+  color: #6bab90;
+  margin-left: 4px;
+}
+
+.auth-page__footer a:hover {
+  color: #5a9a7e;
 }
