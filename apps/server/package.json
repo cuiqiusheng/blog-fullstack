@@ -7,8 +7,9 @@
   "scripts": {
     "dev": "nodemon",
     "build": "tsc && node scripts/copy-graphql-schema.cjs",
-    "codegen": "graphql-codegen --config codegen.ts",
+    "codegen": "graphql-codegen --config codegen.ts --concurrency 1",
     "start": "node -r tsconfig-paths/register dist/server.js",
+    "batch:generate": "ts-node -r tsconfig-paths/register src/cli/batchGenerate.ts",
     "prisma:init": "prisma init",
     "prisma:format": "prisma format",
     "prisma:migrate": "prisma migrate dev",

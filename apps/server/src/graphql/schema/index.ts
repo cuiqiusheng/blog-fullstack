@@ -12,4 +12,8 @@ function loadGraphQL(filename: string): string {
  * Schema SDL loaded from .graphql files (base + domain modules).
  * Used by Apollo Server and by codegen for type generation.
  */
-export const typeDefs = [loadGraphQL('base.graphql'), loadGraphQL('auth.graphql')];
+export const typeDefs = [
+  loadGraphQL('base.graphql'),
+  loadGraphQL('auth.graphql'),
+  loadGraphQL('post.graphql'),
+];

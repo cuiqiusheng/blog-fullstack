@@ -1,10 +1,12 @@
 import { startServer } from './app';
+import { startArticleGenerationScheduler } from './service/articleSchedulerService';
 import { logger } from './utils/logger';
 
 const PORT = process.env.PORT || 4000;
 
 async function bootstrap() {
   const httpServer = await startServer();
+  const stopScheduler = startArticleGenerationScheduler();
 
   httpServer.listen(PORT, () => {
     logger.info({
@@ -15,6 +17,17 @@ async function bootstrap() {
       env: process.env.NODE_ENV,
     });
   });
+
+  const shutdown = () => {
+    stopScheduler();
+    httpServer.close(() => {
+      logger.info({ msg: 'Server stopped gracefully' });
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 }
 
 bootstrap().catch(err => {

@@ -1,0 +1,47 @@
+---
+description: Client app rules (apps/client)
+globs:
+  - apps/client/**
+---
+
+# 02 Client Rules
+
+## Stack and Entry
+
+- Stack: React + TypeScript + Vite + Apollo Client + antd + i18next.
+- Entry flow is `src/main.tsx` with `BrowserRouter` + `ApolloProvider` + app root.
+- App shell and routes live in `src/app/`.
+
+## Directory Conventions
+
+- `src/app/`: app-level composition (`App.tsx`, `routes.tsx`, `theme.ts`).
+- `src/features/`: feature modules (e.g., layout), each with explicit exports.
+- `src/pages/`: route pages (current auth pages under `pages/auth`, home under `pages/home`).
+- `src/lib/`: infrastructure adapters (apollo, auth token helpers, i18n setup).
+- `src/shared/`: reusable hooks/utilities across features.
+- `src/graphql/operations`: authored GraphQL operations.
+- `src/graphql/__generated__`: generated artifacts (do not manually hand-edit generated files).
+- `src/locales`: i18n dictionaries (`zh-CN.json`, `en.json`).
+
+## Frontend Implementation Rules
+
+- Use path alias `@/` (configured in Vite/TS).
+- Keep route guards and routing policy centralized in `src/app/routes.tsx`.
+- For auth UX, keep login/register consistency under `pages/auth`.
+- Reuse antd theme tokens through existing `ConfigProvider` setup.
+- For static modal/message/notification APIs, prefer context-aware usage via antd `App.useApp()` within provider scope.
+- New folders/files and naming must follow `06-naming-and-placement.mdc`.
+- Structural adjustments must follow `07-architecture-change-governance.mdc`.
+
+## Styling Rules
+
+- Current styling baseline: antd + component/page CSS + targeted inline style.
+- Do not introduce Tailwind unless explicitly requested as an architecture change.
+- Keep page-scoped visual effects in page-local CSS (e.g., `auth.css`) and avoid leaking global selectors.
+
+## i18n Rules
+
+- Any new user-visible text must be added to both locale files.
+- Keep key namespaces coherent (`common`, `nav`, `auth`, `home`, ...).
+- Do not hardcode UI strings when translation keys already exist.
+

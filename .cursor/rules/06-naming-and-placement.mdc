@@ -1,0 +1,58 @@
+---
+description: Naming conventions and folder/file placement decision rules
+alwaysApply: true
+---
+
+# 06 Naming and Placement Rules
+
+## Placement Decision Tree (must follow)
+
+When adding new code, choose location in this order:
+
+1. **Is this app-specific?**
+   - Frontend only -> `apps/client`
+   - Backend only -> `apps/server`
+2. **Is this reused by both apps (or expected to be)?**
+   - Yes -> `packages/*` (shared package), only with clear reuse evidence.
+3. **Client placement inside `apps/client/src`:**
+   - Route-level UI -> `pages/<domain>/`
+   - Business feature UI/logic reused by multiple pages -> `features/<domain>/`
+   - Cross-feature generic logic/hooks -> `shared/`
+   - Infra adapters (api, auth, i18n, apollo, storage) -> `lib/`
+   - App composition/routing/theme -> `app/`
+4. **Server placement inside `apps/server/src`:**
+   - GraphQL schema definitions -> `graphql/schema/`
+   - GraphQL resolver wiring -> `graphql/resolvers/`
+   - Domain business logic -> `service/`
+   - Middleware/cross-cutting concerns -> `middleware/`
+   - Infra adapters -> `lib/`
+   - Utilities -> `utils/`
+   - Shared TS contracts -> `types/`
+
+If no branch clearly fits, pause and ask for architectural clarification.
+
+## Naming Conventions
+
+- Folders: `kebab-case` (e.g., `user-setting`, `auth-flow`).
+- React component files: `PascalCase.tsx` for component-centric files (e.g., `LoginPage.tsx`).
+- Non-component TS files: `camelCase.ts` unless domain convention demands otherwise.
+- Export barrel files: `index.ts` only for stable public exports.
+- Hooks: `useXxx.ts` in relevant layer.
+- Styles:
+  - Page-scoped stylesheet colocated with page domain (e.g., `pages/auth/auth.css`).
+  - Avoid broad global selectors unless truly global.
+
+## File Creation Rules
+
+- Do not create new top-level folders without architecture-change flow (see `07-architecture-change-governance.mdc`).
+- Prefer colocating files with their primary usage.
+- Avoid speculative folders/files for future use.
+- Keep naming semantically aligned with domain intent, not implementation detail.
+
+## Refactor and Move Rules
+
+- When moving files for better layering:
+  - update imports atomically;
+  - keep behavior unchanged unless explicitly requested;
+  - summarize migration impact.
+

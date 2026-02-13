@@ -1,0 +1,46 @@
+---
+description: Server app rules (apps/server)
+globs:
+  - apps/server/**
+---
+
+# 03 Server Rules
+
+## Stack and Runtime
+
+- Stack: Node.js + Express + Apollo Server + GraphQL + Prisma + PostgreSQL.
+- Boot sequence:
+  - `src/server.ts` starts process and logging.
+  - `src/app.ts` configures Express middleware, health endpoint, and GraphQL handler.
+
+## Directory Conventions
+
+- `src/graphql/schema/`: SDL files (`base.graphql`, domain schema files).
+- `src/graphql/resolvers/`: resolver composition and domain resolvers.
+- `src/service/`: business logic.
+- `src/middleware/`: auth, request logging, cross-cutting concerns.
+- `src/lib/`: infrastructure clients/adapters (e.g., Prisma wiring).
+- `src/utils/`: utility functions (jwt, encrypt, logger, permissions).
+- `src/types/`: shared backend TypeScript types (e.g., GraphQL context).
+- `prisma/`: datasource schema and migrations.
+
+## Backend Implementation Rules
+
+- Keep GraphQL context creation centralized (auth and request context in middleware/context layer).
+- Resolver layer should stay thin; push non-trivial logic into `service/`.
+- Preserve middleware order in Express unless there is a justified reason to change.
+- Keep `/health` lightweight and side-effect free.
+- New folders/files and naming must follow `06-naming-and-placement.mdc`.
+- Structural adjustments must follow `07-architecture-change-governance.mdc`.
+
+## Prisma/Data Rules
+
+- Update `prisma/schema.prisma` and migrations together for model changes.
+- Do not hand-edit generated Prisma client output paths unless architecture explicitly changes.
+- Prefer explicit relation and constraint handling consistent with current schema style.
+
+## Operational Rules
+
+- Respect environment-based introspection behavior (`NODE_ENV` controls GraphQL introspection).
+- Maintain structured logging through existing logger utilities.
+

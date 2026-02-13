@@ -1,0 +1,65 @@
+---
+description: Monorepo architecture baseline (must-follow)
+alwaysApply: true
+---
+
+# 01 Architecture Baseline
+
+## Core Principle
+
+Every change must be implemented on top of the **current repo architecture**, not by introducing a new architecture.
+
+If a requirement conflicts with existing architecture, explain trade-offs first and then apply the smallest viable structural change.
+
+## Ultimate Objective Alignment
+
+All work must optimize for:
+
+1. New folders are created in the correct layer with best-practice naming.
+2. New files are placed in the correct location with sensible naming.
+3. New code stays consistent with repository style and best practices (readability, robustness, reusability, performance).
+4. Architecture can evolve, but any architecture change must be visible to the user with clear rationale and explicit approval.
+
+## Repository Shape (authoritative)
+
+- Package manager: `pnpm` monorepo (`pnpm-workspace.yaml`).
+- Workspaces:
+  - `apps/client` (React + Vite + Apollo + antd + i18n)
+  - `apps/server` (Node.js + Express + Apollo GraphQL BFF + Prisma)
+  - `packages/*` reserved for shared packages.
+- Root orchestration uses workspace scripts (`pnpm -r`, `pnpm --filter`).
+
+## Architectural Boundaries
+
+- Do not mix frontend and backend concerns in one app.
+- Keep app-specific code inside `apps/client` or `apps/server`.
+- Add shared logic to `packages/*` only when actually reused cross-app.
+- Avoid ad-hoc folder creation that bypasses current layering.
+
+## Architecture Change Gate (must-follow)
+
+Before any structural change (new top-level folder, layer reclassification, moving module boundaries, changing conventions), the assistant must:
+
+1. Explain **why current structure is insufficient**.
+2. Provide at least one **alternative** and why it was rejected.
+3. Describe **impact scope** (files, routes, imports, build/tooling, migration steps).
+4. Ask for explicit user confirmation before implementing.
+
+Without explicit confirmation, default to the current architecture.
+
+## Mandatory Change Strategy
+
+1. Confirm target layer and package before coding.
+2. Follow existing naming conventions and module boundaries.
+3. Prefer extending current patterns over introducing parallel patterns.
+4. Keep changes minimal and cohesive; avoid unrelated refactors.
+5. Validate affected app(s) build/lint after substantive edits.
+6. For new folder/file placement and naming, follow `06-naming-and-placement.mdc`.
+7. For architecture evolution decisions, follow `07-architecture-change-governance.mdc`.
+
+## Dependency and Tooling Rules
+
+- Add dependencies to the correct workspace package, not root unless truly global tooling.
+- Use `pnpm` commands and existing scripts (`dev`, `build`, `codegen`, `lint`).
+- Keep generated artifacts aligned with existing generation flow (GraphQL codegen, Prisma generate/migrate).
+

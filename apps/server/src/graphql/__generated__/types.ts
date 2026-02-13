@@ -27,11 +27,58 @@ export type AuthPayload = {
   user: User;
 };
 
+export type GeneratePostsInput = {
+  autoPublish?: InputMaybe<Scalars['Boolean']['input']>;
+  concurrency?: InputMaybe<Scalars['Int']['input']>;
+  countPerSubtopic?: InputMaybe<Scalars['Int']['input']>;
+  maxRetries?: InputMaybe<Scalars['Int']['input']>;
+  maxWords?: InputMaybe<Scalars['Int']['input']>;
+  minWords?: InputMaybe<Scalars['Int']['input']>;
+  plans: Array<GenerationPlanInput>;
+  temperature?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type GenerationBatchReport = {
+  __typename?: 'GenerationBatchReport';
+  batchId: Scalars['String']['output'];
+  failed: Scalars['Int']['output'];
+  finishedAt: Scalars['String']['output'];
+  requested: Scalars['Int']['output'];
+  results: Array<GenerationItemResult>;
+  skipped: Scalars['Int']['output'];
+  startedAt: Scalars['String']['output'];
+  success: Scalars['Int']['output'];
+};
+
+export type GenerationItemResult = {
+  __typename?: 'GenerationItemResult';
+  error?: Maybe<Scalars['String']['output']>;
+  postId?: Maybe<Scalars['ID']['output']>;
+  retryCount: Scalars['Int']['output'];
+  skipped: Scalars['Boolean']['output'];
+  subtopic: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+  title?: Maybe<Scalars['String']['output']>;
+  topic: Scalars['String']['output'];
+  wordCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type GenerationPlanInput = {
+  subtopics: Array<Scalars['String']['input']>;
+  topic: Scalars['String']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
+  generatePosts: GenerationBatchReport;
   login: AuthPayload;
   register: AuthPayload;
+  retryGenerationBatch: GenerationBatchReport;
+};
+
+export type MutationGeneratePostsArgs = {
+  input: GeneratePostsInput;
 };
 
 export type MutationLoginArgs = {
@@ -44,11 +91,53 @@ export type MutationRegisterArgs = {
   password: Scalars['String']['input'];
 };
 
+export type MutationRetryGenerationBatchArgs = {
+  batchId: Scalars['String']['input'];
+  countPerSubtopic?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type Post = {
+  __typename?: 'Post';
+  author: User;
+  content: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  generationBatchId?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  publishedAt?: Maybe<Scalars['String']['output']>;
+  source?: Maybe<Scalars['String']['output']>;
+  status: PostStatus;
+  subtopic?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  topic?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['String']['output'];
+  wordCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export enum PostStatus {
+  Archived = 'ARCHIVED',
+  Draft = 'DRAFT',
+  Published = 'PUBLISHED',
+}
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
+  generationBatch: GenerationBatchReport;
   hello?: Maybe<Scalars['String']['output']>;
   me?: Maybe<User>;
+  posts: Array<Post>;
+};
+
+export type QueryGenerationBatchArgs = {
+  batchId: Scalars['String']['input'];
+};
+
+export type QueryPostsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  status?: InputMaybe<PostStatus>;
+  subtopic?: InputMaybe<Scalars['String']['input']>;
+  topic?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Role = {
@@ -154,8 +243,16 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = ResolversObject<{
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
+  GeneratePostsInput: GeneratePostsInput;
+  GenerationBatchReport: ResolverTypeWrapper<GenerationBatchReport>;
+  GenerationItemResult: ResolverTypeWrapper<GenerationItemResult>;
+  GenerationPlanInput: GenerationPlanInput;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
+  Post: ResolverTypeWrapper<Post>;
+  PostStatus: PostStatus;
   Query: ResolverTypeWrapper<{}>;
   Role: ResolverTypeWrapper<Role>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
@@ -166,8 +263,15 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   AuthPayload: AuthPayload;
   Boolean: Scalars['Boolean']['output'];
+  Float: Scalars['Float']['output'];
+  GeneratePostsInput: GeneratePostsInput;
+  GenerationBatchReport: GenerationBatchReport;
+  GenerationItemResult: GenerationItemResult;
+  GenerationPlanInput: GenerationPlanInput;
   ID: Scalars['ID']['output'];
+  Int: Scalars['Int']['output'];
   Mutation: {};
+  Post: Post;
   Query: {};
   Role: Role;
   String: Scalars['String']['output'];
@@ -183,11 +287,50 @@ export type AuthPayloadResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type GenerationBatchReportResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['GenerationBatchReport'] =
+    ResolversParentTypes['GenerationBatchReport'],
+> = ResolversObject<{
+  batchId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  failed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  finishedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  requested?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  results?: Resolver<Array<ResolversTypes['GenerationItemResult']>, ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  startedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type GenerationItemResultResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['GenerationItemResult'] =
+    ResolversParentTypes['GenerationItemResult'],
+> = ResolversObject<{
+  error?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  postId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  retryCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  subtopic?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  topic?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  wordCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MutationResolvers<
   ContextType = GraphQLContext,
   ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation'],
 > = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  generatePosts?: Resolver<
+    ResolversTypes['GenerationBatchReport'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationGeneratePostsArgs, 'input'>
+  >;
   login?: Resolver<
     ResolversTypes['AuthPayload'],
     ParentType,
@@ -200,6 +343,32 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationRegisterArgs, 'email' | 'password'>
   >;
+  retryGenerationBatch?: Resolver<
+    ResolversTypes['GenerationBatchReport'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationRetryGenerationBatchArgs, 'batchId'>
+  >;
+}>;
+
+export type PostResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post'],
+> = ResolversObject<{
+  author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  generationBatchId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  publishedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  source?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['PostStatus'], ParentType, ContextType>;
+  subtopic?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  topic?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  wordCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type QueryResolvers<
@@ -207,8 +376,15 @@ export type QueryResolvers<
   ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query'],
 > = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  generationBatch?: Resolver<
+    ResolversTypes['GenerationBatchReport'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryGenerationBatchArgs, 'batchId'>
+  >;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  posts?: Resolver<Array<ResolversTypes['Post']>, ParentType, ContextType, Partial<QueryPostsArgs>>;
 }>;
 
 export type RoleResolvers<
@@ -233,7 +409,10 @@ export type UserResolvers<
 
 export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   AuthPayload?: AuthPayloadResolvers<ContextType>;
+  GenerationBatchReport?: GenerationBatchReportResolvers<ContextType>;
+  GenerationItemResult?: GenerationItemResultResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  Post?: PostResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Role?: RoleResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
