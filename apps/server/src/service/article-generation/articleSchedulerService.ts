@@ -1,5 +1,6 @@
 import { logger } from '@/utils/logger';
-import { runBatchGeneration, type TopicGenerationPlan } from './articleGenerationService';
+import { runBatchGeneration } from './articleBatchService';
+import type { TopicGenerationPlan } from './article-generation.types';
 
 function parsePlans(input: string): TopicGenerationPlan[] {
   // format: react:fiber|hooks;webpack:loader|tree-shaking

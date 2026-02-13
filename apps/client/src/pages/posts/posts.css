@@ -1,0 +1,56 @@
+.post-detail {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.post-detail__header {
+  margin-bottom: 16px;
+}
+
+.post-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.post-markdown {
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.post-markdown h1,
+.post-markdown h2,
+.post-markdown h3,
+.post-markdown h4 {
+  margin-top: 24px;
+  margin-bottom: 12px;
+  line-height: 1.35;
+}
+
+.post-markdown p {
+  margin: 12px 0;
+}
+
+.post-markdown ul,
+.post-markdown ol {
+  padding-left: 24px;
+}
+
+.post-markdown code {
+  background: rgba(107, 171, 144, 0.08);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.post-markdown pre code {
+  display: block;
+  padding: 12px;
+  overflow-x: auto;
+}
+
+.post-detail__nav {
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}

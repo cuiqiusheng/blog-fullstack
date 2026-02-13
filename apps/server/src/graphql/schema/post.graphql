@@ -10,6 +10,8 @@ type Post {
   content: String!
   topic: String
   subtopic: String
+  seriesKey: String
+  seriesOrder: Int
   status: PostStatus!
   publishedAt: String
   source: String
@@ -18,6 +20,11 @@ type Post {
   createdAt: String!
   updatedAt: String!
   author: User!
+}
+
+type PostNeighbors {
+  prev: Post
+  next: Post
 }
 
 type GenerationItemResult {
@@ -60,7 +67,24 @@ input GeneratePostsInput {
 }
 
 extend type Query {
-  posts(topic: String, subtopic: String, status: PostStatus, limit: Int, offset: Int): [Post!]!
+  post(id: ID!): Post
+  postNeighbors(id: ID!): PostNeighbors!
+  posts(
+    topic: String
+    subtopic: String
+    status: PostStatus
+    search: String
+    mine: Boolean
+    limit: Int
+    offset: Int
+  ): [Post!]!
+  postsTotal(
+    topic: String
+    subtopic: String
+    status: PostStatus
+    search: String
+    mine: Boolean
+  ): Int!
   generationBatch(batchId: String!): GenerationBatchReport!
 }
 

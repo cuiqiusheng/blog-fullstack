@@ -17,6 +17,9 @@ export function AppLayout({ children }: AppLayoutProps) {
           padding: '0 24px',
           background: '#fff',
           borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
         }}
       >
         <Nav />

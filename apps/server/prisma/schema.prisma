@@ -69,6 +69,8 @@ model Post {
   content           String
   topic             String?
   subtopic          String?
+  seriesKey         String?
+  seriesOrder       Int?
   status            PostStatus @default(PUBLISHED)
   publishedAt       DateTime?
   source            String?
@@ -84,6 +86,7 @@ model Post {
   author   User   @relation(fields: [authorId], references: [id], onDelete: Restrict)
 
   @@index([topic, subtopic, status])
+  @@index([seriesKey, seriesOrder])
   @@index([generationBatchId])
   @@map("posts")
 }

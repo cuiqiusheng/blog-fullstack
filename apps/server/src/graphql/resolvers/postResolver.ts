@@ -1,18 +1,24 @@
 import { PostStatus as PrismaPostStatus } from '@/generated/prisma/client';
 import {
-  getGenerationBatchReport,
-  listPosts,
-  retryGenerationBatch,
   runBatchGeneration,
+  getGenerationBatchReport,
+  retryGenerationBatch,
+  countPosts,
+  getPostById,
+  getPostNeighbors,
+  listPosts,
   type TopicGenerationPlan,
-} from '@/service/articleGenerationService';
+} from '@/service';
 import { PostStatus as GqlPostStatus } from '../__generated__/types';
 import type {
   GeneratePostsInput,
   MutationGeneratePostsArgs,
   MutationRetryGenerationBatchArgs,
+  QueryPostArgs,
   QueryGenerationBatchArgs,
+  QueryPostNeighborsArgs,
   QueryPostsArgs,
+  QueryPostsTotalArgs,
 } from '../__generated__/types';
 import type { GraphQLContext } from '@/types/context';
 import { requireAuth } from '@/utils/permissions';
@@ -38,22 +44,71 @@ const prismaToGqlStatus: Record<PrismaPostStatus, GqlPostStatus> = {
 
 export const postResolvers = {
   Query: {
-    posts: async (_: unknown, args: QueryPostsArgs, context: GraphQLContext) => {
+    post: async (_: unknown, args: QueryPostArgs, context: GraphQLContext) => {
       requireAuth(context);
+      const row = await getPostById(args.id);
+      if (!row) {
+        return null;
+      }
+      return {
+        ...row,
+        status: prismaToGqlStatus[row.status],
+        seriesKey: row.seriesKey,
+        seriesOrder: row.seriesOrder,
+        createdAt: row.createdAt.toISOString(),
+        updatedAt: row.updatedAt.toISOString(),
+        publishedAt: row.publishedAt ? row.publishedAt.toISOString() : null,
+      };
+    },
+    postNeighbors: async (_: unknown, args: QueryPostNeighborsArgs, context: GraphQLContext) => {
+      requireAuth(context);
+      const neighbors = await getPostNeighbors(args.id);
+      const mapPost = (post: NonNullable<typeof neighbors.prev>) => ({
+        ...post,
+        status: prismaToGqlStatus[post.status],
+        seriesKey: post.seriesKey,
+        seriesOrder: post.seriesOrder,
+        createdAt: post.createdAt.toISOString(),
+        updatedAt: post.updatedAt.toISOString(),
+        publishedAt: post.publishedAt ? post.publishedAt.toISOString() : null,
+      });
+      return {
+        prev: neighbors.prev ? mapPost(neighbors.prev) : null,
+        next: neighbors.next ? mapPost(neighbors.next) : null,
+      };
+    },
+    posts: async (_: unknown, args: QueryPostsArgs, context: GraphQLContext) => {
+      const user = requireAuth(context);
       const rows = await listPosts({
         topic: args.topic ?? undefined,
         subtopic: args.subtopic ?? undefined,
         status: args.status ? gqlToPrismaStatus[args.status] : undefined,
+        search: args.search ?? undefined,
+        mine: args.mine ?? undefined,
+        authorId: args.mine ? user.id : undefined,
         limit: args.limit ?? 20,
         offset: args.offset ?? 0,
       });
       return rows.map(post => ({
         ...post,
         status: prismaToGqlStatus[post.status],
+        seriesKey: post.seriesKey,
+        seriesOrder: post.seriesOrder,
         createdAt: post.createdAt.toISOString(),
         updatedAt: post.updatedAt.toISOString(),
         publishedAt: post.publishedAt ? post.publishedAt.toISOString() : null,
       }));
+    },
+    postsTotal: async (_: unknown, args: QueryPostsTotalArgs, context: GraphQLContext) => {
+      const user = requireAuth(context);
+      return countPosts({
+        topic: args.topic ?? undefined,
+        subtopic: args.subtopic ?? undefined,
+        status: args.status ? gqlToPrismaStatus[args.status] : undefined,
+        search: args.search ?? undefined,
+        mine: args.mine ?? undefined,
+        authorId: args.mine ? user.id : undefined,
+      });
     },
     generationBatch: async (
       _: unknown,

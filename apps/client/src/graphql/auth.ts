@@ -12,4 +12,4 @@ export {
   type LoginMutationVariables,
   type RegisterMutation,
   type RegisterMutationVariables,
-} from './__generated__';
+} from './codegen';

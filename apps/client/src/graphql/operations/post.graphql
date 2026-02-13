@@ -1,0 +1,97 @@
+query Posts(
+  $topic: String
+  $subtopic: String
+  $status: PostStatus
+  $search: String
+  $mine: Boolean
+  $limit: Int
+  $offset: Int
+) {
+  posts(
+    topic: $topic
+    subtopic: $subtopic
+    status: $status
+    search: $search
+    mine: $mine
+    limit: $limit
+    offset: $offset
+  ) {
+    id
+    title
+    content
+    topic
+    subtopic
+    seriesKey
+    seriesOrder
+    status
+    publishedAt
+    source
+    wordCount
+    generationBatchId
+    createdAt
+    updatedAt
+    author {
+      id
+      email
+      roles {
+        id
+        name
+      }
+    }
+  }
+}
+
+query PostsTotal(
+  $topic: String
+  $subtopic: String
+  $status: PostStatus
+  $search: String
+  $mine: Boolean
+) {
+  postsTotal(topic: $topic, subtopic: $subtopic, status: $status, search: $search, mine: $mine)
+}
+
+query Post($id: ID!) {
+  post(id: $id) {
+    id
+    title
+    content
+    topic
+    subtopic
+    seriesKey
+    seriesOrder
+    status
+    publishedAt
+    source
+    wordCount
+    generationBatchId
+    createdAt
+    updatedAt
+    author {
+      id
+      email
+      roles {
+        id
+        name
+      }
+    }
+  }
+}
+
+query PostNeighbors($id: ID!) {
+  postNeighbors(id: $id) {
+    prev {
+      id
+      title
+      seriesKey
+      seriesOrder
+    }
+    next {
+      id
+      title
+      seriesKey
+      seriesOrder
+    }
+  }
+}
+
