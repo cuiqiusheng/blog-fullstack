@@ -4,6 +4,17 @@ enum PostStatus {
   ARCHIVED
 }
 
+enum PostSortField {
+  CREATED_AT
+  UPDATED_AT
+  SUBTOPIC
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
 type Post {
   id: ID!
   title: String!
@@ -74,6 +85,8 @@ extend type Query {
     subtopic: String
     status: PostStatus
     search: String
+    sortBy: PostSortField
+    sortDirection: SortDirection
     mine: Boolean
     limit: Int
     offset: Int

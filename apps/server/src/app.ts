@@ -4,11 +4,23 @@ import dotenv from 'dotenv';
 import { ApolloServer, HeaderMap } from '@apollo/server';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import http from 'http';
-import { createAuthContext } from './middleware/auth';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { WebSocketServer } from 'ws';
+import { createAuthContext, createAuthContextFromAuthorizationHeader } from './middleware/auth';
 import { requestLogger } from './middleware/requestLogger';
 import type { GraphQLContext } from './types/context';
 import { typeDefs } from './graphql/schema';
 import { resolvers } from './graphql/resolvers';
+
+const { useServer } = require('graphql-ws/use/ws') as {
+  useServer: (
+    _options: {
+      schema: ReturnType<typeof makeExecutableSchema>;
+      context: (_ctx: { connectionParams?: Record<string, unknown> }) => Promise<unknown>;
+    },
+    _wsServer: WebSocketServer,
+  ) => { dispose: () => Promise<void> };
+};
 
 dotenv.config();
 
@@ -30,12 +42,38 @@ app.get('/health', (_, res) => {
 
 export async function startServer() {
   const httpServer = http.createServer(app);
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: '/graphql',
+  });
+  const serverCleanup = useServer(
+    {
+      schema,
+      context: async (ctx: { connectionParams?: Record<string, unknown> }) => {
+        const rawAuthorization = ctx.connectionParams?.authorization;
+        const authorization = typeof rawAuthorization === 'string' ? rawAuthorization : undefined;
+        return createAuthContextFromAuthorizationHeader(authorization);
+      },
+    },
+    wsServer,
+  );
 
   const apolloServer = new ApolloServer<GraphQLContext>({
-    typeDefs,
-    resolvers,
+    schema,
     introspection: process.env.NODE_ENV !== 'production',
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    ],
   });
 
   await apolloServer.start();

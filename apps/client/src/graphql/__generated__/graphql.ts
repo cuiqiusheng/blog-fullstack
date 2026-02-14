@@ -19,11 +19,39 @@ export type Scalars = {
   Float: { input: number; output: number };
 };
 
+export type AiChatStreamEvent = {
+  __typename?: 'AiChatStreamEvent';
+  chunk: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  done: Scalars['Boolean']['output'];
+  error?: Maybe<Scalars['String']['output']>;
+  model: Scalars['String']['output'];
+  seq: Scalars['Int']['output'];
+};
+
 export type AuthPayload = {
   __typename?: 'AuthPayload';
   token: Scalars['String']['output'];
   user: User;
 };
+
+export type ChatMessageInput = {
+  content: Scalars['String']['input'];
+  role: ChatRole;
+};
+
+export type ChatResponse = {
+  __typename?: 'ChatResponse';
+  createdAt: Scalars['String']['output'];
+  model: Scalars['String']['output'];
+  reply: Scalars['String']['output'];
+};
+
+export enum ChatRole {
+  Assistant = 'ASSISTANT',
+  System = 'SYSTEM',
+  User = 'USER',
+}
 
 export type GeneratePostsInput = {
   autoPublish?: InputMaybe<Scalars['Boolean']['input']>;
@@ -69,10 +97,17 @@ export type GenerationPlanInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
+  aiChat: ChatResponse;
   generatePosts: GenerationBatchReport;
   login: AuthPayload;
   register: AuthPayload;
   retryGenerationBatch: GenerationBatchReport;
+};
+
+export type MutationAiChatArgs = {
+  messages: Array<ChatMessageInput>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  temperature?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type MutationGeneratePostsArgs = {
@@ -119,6 +154,12 @@ export type PostNeighbors = {
   prev?: Maybe<Post>;
 };
 
+export enum PostSortField {
+  CreatedAt = 'CREATED_AT',
+  Subtopic = 'SUBTOPIC',
+  UpdatedAt = 'UPDATED_AT',
+}
+
 export enum PostStatus {
   Archived = 'ARCHIVED',
   Draft = 'DRAFT',
@@ -154,6 +195,8 @@ export type QueryPostsArgs = {
   mine?: InputMaybe<Scalars['Boolean']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<PostSortField>;
+  sortDirection?: InputMaybe<SortDirection>;
   status?: InputMaybe<PostStatus>;
   subtopic?: InputMaybe<Scalars['String']['input']>;
   topic?: InputMaybe<Scalars['String']['input']>;
@@ -174,11 +217,58 @@ export type Role = {
   name: Scalars['String']['output'];
 };
 
+export enum SortDirection {
+  Asc = 'ASC',
+  Desc = 'DESC',
+}
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  _empty?: Maybe<Scalars['String']['output']>;
+  aiChatStream: AiChatStreamEvent;
+};
+
+export type SubscriptionAiChatStreamArgs = {
+  messages: Array<ChatMessageInput>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  temperature?: InputMaybe<Scalars['Float']['input']>;
+};
+
 export type User = {
   __typename?: 'User';
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   roles: Array<Role>;
+};
+
+export type AiChatMutationVariables = Exact<{
+  messages: Array<ChatMessageInput> | ChatMessageInput;
+  model?: InputMaybe<Scalars['String']['input']>;
+  temperature?: InputMaybe<Scalars['Float']['input']>;
+}>;
+
+export type AiChatMutation = {
+  __typename?: 'Mutation';
+  aiChat: { __typename?: 'ChatResponse'; reply: string; model: string; createdAt: string };
+};
+
+export type AiChatStreamSubscriptionVariables = Exact<{
+  messages: Array<ChatMessageInput> | ChatMessageInput;
+  model?: InputMaybe<Scalars['String']['input']>;
+  temperature?: InputMaybe<Scalars['Float']['input']>;
+}>;
+
+export type AiChatStreamSubscription = {
+  __typename?: 'Subscription';
+  aiChatStream: {
+    __typename?: 'AiChatStreamEvent';
+    seq: number;
+    chunk: string;
+    done: boolean;
+    model: string;
+    createdAt: string;
+    error?: string | null;
+  };
 };
 
 export type MeQueryVariables = Exact<{ [key: string]: never }>;
@@ -236,6 +326,8 @@ export type PostsQueryVariables = Exact<{
   subtopic?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<PostStatus>;
   search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<PostSortField>;
+  sortDirection?: InputMaybe<SortDirection>;
   mine?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -334,6 +426,149 @@ export type PostNeighborsQuery = {
   };
 };
 
+export const AiChatDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'AiChat' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'messages' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'ListType',
+              type: {
+                kind: 'NonNullType',
+                type: { kind: 'NamedType', name: { kind: 'Name', value: 'ChatMessageInput' } },
+              },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'model' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'temperature' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Float' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiChat' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'messages' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'messages' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'model' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'model' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'temperature' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'temperature' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'reply' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiChatMutation, AiChatMutationVariables>;
+export const AiChatStreamDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'subscription',
+      name: { kind: 'Name', value: 'AiChatStream' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'messages' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'ListType',
+              type: {
+                kind: 'NonNullType',
+                type: { kind: 'NamedType', name: { kind: 'Name', value: 'ChatMessageInput' } },
+              },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'model' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'temperature' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Float' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiChatStream' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'messages' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'messages' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'model' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'model' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'temperature' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'temperature' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'seq' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunk' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'done' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiChatStreamSubscription, AiChatStreamSubscriptionVariables>;
 export const MeDocument = {
   kind: 'Document',
   definitions: [
@@ -555,6 +790,16 @@ export const PostsDocument = {
         },
         {
           kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sortBy' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'PostSortField' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sortDirection' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'SortDirection' } },
+        },
+        {
+          kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'mine' } },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
         },
@@ -595,6 +840,16 @@ export const PostsDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'search' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'search' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sortBy' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sortBy' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sortDirection' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sortDirection' } },
               },
               {
                 kind: 'Argument',

@@ -40,6 +40,13 @@ alwaysApply: true
 - If a check cannot be run, explicitly state what was not verified and how to verify it.
 - Do not introduce secret values into tracked files.
 
+## GraphQL Codegen Gate
+
+- If server schema (`apps/server/src/graphql/schema/*.graphql`) changes, run server codegen before finalizing implementation.
+- If client operations (`apps/client/src/graphql/operations/*.graphql`) change, run client codegen before finalizing implementation.
+- If resolver signatures or operation variables depend on generated types, ensure generated files are up to date in the same change.
+- Do not leave stale generated output (type errors or schema/operation mismatch) unresolved.
+
 ## Backward Compatibility
 
 - Preserve existing behavior unless change request explicitly requires behavior changes.
@@ -62,5 +69,6 @@ Before considering the task complete, ensure:
 1. Folder/file placement matches architectural layer.
 2. Naming follows project conventions.
 3. i18n / schema / generated-artifact workflows (if involved) are respected.
-4. Build/lint status or verification caveat is reported.
+4. GraphQL codegen steps are executed when schema/operations/resolvers are touched.
+5. Build/lint status or verification caveat is reported.
 

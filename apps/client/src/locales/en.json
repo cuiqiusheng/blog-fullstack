@@ -50,6 +50,19 @@
     "title": "Home",
     "welcome": "Welcome back. This is the home page."
   },
+  "ai": {
+    "chat": {
+      "title": "AI Chat",
+      "subtitle": "Model: local Ollama / qwen2.5:14b",
+      "empty": "Start asking. Press Enter to send, Shift+Enter for newline.",
+      "user": "You",
+      "assistant": "AI",
+      "inputPlaceholder": "Type your question...",
+      "send": "Send",
+      "emptyReply": "Model returned an empty response. Please retry.",
+      "requestFailed": "Request failed. Please check local Ollama service."
+    }
+  },
   "posts": {
     "allListTitle": "All Articles",
     "myListTitle": "My Articles",
@@ -59,7 +72,14 @@
       "topic": "Topic",
       "subtopic": "Subtopic",
       "status": "Status",
-      "allStatus": "All status"
+      "allStatus": "All status",
+      "sortBy": "Sort by",
+      "sortDirection": "Direction",
+      "sortByCreatedAt": "Created time",
+      "sortByUpdatedAt": "Updated time",
+      "sortBySubtopic": "Subtopic",
+      "sortDirectionAsc": "Ascending",
+      "sortDirectionDesc": "Descending"
     },
     "status": {
       "draft": "Draft",

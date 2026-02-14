@@ -15,5 +15,6 @@ function loadGraphQL(filename: string): string {
 export const typeDefs = [
   loadGraphQL('base.graphql'),
   loadGraphQL('auth.graphql'),
+  loadGraphQL('ai.graphql'),
   loadGraphQL('post.graphql'),
 ];

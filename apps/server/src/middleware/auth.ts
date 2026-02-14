@@ -13,22 +13,8 @@ export interface AuthContext {
   isAuthenticated: boolean;
 }
 
-/**
- * Extract and verify Token from request, return user context.
- * Call in Apollo Server context.
- */
-export async function createAuthContext(req: Request): Promise<AuthContext> {
+async function buildAuthContextFromToken(token: string): Promise<AuthContext> {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return { user: null, isAuthenticated: false };
-    }
-
-    const token = authHeader.split(' ')[1];
-    if (!token) {
-      return { user: null, isAuthenticated: false };
-    }
-
     const decoded = verifyToken(token);
 
     const user = await prisma.user.findUnique({
@@ -55,4 +41,25 @@ export async function createAuthContext(req: Request): Promise<AuthContext> {
   } catch {
     return { user: null, isAuthenticated: false };
   }
+}
+
+export async function createAuthContextFromAuthorizationHeader(
+  authorizationHeader?: string,
+): Promise<AuthContext> {
+  if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    return { user: null, isAuthenticated: false };
+  }
+  const token = authorizationHeader.split(' ')[1];
+  if (!token) {
+    return { user: null, isAuthenticated: false };
+  }
+  return buildAuthContextFromToken(token);
+}
+
+/**
+ * Extract and verify Token from request, return user context.
+ * Call in Apollo Server context.
+ */
+export async function createAuthContext(req: Request): Promise<AuthContext> {
+  return createAuthContextFromAuthorizationHeader(req.headers.authorization);
 }

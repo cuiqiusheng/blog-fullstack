@@ -1,5 +1,6 @@
 import type { Resolvers } from '../__generated__/types';
 import { authResolvers } from './authResolver';
+import { aiResolvers } from './aiResolver';
 import { postResolvers } from './postResolver';
 
 export const resolvers: Resolvers = {
@@ -10,6 +11,10 @@ export const resolvers: Resolvers = {
   },
   Mutation: {
     ...authResolvers.Mutation,
+    ...aiResolvers.Mutation,
     ...postResolvers.Mutation,
+  },
+  Subscription: {
+    ...aiResolvers.Subscription,
   },
 };

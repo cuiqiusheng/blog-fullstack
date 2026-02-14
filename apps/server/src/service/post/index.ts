@@ -7,4 +7,4 @@ export {
 } from './postQueryService';
 export { postAuthorInclude } from './postSelect';
 export type { PostWithAuthor } from './postSelect';
-export type { ListPostsOptions, PostNeighbors } from './post.types';
+export type { ListPostsOptions, PostNeighbors, PostSortField, SortDirection } from './post.types';

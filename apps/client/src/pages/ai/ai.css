@@ -1,0 +1,32 @@
+.ai-chat-markdown {
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.ai-chat-markdown p {
+  margin: 0;
+}
+
+.ai-chat-markdown p + p {
+  margin-top: 8px;
+}
+
+.ai-chat-markdown ul,
+.ai-chat-markdown ol {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.ai-chat-markdown pre {
+  margin: 8px 0 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+}
+
+.ai-chat-markdown code {
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
+}

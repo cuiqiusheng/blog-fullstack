@@ -1,8 +1,23 @@
-import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
+import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client';
 import { SetContextLink } from '@apollo/client/link/context';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { createClient } from 'graphql-ws';
 import { getToken } from './auth';
 
 const graphqlUri = import.meta.env.VITE_GRAPHQL_URI ?? '/api/graphql';
+
+function resolveWsUri(uri: string): string {
+  if (uri.startsWith('http://')) {
+    return uri.replace('http://', 'ws://');
+  }
+  if (uri.startsWith('https://')) {
+    return uri.replace('https://', 'wss://');
+  }
+  const path = uri.startsWith('/') ? uri : `/${uri}`;
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${protocol}//${window.location.host}${path}`;
+}
 
 const authLink = new SetContextLink(prevContext => {
   const token = getToken();
@@ -16,8 +31,26 @@ const authLink = new SetContextLink(prevContext => {
 });
 
 const httpLink = new HttpLink({ uri: graphqlUri });
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: resolveWsUri(graphqlUri),
+    connectionParams: () => {
+      const token = getToken();
+      return token ? { authorization: `Bearer ${token}` } : {};
+    },
+  }),
+);
+
+const splitLink = ApolloLink.split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
+  },
+  wsLink,
+  authLink.concat(httpLink),
+);
 
 export const apolloClient = new ApolloClient({
-  link: authLink.concat(httpLink),
+  link: splitLink,
   cache: new InMemoryCache(),
 });

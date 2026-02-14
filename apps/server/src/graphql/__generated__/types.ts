@@ -21,11 +21,39 @@ export type Scalars = {
   Float: { input: number; output: number };
 };
 
+export type AiChatStreamEvent = {
+  __typename?: 'AiChatStreamEvent';
+  chunk: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  done: Scalars['Boolean']['output'];
+  error?: Maybe<Scalars['String']['output']>;
+  model: Scalars['String']['output'];
+  seq: Scalars['Int']['output'];
+};
+
 export type AuthPayload = {
   __typename?: 'AuthPayload';
   token: Scalars['String']['output'];
   user: User;
 };
+
+export type ChatMessageInput = {
+  content: Scalars['String']['input'];
+  role: ChatRole;
+};
+
+export type ChatResponse = {
+  __typename?: 'ChatResponse';
+  createdAt: Scalars['String']['output'];
+  model: Scalars['String']['output'];
+  reply: Scalars['String']['output'];
+};
+
+export enum ChatRole {
+  Assistant = 'ASSISTANT',
+  System = 'SYSTEM',
+  User = 'USER',
+}
 
 export type GeneratePostsInput = {
   autoPublish?: InputMaybe<Scalars['Boolean']['input']>;
@@ -71,10 +99,17 @@ export type GenerationPlanInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
+  aiChat: ChatResponse;
   generatePosts: GenerationBatchReport;
   login: AuthPayload;
   register: AuthPayload;
   retryGenerationBatch: GenerationBatchReport;
+};
+
+export type MutationAiChatArgs = {
+  messages: Array<ChatMessageInput>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  temperature?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type MutationGeneratePostsArgs = {
@@ -121,6 +156,12 @@ export type PostNeighbors = {
   prev?: Maybe<Post>;
 };
 
+export enum PostSortField {
+  CreatedAt = 'CREATED_AT',
+  Subtopic = 'SUBTOPIC',
+  UpdatedAt = 'UPDATED_AT',
+}
+
 export enum PostStatus {
   Archived = 'ARCHIVED',
   Draft = 'DRAFT',
@@ -156,6 +197,8 @@ export type QueryPostsArgs = {
   mine?: InputMaybe<Scalars['Boolean']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<PostSortField>;
+  sortDirection?: InputMaybe<SortDirection>;
   status?: InputMaybe<PostStatus>;
   subtopic?: InputMaybe<Scalars['String']['input']>;
   topic?: InputMaybe<Scalars['String']['input']>;
@@ -174,6 +217,23 @@ export type Role = {
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+};
+
+export enum SortDirection {
+  Asc = 'ASC',
+  Desc = 'DESC',
+}
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  _empty?: Maybe<Scalars['String']['output']>;
+  aiChatStream: AiChatStreamEvent;
+};
+
+export type SubscriptionAiChatStreamArgs = {
+  messages: Array<ChatMessageInput>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  temperature?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type User = {
@@ -270,8 +330,12 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
+  AiChatStreamEvent: ResolverTypeWrapper<AiChatStreamEvent>;
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  ChatMessageInput: ChatMessageInput;
+  ChatResponse: ResolverTypeWrapper<ChatResponse>;
+  ChatRole: ChatRole;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   GeneratePostsInput: GeneratePostsInput;
   GenerationBatchReport: ResolverTypeWrapper<GenerationBatchReport>;
@@ -282,17 +346,23 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   Post: ResolverTypeWrapper<Post>;
   PostNeighbors: ResolverTypeWrapper<PostNeighbors>;
+  PostSortField: PostSortField;
   PostStatus: PostStatus;
   Query: ResolverTypeWrapper<{}>;
   Role: ResolverTypeWrapper<Role>;
+  SortDirection: SortDirection;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  Subscription: ResolverTypeWrapper<{}>;
   User: ResolverTypeWrapper<User>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
+  AiChatStreamEvent: AiChatStreamEvent;
   AuthPayload: AuthPayload;
   Boolean: Scalars['Boolean']['output'];
+  ChatMessageInput: ChatMessageInput;
+  ChatResponse: ChatResponse;
   Float: Scalars['Float']['output'];
   GeneratePostsInput: GeneratePostsInput;
   GenerationBatchReport: GenerationBatchReport;
@@ -306,7 +376,22 @@ export type ResolversParentTypes = ResolversObject<{
   Query: {};
   Role: Role;
   String: Scalars['String']['output'];
+  Subscription: {};
   User: User;
+}>;
+
+export type AiChatStreamEventResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['AiChatStreamEvent'] =
+    ResolversParentTypes['AiChatStreamEvent'],
+> = ResolversObject<{
+  chunk?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  done?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  error?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  model?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  seq?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type AuthPayloadResolvers<
@@ -315,6 +400,16 @@ export type AuthPayloadResolvers<
 > = ResolversObject<{
   token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ChatResponseResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['ChatResponse'] = ResolversParentTypes['ChatResponse'],
+> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  model?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reply?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -356,6 +451,12 @@ export type MutationResolvers<
   ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation'],
 > = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  aiChat?: Resolver<
+    ResolversTypes['ChatResponse'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationAiChatArgs, 'messages'>
+  >;
   generatePosts?: Resolver<
     ResolversTypes['GenerationBatchReport'],
     ParentType,
@@ -457,6 +558,20 @@ export type RoleResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type SubscriptionResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription'],
+> = ResolversObject<{
+  _empty?: SubscriptionResolver<Maybe<ResolversTypes['String']>, '_empty', ParentType, ContextType>;
+  aiChatStream?: SubscriptionResolver<
+    ResolversTypes['AiChatStreamEvent'],
+    'aiChatStream',
+    ParentType,
+    ContextType,
+    RequireFields<SubscriptionAiChatStreamArgs, 'messages'>
+  >;
+}>;
+
 export type UserResolvers<
   ContextType = GraphQLContext,
   ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User'],
@@ -468,7 +583,9 @@ export type UserResolvers<
 }>;
 
 export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
+  AiChatStreamEvent?: AiChatStreamEventResolvers<ContextType>;
   AuthPayload?: AuthPayloadResolvers<ContextType>;
+  ChatResponse?: ChatResponseResolvers<ContextType>;
   GenerationBatchReport?: GenerationBatchReportResolvers<ContextType>;
   GenerationItemResult?: GenerationItemResultResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
@@ -476,5 +593,6 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   PostNeighbors?: PostNeighborsResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Role?: RoleResolvers<ContextType>;
+  Subscription?: SubscriptionResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 }>;

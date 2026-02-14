@@ -71,6 +71,9 @@ importers:
       graphql:
         specifier: ^16.12.0
         version: 16.12.0
+      graphql-ws:
+        specifier: ^6.0.7
+        version: 6.0.7(graphql@16.12.0)(ws@8.19.0)
       i18next:
         specifier: ^24.2.0
         version: 24.2.3(typescript@5.9.3)
@@ -138,6 +141,9 @@ importers:
       '@apollo/server':
         specifier: ^5.4.0
         version: 5.4.0(graphql@16.12.0)
+      '@graphql-tools/schema':
+        specifier: ^10.0.31
+        version: 10.0.31(graphql@16.12.0)
       '@prisma/adapter-pg':
         specifier: ^7.3.0
         version: 7.3.0
@@ -159,6 +165,9 @@ importers:
       graphql:
         specifier: ^16.12.0
         version: 16.12.0
+      graphql-ws:
+        specifier: ^6.0.7
+        version: 6.0.7(graphql@16.12.0)(ws@8.19.0)
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3
@@ -174,6 +183,9 @@ importers:
       prisma:
         specifier: ^7.3.0
         version: 7.3.0(@types/react@19.2.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)
+      ws:
+        specifier: ^8.19.0
+        version: 8.19.0
     devDependencies:
       '@graphql-codegen/cli':
         specifier: ^5.0.0
@@ -199,6 +211,9 @@ importers:
       '@types/pg':
         specifier: ^8.16.0
         version: 8.16.0
+      '@types/ws':
+        specifier: ^8.18.1
+        version: 8.18.1
       nodemon:
         specifier: ^3.1.11
         version: 3.1.11

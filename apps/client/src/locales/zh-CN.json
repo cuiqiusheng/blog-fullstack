@@ -50,6 +50,19 @@
     "title": "首页",
     "welcome": "欢迎回来，这里是首页。"
   },
+  "ai": {
+    "chat": {
+      "title": "AI 对话",
+      "subtitle": "对话模型：本地 Ollama / qwen2.5:14b",
+      "empty": "开始提问吧，按 Enter 发送，Shift+Enter 换行。",
+      "user": "你",
+      "assistant": "AI",
+      "inputPlaceholder": "输入你的问题...",
+      "send": "发送",
+      "emptyReply": "模型返回为空，请重试。",
+      "requestFailed": "请求失败，请检查本地 Ollama 服务。"
+    }
+  },
   "posts": {
     "allListTitle": "文章广场",
     "myListTitle": "我的文章",
@@ -59,7 +72,14 @@
       "topic": "主题",
       "subtopic": "子主题",
       "status": "状态",
-      "allStatus": "全部状态"
+      "allStatus": "全部状态",
+      "sortBy": "排序字段",
+      "sortDirection": "排序方向",
+      "sortByCreatedAt": "按创建时间",
+      "sortByUpdatedAt": "按更新时间",
+      "sortBySubtopic": "按子主题",
+      "sortDirectionAsc": "正序",
+      "sortDirectionDesc": "倒序"
     },
     "status": {
       "draft": "草稿",

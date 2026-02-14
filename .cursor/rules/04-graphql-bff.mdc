@@ -16,6 +16,9 @@ alwaysApply: true
 - Treat generated files as generated (`apps/client/src/graphql/__generated__`, `apps/server/src/graphql/__generated__`).
 - Prefer changing source `.graphql` files + running existing codegen scripts over manual edits in generated files.
 - Keep operation naming explicit and domain-meaningful.
+- Resolver argument/enum/input types must come from server generated types (`apps/server/src/graphql/__generated__/types.ts`).
+- Do not handwrite GraphQL contract types inside resolver files (e.g. inline `{ email: string }`, ad-hoc `type ChatRole = ...`).
+- If schema changes affect resolver signatures, run server codegen before finalizing resolver implementation.
 
 ## BFF Layering
 
@@ -26,7 +29,8 @@ alwaysApply: true
 ## Change Workflow for API Additions
 
 1. Update server schema and resolver logic.
-2. Update/extend client operation documents.
-3. Run codegen for affected workspace(s).
-4. Update UI/use-cases consuming the new contract.
+2. Run server codegen and use generated resolver arg/input/enum types.
+3. Update/extend client operation documents.
+4. Run client codegen and consume generated operation types/documents.
+5. Update UI/use-cases consuming the new contract.
 
