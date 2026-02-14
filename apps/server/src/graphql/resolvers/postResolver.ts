@@ -13,16 +13,14 @@ import {
   PostStatus as GqlPostStatus,
   PostSortField as GqlPostSortField,
   SortDirection as GqlSortDirection,
-} from '../__generated__/types';
-import type {
-  GeneratePostsInput,
-  MutationGeneratePostsArgs,
-  MutationRetryGenerationBatchArgs,
-  QueryPostArgs,
-  QueryGenerationBatchArgs,
-  QueryPostNeighborsArgs,
-  QueryPostsArgs,
-  QueryPostsTotalArgs,
+  type GeneratePostsInput,
+  type MutationGeneratePostsArgs,
+  type MutationRetryGenerationBatchArgs,
+  type QueryPostArgs,
+  type QueryGenerationBatchArgs,
+  type QueryPostNeighborsArgs,
+  type QueryPostsArgs,
+  type QueryPostsTotalArgs,
 } from '../__generated__/types';
 import type { GraphQLContext } from '@/types/context';
 import { requireAuth } from '@/utils/permissions';

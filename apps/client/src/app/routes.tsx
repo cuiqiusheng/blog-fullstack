@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { AppLayout } from '@/features/layout';
 
-function PlaceholderPage({ name }: { name: 'posts' | 'userSetting' | 'ai' }) {
+function PlaceholderPage({ name }: { name: 'posts' | 'userSetting' }) {
   const { t } = useTranslation();
   return <div style={{ color: 'rgba(0, 0, 0, 0.65)' }}>{t(`placeholders.${name}`)}</div>;
 }
@@ -17,6 +17,7 @@ const PostListPage = lazy(() => import('@/pages/posts').then(m => ({ default: m.
 const PostDetailPage = lazy(() =>
   import('@/pages/posts').then(m => ({ default: m.PostDetailPage })),
 );
+const AiChatPage = lazy(() => import('@/pages/ai/index').then(m => ({ default: m.AiChatPage })));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -115,7 +116,7 @@ export function AppRoutes() {
           element={
             <ProtectedRoute>
               <AppLayout>
-                <PlaceholderPage name="ai" />
+                <AiChatPage />
               </AppLayout>
             </ProtectedRoute>
           }

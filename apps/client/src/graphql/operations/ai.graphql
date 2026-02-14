@@ -1,0 +1,18 @@
+mutation AiChat($messages: [ChatMessageInput!]!, $model: String, $temperature: Float) {
+  aiChat(messages: $messages, model: $model, temperature: $temperature) {
+    reply
+    model
+    createdAt
+  }
+}
+
+subscription AiChatStream($messages: [ChatMessageInput!]!, $model: String, $temperature: Float) {
+  aiChatStream(messages: $messages, model: $model, temperature: $temperature) {
+    seq
+    chunk
+    done
+    model
+    createdAt
+    error
+  }
+}

@@ -1,0 +1,33 @@
+enum ChatRole {
+  SYSTEM
+  USER
+  ASSISTANT
+}
+
+input ChatMessageInput {
+  role: ChatRole!
+  content: String!
+}
+
+type ChatResponse {
+  reply: String!
+  model: String!
+  createdAt: String!
+}
+
+type AiChatStreamEvent {
+  seq: Int!
+  chunk: String!
+  done: Boolean!
+  model: String!
+  createdAt: String!
+  error: String
+}
+
+extend type Mutation {
+  aiChat(messages: [ChatMessageInput!]!, model: String, temperature: Float): ChatResponse!
+}
+
+extend type Subscription {
+  aiChatStream(messages: [ChatMessageInput!]!, model: String, temperature: Float): AiChatStreamEvent!
+}

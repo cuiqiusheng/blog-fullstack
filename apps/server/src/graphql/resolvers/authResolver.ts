@@ -5,6 +5,7 @@ import { generateToken } from '../../utils/jwt';
 import { hashPassword, comparePassword } from '../../utils/encrypt';
 import { requireAuth } from '../../utils/permissions';
 import { logger, maskEmail } from '../../utils/logger';
+import type { MutationLoginArgs, MutationRegisterArgs } from '../__generated__/types';
 
 export const authResolvers = {
   Query: {
@@ -15,11 +16,7 @@ export const authResolvers = {
   },
 
   Mutation: {
-    login: async (
-      _: unknown,
-      { email, password }: { email: string; password: string },
-      context: GraphQLContext,
-    ) => {
+    login: async (_: unknown, { email, password }: MutationLoginArgs, context: GraphQLContext) => {
       const masked = maskEmail(email);
       const reqLog = context.req?.log ?? logger;
 
@@ -64,7 +61,7 @@ export const authResolvers = {
 
     register: async (
       _: unknown,
-      { email, password }: { email: string; password: string },
+      { email, password }: MutationRegisterArgs,
       context: GraphQLContext,
     ) => {
       const masked = maskEmail(email);
