@@ -1,17 +1,91 @@
-mutation AiChat($messages: [ChatMessageInput!]!, $model: String, $temperature: Float) {
-  aiChat(messages: $messages, model: $model, temperature: $temperature) {
-    reply
-    model
+query ChatSessions($limit: Int, $offset: Int, $search: String) {
+  chatSessions(limit: $limit, offset: $offset, search: $search) {
+    id
+    title
+    status
     createdAt
+    updatedAt
+    lastMessageAt
   }
 }
 
-subscription AiChatStream($messages: [ChatMessageInput!]!, $model: String, $temperature: Float) {
-  aiChatStream(messages: $messages, model: $model, temperature: $temperature) {
+query ChatSession($id: ID!, $limit: Int, $offset: Int) {
+  chatSession(id: $id) {
+    id
+    title
+    status
+    createdAt
+    updatedAt
+    lastMessageAt
+    messages(limit: $limit, offset: $offset) {
+      id
+      role
+      status
+      content
+      createdAt
+    }
+  }
+}
+
+mutation StartChatSession($input: StartChatSessionInput) {
+  startChatSession(input: $input) {
+    id
+    title
+    status
+    createdAt
+    updatedAt
+    lastMessageAt
+  }
+}
+
+mutation SendChatMessage($sessionId: ID!, $content: String!) {
+  sendChatMessage(sessionId: $sessionId, content: $content) {
+    session {
+      id
+      title
+      status
+      createdAt
+      updatedAt
+      lastMessageAt
+    }
+    userMessage {
+      id
+      role
+      status
+      content
+      createdAt
+    }
+    assistantMessage {
+      id
+      role
+      status
+      content
+      createdAt
+    }
+  }
+}
+
+mutation ArchiveChatSession($sessionId: ID!) {
+  archiveChatSession(sessionId: $sessionId) {
+    id
+    status
+    updatedAt
+  }
+}
+
+mutation DeleteChatSession($sessionId: ID!) {
+  deleteChatSession(sessionId: $sessionId)
+}
+
+subscription ChatSessionStream($sessionId: ID!, $messageId: ID!) {
+  chatSessionStream(sessionId: $sessionId, messageId: $messageId) {
+    eventId
     seq
+    type
+    sessionId
+    messageId
     chunk
     done
-    model
     createdAt
     error
   }

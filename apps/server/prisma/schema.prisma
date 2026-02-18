@@ -19,6 +19,23 @@ enum PostStatus {
   ARCHIVED
 }
 
+enum ChatMessageRole {
+  SYSTEM
+  USER
+  ASSISTANT
+}
+
+enum ChatSessionStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum ChatMessageStatus {
+  STREAMING
+  COMPLETED
+  FAILED
+}
+
 model User {
 
   id       String @id @default(uuid())
@@ -29,6 +46,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   posts Post[]
+  chatTopics ChatTopic[]
 
   roles     Role[]     @relation("UserRoles")
   userRoles UserRole[]
@@ -89,4 +107,40 @@ model Post {
   @@index([seriesKey, seriesOrder])
   @@index([generationBatchId])
   @@map("posts")
+}
+
+model ChatTopic {
+
+  id    String @id @default(uuid())
+  title String
+  status ChatSessionStatus @default(ACTIVE)
+  lastMessageAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  messages ChatMessage[]
+
+  @@index([userId, updatedAt])
+  @@index([userId, lastMessageAt])
+  @@map("chat_topics")
+}
+
+model ChatMessage {
+
+  id      String          @id @default(uuid())
+  role    ChatMessageRole
+  status  ChatMessageStatus @default(COMPLETED)
+  content String
+
+  createdAt DateTime @default(now())
+
+  topicId String
+  topic   ChatTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([topicId, createdAt])
+  @@map("chat_messages")
 }

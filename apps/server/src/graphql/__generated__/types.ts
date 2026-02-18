@@ -37,10 +37,25 @@ export type AuthPayload = {
   user: User;
 };
 
+export type ChatMessage = {
+  __typename?: 'ChatMessage';
+  content: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  role: ChatRole;
+  status: ChatMessageStatus;
+};
+
 export type ChatMessageInput = {
   content: Scalars['String']['input'];
   role: ChatRole;
 };
+
+export enum ChatMessageStatus {
+  Completed = 'COMPLETED',
+  Failed = 'FAILED',
+  Streaming = 'STREAMING',
+}
 
 export type ChatResponse = {
   __typename?: 'ChatResponse';
@@ -53,6 +68,47 @@ export enum ChatRole {
   Assistant = 'ASSISTANT',
   System = 'SYSTEM',
   User = 'USER',
+}
+
+export type ChatSession = {
+  __typename?: 'ChatSession';
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  lastMessageAt?: Maybe<Scalars['String']['output']>;
+  messages: Array<ChatMessage>;
+  status: ChatSessionStatus;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['String']['output'];
+};
+
+export type ChatSessionMessagesArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export enum ChatSessionStatus {
+  Active = 'ACTIVE',
+  Archived = 'ARCHIVED',
+}
+
+export type ChatSessionStreamEvent = {
+  __typename?: 'ChatSessionStreamEvent';
+  chunk: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  done: Scalars['Boolean']['output'];
+  error?: Maybe<Scalars['String']['output']>;
+  eventId: Scalars['String']['output'];
+  messageId: Scalars['ID']['output'];
+  seq: Scalars['Int']['output'];
+  sessionId: Scalars['ID']['output'];
+  type: ChatStreamEventType;
+};
+
+export enum ChatStreamEventType {
+  MessageChunk = 'MESSAGE_CHUNK',
+  MessageCompleted = 'MESSAGE_COMPLETED',
+  MessageFailed = 'MESSAGE_FAILED',
+  MessageStarted = 'MESSAGE_STARTED',
 }
 
 export type GeneratePostsInput = {
@@ -100,16 +156,29 @@ export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
   aiChat: ChatResponse;
+  archiveChatSession: ChatSession;
+  deleteChatSession: Scalars['Boolean']['output'];
   generatePosts: GenerationBatchReport;
   login: AuthPayload;
   register: AuthPayload;
+  renameChatSession: ChatSession;
   retryGenerationBatch: GenerationBatchReport;
+  sendChatMessage: SendChatMessagePayload;
+  startChatSession: ChatSession;
 };
 
 export type MutationAiChatArgs = {
   messages: Array<ChatMessageInput>;
   model?: InputMaybe<Scalars['String']['input']>;
   temperature?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type MutationArchiveChatSessionArgs = {
+  sessionId: Scalars['ID']['input'];
+};
+
+export type MutationDeleteChatSessionArgs = {
+  sessionId: Scalars['ID']['input'];
 };
 
 export type MutationGeneratePostsArgs = {
@@ -126,9 +195,23 @@ export type MutationRegisterArgs = {
   password: Scalars['String']['input'];
 };
 
+export type MutationRenameChatSessionArgs = {
+  sessionId: Scalars['ID']['input'];
+  title: Scalars['String']['input'];
+};
+
 export type MutationRetryGenerationBatchArgs = {
   batchId: Scalars['String']['input'];
   countPerSubtopic?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type MutationSendChatMessageArgs = {
+  content: Scalars['String']['input'];
+  sessionId: Scalars['ID']['input'];
+};
+
+export type MutationStartChatSessionArgs = {
+  input?: InputMaybe<StartChatSessionInput>;
 };
 
 export type Post = {
@@ -171,6 +254,8 @@ export enum PostStatus {
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
+  chatSession?: Maybe<ChatSession>;
+  chatSessions: Array<ChatSession>;
   generationBatch: GenerationBatchReport;
   hello?: Maybe<Scalars['String']['output']>;
   me?: Maybe<User>;
@@ -178,6 +263,16 @@ export type Query = {
   postNeighbors: PostNeighbors;
   posts: Array<Post>;
   postsTotal: Scalars['Int']['output'];
+};
+
+export type QueryChatSessionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type QueryChatSessionsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryGenerationBatchArgs = {
@@ -219,21 +314,38 @@ export type Role = {
   name: Scalars['String']['output'];
 };
 
+export type SendChatMessagePayload = {
+  __typename?: 'SendChatMessagePayload';
+  assistantMessage: ChatMessage;
+  session: ChatSession;
+  userMessage: ChatMessage;
+};
+
 export enum SortDirection {
   Asc = 'ASC',
   Desc = 'DESC',
 }
 
+export type StartChatSessionInput = {
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
   _empty?: Maybe<Scalars['String']['output']>;
   aiChatStream: AiChatStreamEvent;
+  chatSessionStream: ChatSessionStreamEvent;
 };
 
 export type SubscriptionAiChatStreamArgs = {
   messages: Array<ChatMessageInput>;
   model?: InputMaybe<Scalars['String']['input']>;
   temperature?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type SubscriptionChatSessionStreamArgs = {
+  messageId: Scalars['ID']['input'];
+  sessionId: Scalars['ID']['input'];
 };
 
 export type User = {
@@ -333,9 +445,15 @@ export type ResolversTypes = ResolversObject<{
   AiChatStreamEvent: ResolverTypeWrapper<AiChatStreamEvent>;
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  ChatMessage: ResolverTypeWrapper<ChatMessage>;
   ChatMessageInput: ChatMessageInput;
+  ChatMessageStatus: ChatMessageStatus;
   ChatResponse: ResolverTypeWrapper<ChatResponse>;
   ChatRole: ChatRole;
+  ChatSession: ResolverTypeWrapper<ChatSession>;
+  ChatSessionStatus: ChatSessionStatus;
+  ChatSessionStreamEvent: ResolverTypeWrapper<ChatSessionStreamEvent>;
+  ChatStreamEventType: ChatStreamEventType;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   GeneratePostsInput: GeneratePostsInput;
   GenerationBatchReport: ResolverTypeWrapper<GenerationBatchReport>;
@@ -350,7 +468,9 @@ export type ResolversTypes = ResolversObject<{
   PostStatus: PostStatus;
   Query: ResolverTypeWrapper<{}>;
   Role: ResolverTypeWrapper<Role>;
+  SendChatMessagePayload: ResolverTypeWrapper<SendChatMessagePayload>;
   SortDirection: SortDirection;
+  StartChatSessionInput: StartChatSessionInput;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
   User: ResolverTypeWrapper<User>;
@@ -361,8 +481,11 @@ export type ResolversParentTypes = ResolversObject<{
   AiChatStreamEvent: AiChatStreamEvent;
   AuthPayload: AuthPayload;
   Boolean: Scalars['Boolean']['output'];
+  ChatMessage: ChatMessage;
   ChatMessageInput: ChatMessageInput;
   ChatResponse: ChatResponse;
+  ChatSession: ChatSession;
+  ChatSessionStreamEvent: ChatSessionStreamEvent;
   Float: Scalars['Float']['output'];
   GeneratePostsInput: GeneratePostsInput;
   GenerationBatchReport: GenerationBatchReport;
@@ -375,6 +498,8 @@ export type ResolversParentTypes = ResolversObject<{
   PostNeighbors: PostNeighbors;
   Query: {};
   Role: Role;
+  SendChatMessagePayload: SendChatMessagePayload;
+  StartChatSessionInput: StartChatSessionInput;
   String: Scalars['String']['output'];
   Subscription: {};
   User: User;
@@ -403,6 +528,18 @@ export type AuthPayloadResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ChatMessageResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['ChatMessage'] = ResolversParentTypes['ChatMessage'],
+> = ResolversObject<{
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['ChatRole'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ChatMessageStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ChatResponseResolvers<
   ContextType = GraphQLContext,
   ParentType extends ResolversParentTypes['ChatResponse'] = ResolversParentTypes['ChatResponse'],
@@ -410,6 +547,42 @@ export type ChatResponseResolvers<
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   model?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   reply?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ChatSessionResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['ChatSession'] = ResolversParentTypes['ChatSession'],
+> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastMessageAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  messages?: Resolver<
+    Array<ResolversTypes['ChatMessage']>,
+    ParentType,
+    ContextType,
+    Partial<ChatSessionMessagesArgs>
+  >;
+  status?: Resolver<ResolversTypes['ChatSessionStatus'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ChatSessionStreamEventResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['ChatSessionStreamEvent'] =
+    ResolversParentTypes['ChatSessionStreamEvent'],
+> = ResolversObject<{
+  chunk?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  done?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  error?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  eventId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  messageId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  seq?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['ChatStreamEventType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -457,6 +630,18 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationAiChatArgs, 'messages'>
   >;
+  archiveChatSession?: Resolver<
+    ResolversTypes['ChatSession'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationArchiveChatSessionArgs, 'sessionId'>
+  >;
+  deleteChatSession?: Resolver<
+    ResolversTypes['Boolean'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationDeleteChatSessionArgs, 'sessionId'>
+  >;
   generatePosts?: Resolver<
     ResolversTypes['GenerationBatchReport'],
     ParentType,
@@ -475,11 +660,29 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationRegisterArgs, 'email' | 'password'>
   >;
+  renameChatSession?: Resolver<
+    ResolversTypes['ChatSession'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationRenameChatSessionArgs, 'sessionId' | 'title'>
+  >;
   retryGenerationBatch?: Resolver<
     ResolversTypes['GenerationBatchReport'],
     ParentType,
     ContextType,
     RequireFields<MutationRetryGenerationBatchArgs, 'batchId'>
+  >;
+  sendChatMessage?: Resolver<
+    ResolversTypes['SendChatMessagePayload'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationSendChatMessageArgs, 'content' | 'sessionId'>
+  >;
+  startChatSession?: Resolver<
+    ResolversTypes['ChatSession'],
+    ParentType,
+    ContextType,
+    Partial<MutationStartChatSessionArgs>
   >;
 }>;
 
@@ -519,6 +722,18 @@ export type QueryResolvers<
   ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query'],
 > = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  chatSession?: Resolver<
+    Maybe<ResolversTypes['ChatSession']>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryChatSessionArgs, 'id'>
+  >;
+  chatSessions?: Resolver<
+    Array<ResolversTypes['ChatSession']>,
+    ParentType,
+    ContextType,
+    Partial<QueryChatSessionsArgs>
+  >;
   generationBatch?: Resolver<
     ResolversTypes['GenerationBatchReport'],
     ParentType,
@@ -558,6 +773,17 @@ export type RoleResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type SendChatMessagePayloadResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['SendChatMessagePayload'] =
+    ResolversParentTypes['SendChatMessagePayload'],
+> = ResolversObject<{
+  assistantMessage?: Resolver<ResolversTypes['ChatMessage'], ParentType, ContextType>;
+  session?: Resolver<ResolversTypes['ChatSession'], ParentType, ContextType>;
+  userMessage?: Resolver<ResolversTypes['ChatMessage'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type SubscriptionResolvers<
   ContextType = GraphQLContext,
   ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription'],
@@ -569,6 +795,13 @@ export type SubscriptionResolvers<
     ParentType,
     ContextType,
     RequireFields<SubscriptionAiChatStreamArgs, 'messages'>
+  >;
+  chatSessionStream?: SubscriptionResolver<
+    ResolversTypes['ChatSessionStreamEvent'],
+    'chatSessionStream',
+    ParentType,
+    ContextType,
+    RequireFields<SubscriptionChatSessionStreamArgs, 'messageId' | 'sessionId'>
   >;
 }>;
 
@@ -585,7 +818,10 @@ export type UserResolvers<
 export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   AiChatStreamEvent?: AiChatStreamEventResolvers<ContextType>;
   AuthPayload?: AuthPayloadResolvers<ContextType>;
+  ChatMessage?: ChatMessageResolvers<ContextType>;
   ChatResponse?: ChatResponseResolvers<ContextType>;
+  ChatSession?: ChatSessionResolvers<ContextType>;
+  ChatSessionStreamEvent?: ChatSessionStreamEventResolvers<ContextType>;
   GenerationBatchReport?: GenerationBatchReportResolvers<ContextType>;
   GenerationItemResult?: GenerationItemResultResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
@@ -593,6 +829,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   PostNeighbors?: PostNeighborsResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Role?: RoleResolvers<ContextType>;
+  SendChatMessagePayload?: SendChatMessagePayloadResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 }>;

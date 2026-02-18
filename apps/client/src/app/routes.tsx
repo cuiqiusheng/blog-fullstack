@@ -112,7 +112,7 @@ export function AppRoutes() {
           }
         />
         <Route
-          path="/ai"
+          path="/ai/:topicId?"
           element={
             <ProtectedRoute>
               <AppLayout>

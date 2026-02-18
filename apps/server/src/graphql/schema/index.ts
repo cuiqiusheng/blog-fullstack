@@ -16,5 +16,6 @@ export const typeDefs = [
   loadGraphQL('base.graphql'),
   loadGraphQL('auth.graphql'),
   loadGraphQL('ai.graphql'),
+  loadGraphQL('chat.graphql'),
   loadGraphQL('post.graphql'),
 ];

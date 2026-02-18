@@ -1,0 +1,74 @@
+type ChatMessage {
+  id: ID!
+  role: ChatRole!
+  status: ChatMessageStatus!
+  content: String!
+  createdAt: String!
+}
+
+enum ChatSessionStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum ChatMessageStatus {
+  STREAMING
+  COMPLETED
+  FAILED
+}
+
+enum ChatStreamEventType {
+  MESSAGE_STARTED
+  MESSAGE_CHUNK
+  MESSAGE_COMPLETED
+  MESSAGE_FAILED
+}
+
+type ChatSession {
+  id: ID!
+  title: String!
+  status: ChatSessionStatus!
+  createdAt: String!
+  updatedAt: String!
+  lastMessageAt: String
+  messages(limit: Int, offset: Int): [ChatMessage!]!
+}
+
+type SendChatMessagePayload {
+  session: ChatSession!
+  userMessage: ChatMessage!
+  assistantMessage: ChatMessage!
+}
+
+type ChatSessionStreamEvent {
+  eventId: String!
+  seq: Int!
+  type: ChatStreamEventType!
+  sessionId: ID!
+  messageId: ID!
+  chunk: String!
+  done: Boolean!
+  createdAt: String!
+  error: String
+}
+
+input StartChatSessionInput {
+  title: String
+}
+
+extend type Query {
+  chatSession(id: ID!): ChatSession
+  chatSessions(limit: Int, offset: Int, search: String): [ChatSession!]!
+}
+
+extend type Mutation {
+  startChatSession(input: StartChatSessionInput): ChatSession!
+  sendChatMessage(sessionId: ID!, content: String!): SendChatMessagePayload!
+  renameChatSession(sessionId: ID!, title: String!): ChatSession!
+  archiveChatSession(sessionId: ID!): ChatSession!
+  deleteChatSession(sessionId: ID!): Boolean!
+}
+
+extend type Subscription {
+  chatSessionStream(sessionId: ID!, messageId: ID!): ChatSessionStreamEvent!
+}

@@ -35,10 +35,25 @@ export type AuthPayload = {
   user: User;
 };
 
+export type ChatMessage = {
+  __typename?: 'ChatMessage';
+  content: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  role: ChatRole;
+  status: ChatMessageStatus;
+};
+
 export type ChatMessageInput = {
   content: Scalars['String']['input'];
   role: ChatRole;
 };
+
+export enum ChatMessageStatus {
+  Completed = 'COMPLETED',
+  Failed = 'FAILED',
+  Streaming = 'STREAMING',
+}
 
 export type ChatResponse = {
   __typename?: 'ChatResponse';
@@ -51,6 +66,47 @@ export enum ChatRole {
   Assistant = 'ASSISTANT',
   System = 'SYSTEM',
   User = 'USER',
+}
+
+export type ChatSession = {
+  __typename?: 'ChatSession';
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  lastMessageAt?: Maybe<Scalars['String']['output']>;
+  messages: Array<ChatMessage>;
+  status: ChatSessionStatus;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['String']['output'];
+};
+
+export type ChatSessionMessagesArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export enum ChatSessionStatus {
+  Active = 'ACTIVE',
+  Archived = 'ARCHIVED',
+}
+
+export type ChatSessionStreamEvent = {
+  __typename?: 'ChatSessionStreamEvent';
+  chunk: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  done: Scalars['Boolean']['output'];
+  error?: Maybe<Scalars['String']['output']>;
+  eventId: Scalars['String']['output'];
+  messageId: Scalars['ID']['output'];
+  seq: Scalars['Int']['output'];
+  sessionId: Scalars['ID']['output'];
+  type: ChatStreamEventType;
+};
+
+export enum ChatStreamEventType {
+  MessageChunk = 'MESSAGE_CHUNK',
+  MessageCompleted = 'MESSAGE_COMPLETED',
+  MessageFailed = 'MESSAGE_FAILED',
+  MessageStarted = 'MESSAGE_STARTED',
 }
 
 export type GeneratePostsInput = {
@@ -98,16 +154,29 @@ export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
   aiChat: ChatResponse;
+  archiveChatSession: ChatSession;
+  deleteChatSession: Scalars['Boolean']['output'];
   generatePosts: GenerationBatchReport;
   login: AuthPayload;
   register: AuthPayload;
+  renameChatSession: ChatSession;
   retryGenerationBatch: GenerationBatchReport;
+  sendChatMessage: SendChatMessagePayload;
+  startChatSession: ChatSession;
 };
 
 export type MutationAiChatArgs = {
   messages: Array<ChatMessageInput>;
   model?: InputMaybe<Scalars['String']['input']>;
   temperature?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type MutationArchiveChatSessionArgs = {
+  sessionId: Scalars['ID']['input'];
+};
+
+export type MutationDeleteChatSessionArgs = {
+  sessionId: Scalars['ID']['input'];
 };
 
 export type MutationGeneratePostsArgs = {
@@ -124,9 +193,23 @@ export type MutationRegisterArgs = {
   password: Scalars['String']['input'];
 };
 
+export type MutationRenameChatSessionArgs = {
+  sessionId: Scalars['ID']['input'];
+  title: Scalars['String']['input'];
+};
+
 export type MutationRetryGenerationBatchArgs = {
   batchId: Scalars['String']['input'];
   countPerSubtopic?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type MutationSendChatMessageArgs = {
+  content: Scalars['String']['input'];
+  sessionId: Scalars['ID']['input'];
+};
+
+export type MutationStartChatSessionArgs = {
+  input?: InputMaybe<StartChatSessionInput>;
 };
 
 export type Post = {
@@ -169,6 +252,8 @@ export enum PostStatus {
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
+  chatSession?: Maybe<ChatSession>;
+  chatSessions: Array<ChatSession>;
   generationBatch: GenerationBatchReport;
   hello?: Maybe<Scalars['String']['output']>;
   me?: Maybe<User>;
@@ -176,6 +261,16 @@ export type Query = {
   postNeighbors: PostNeighbors;
   posts: Array<Post>;
   postsTotal: Scalars['Int']['output'];
+};
+
+export type QueryChatSessionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type QueryChatSessionsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QueryGenerationBatchArgs = {
@@ -217,21 +312,38 @@ export type Role = {
   name: Scalars['String']['output'];
 };
 
+export type SendChatMessagePayload = {
+  __typename?: 'SendChatMessagePayload';
+  assistantMessage: ChatMessage;
+  session: ChatSession;
+  userMessage: ChatMessage;
+};
+
 export enum SortDirection {
   Asc = 'ASC',
   Desc = 'DESC',
 }
 
+export type StartChatSessionInput = {
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
   _empty?: Maybe<Scalars['String']['output']>;
   aiChatStream: AiChatStreamEvent;
+  chatSessionStream: ChatSessionStreamEvent;
 };
 
 export type SubscriptionAiChatStreamArgs = {
   messages: Array<ChatMessageInput>;
   model?: InputMaybe<Scalars['String']['input']>;
   temperature?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type SubscriptionChatSessionStreamArgs = {
+  messageId: Scalars['ID']['input'];
+  sessionId: Scalars['ID']['input'];
 };
 
 export type User = {
@@ -241,31 +353,142 @@ export type User = {
   roles: Array<Role>;
 };
 
-export type AiChatMutationVariables = Exact<{
-  messages: Array<ChatMessageInput> | ChatMessageInput;
-  model?: InputMaybe<Scalars['String']['input']>;
-  temperature?: InputMaybe<Scalars['Float']['input']>;
+export type ChatSessionsQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
 }>;
 
-export type AiChatMutation = {
-  __typename?: 'Mutation';
-  aiChat: { __typename?: 'ChatResponse'; reply: string; model: string; createdAt: string };
+export type ChatSessionsQuery = {
+  __typename?: 'Query';
+  chatSessions: Array<{
+    __typename?: 'ChatSession';
+    id: string;
+    title: string;
+    status: ChatSessionStatus;
+    createdAt: string;
+    updatedAt: string;
+    lastMessageAt?: string | null;
+  }>;
 };
 
-export type AiChatStreamSubscriptionVariables = Exact<{
-  messages: Array<ChatMessageInput> | ChatMessageInput;
-  model?: InputMaybe<Scalars['String']['input']>;
-  temperature?: InputMaybe<Scalars['Float']['input']>;
+export type ChatSessionQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
-export type AiChatStreamSubscription = {
+export type ChatSessionQuery = {
+  __typename?: 'Query';
+  chatSession?: {
+    __typename?: 'ChatSession';
+    id: string;
+    title: string;
+    status: ChatSessionStatus;
+    createdAt: string;
+    updatedAt: string;
+    lastMessageAt?: string | null;
+    messages: Array<{
+      __typename?: 'ChatMessage';
+      id: string;
+      role: ChatRole;
+      status: ChatMessageStatus;
+      content: string;
+      createdAt: string;
+    }>;
+  } | null;
+};
+
+export type StartChatSessionMutationVariables = Exact<{
+  input?: InputMaybe<StartChatSessionInput>;
+}>;
+
+export type StartChatSessionMutation = {
+  __typename?: 'Mutation';
+  startChatSession: {
+    __typename?: 'ChatSession';
+    id: string;
+    title: string;
+    status: ChatSessionStatus;
+    createdAt: string;
+    updatedAt: string;
+    lastMessageAt?: string | null;
+  };
+};
+
+export type SendChatMessageMutationVariables = Exact<{
+  sessionId: Scalars['ID']['input'];
+  content: Scalars['String']['input'];
+}>;
+
+export type SendChatMessageMutation = {
+  __typename?: 'Mutation';
+  sendChatMessage: {
+    __typename?: 'SendChatMessagePayload';
+    session: {
+      __typename?: 'ChatSession';
+      id: string;
+      title: string;
+      status: ChatSessionStatus;
+      createdAt: string;
+      updatedAt: string;
+      lastMessageAt?: string | null;
+    };
+    userMessage: {
+      __typename?: 'ChatMessage';
+      id: string;
+      role: ChatRole;
+      status: ChatMessageStatus;
+      content: string;
+      createdAt: string;
+    };
+    assistantMessage: {
+      __typename?: 'ChatMessage';
+      id: string;
+      role: ChatRole;
+      status: ChatMessageStatus;
+      content: string;
+      createdAt: string;
+    };
+  };
+};
+
+export type ArchiveChatSessionMutationVariables = Exact<{
+  sessionId: Scalars['ID']['input'];
+}>;
+
+export type ArchiveChatSessionMutation = {
+  __typename?: 'Mutation';
+  archiveChatSession: {
+    __typename?: 'ChatSession';
+    id: string;
+    status: ChatSessionStatus;
+    updatedAt: string;
+  };
+};
+
+export type DeleteChatSessionMutationVariables = Exact<{
+  sessionId: Scalars['ID']['input'];
+}>;
+
+export type DeleteChatSessionMutation = { __typename?: 'Mutation'; deleteChatSession: boolean };
+
+export type ChatSessionStreamSubscriptionVariables = Exact<{
+  sessionId: Scalars['ID']['input'];
+  messageId: Scalars['ID']['input'];
+}>;
+
+export type ChatSessionStreamSubscription = {
   __typename?: 'Subscription';
-  aiChatStream: {
-    __typename?: 'AiChatStreamEvent';
+  chatSessionStream: {
+    __typename?: 'ChatSessionStreamEvent';
+    eventId: string;
     seq: number;
+    type: ChatStreamEventType;
+    sessionId: string;
+    messageId: string;
     chunk: string;
     done: boolean;
-    model: string;
     createdAt: string;
     error?: string | null;
   };
@@ -426,37 +649,28 @@ export type PostNeighborsQuery = {
   };
 };
 
-export const AiChatDocument = {
+export const ChatSessionsDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'AiChat' },
+      operation: 'query',
+      name: { kind: 'Name', value: 'ChatSessions' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'messages' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'ListType',
-              type: {
-                kind: 'NonNullType',
-                type: { kind: 'NamedType', name: { kind: 'Name', value: 'ChatMessageInput' } },
-              },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'model' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'search' } },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'temperature' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Float' } },
         },
       ],
       selectionSet: {
@@ -464,30 +678,33 @@ export const AiChatDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'aiChat' },
+            name: { kind: 'Name', value: 'chatSessions' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'messages' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'messages' } },
+                name: { kind: 'Name', value: 'limit' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'model' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'model' } },
+                name: { kind: 'Name', value: 'offset' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'temperature' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'temperature' } },
+                name: { kind: 'Name', value: 'search' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'search' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'reply' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastMessageAt' } },
               ],
             },
           },
@@ -495,38 +712,32 @@ export const AiChatDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<AiChatMutation, AiChatMutationVariables>;
-export const AiChatStreamDocument = {
+} as unknown as DocumentNode<ChatSessionsQuery, ChatSessionsQueryVariables>;
+export const ChatSessionDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
-      operation: 'subscription',
-      name: { kind: 'Name', value: 'AiChatStream' },
+      operation: 'query',
+      name: { kind: 'Name', value: 'ChatSession' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'messages' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
           type: {
             kind: 'NonNullType',
-            type: {
-              kind: 'ListType',
-              type: {
-                kind: 'NonNullType',
-                type: { kind: 'NamedType', name: { kind: 'Name', value: 'ChatMessageInput' } },
-              },
-            },
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
           },
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'model' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'temperature' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Float' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
         },
       ],
       selectionSet: {
@@ -534,31 +745,331 @@ export const AiChatStreamDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'aiChatStream' },
+            name: { kind: 'Name', value: 'chatSession' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'messages' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'messages' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'model' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'model' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'temperature' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'temperature' } },
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastMessageAt' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'messages' },
+                  arguments: [
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'limit' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+                    },
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'offset' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+                    },
+                  ],
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ChatSessionQuery, ChatSessionQueryVariables>;
+export const StartChatSessionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'StartChatSession' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'StartChatSessionInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'startChatSession' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastMessageAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<StartChatSessionMutation, StartChatSessionMutationVariables>;
+export const SendChatMessageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'SendChatMessage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sessionId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'content' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'sendChatMessage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sessionId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sessionId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'content' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'content' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'session' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastMessageAt' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'userMessage' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'assistantMessage' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SendChatMessageMutation, SendChatMessageMutationVariables>;
+export const ArchiveChatSessionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'ArchiveChatSession' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sessionId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'archiveChatSession' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sessionId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sessionId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ArchiveChatSessionMutation, ArchiveChatSessionMutationVariables>;
+export const DeleteChatSessionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteChatSession' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sessionId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteChatSession' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sessionId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sessionId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteChatSessionMutation, DeleteChatSessionMutationVariables>;
+export const ChatSessionStreamDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'subscription',
+      name: { kind: 'Name', value: 'ChatSessionStream' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sessionId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'chatSessionStream' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sessionId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sessionId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'messageId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'eventId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'seq' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sessionId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'messageId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'chunk' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'done' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'error' } },
               ],
@@ -568,7 +1079,7 @@ export const AiChatStreamDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<AiChatStreamSubscription, AiChatStreamSubscriptionVariables>;
+} as unknown as DocumentNode<ChatSessionStreamSubscription, ChatSessionStreamSubscriptionVariables>;
 export const MeDocument = {
   kind: 'Document',
   definitions: [
