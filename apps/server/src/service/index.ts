@@ -5,6 +5,18 @@ export {
   startArticleGenerationScheduler,
 } from './article-generation';
 export { listPosts, countPosts, getPostById, getPostNeighbors, buildPostWhere } from './post';
+export {
+  listChatSessions,
+  getChatSessionById,
+  listChatSessionMessages,
+  startChatSession,
+  sendChatMessageCommand,
+  renameChatSession,
+  archiveChatSession,
+  deleteChatSession,
+  streamSessionAssistantReply,
+  maybeGenerateSessionTitle,
+} from './chat';
 export { parseSeriesMetaFromSubtopic } from './series';
 export {
   createRole,

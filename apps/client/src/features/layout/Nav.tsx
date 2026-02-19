@@ -16,7 +16,7 @@ export function Nav() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { modal } = App.useApp();
-  const current = pathname.slice(1) || 'home';
+  const current = pathname.split('/').filter(Boolean)[0] ?? 'home';
 
   const navItems = NAV_ITEMS.map(({ path, i18nKey }) => ({
     key: path,
