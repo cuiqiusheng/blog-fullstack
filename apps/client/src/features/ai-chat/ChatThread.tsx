@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { ChatRole } from '@/graphql/codegen';
 import { MarkdownRenderer } from '@blog-fullstack/markdown-renderer';
 import type { UiChatMessage } from './types';
+import { useMemo } from 'react';
 
 const { Paragraph, Text } = Typography;
 
@@ -15,6 +16,7 @@ interface ChatThreadProps {
   emptyHint: string;
   pickHint: string;
   messages: UiChatMessage[];
+  model: string | null;
   viewportRef: React.RefObject<HTMLDivElement | null>;
   userLabel: string;
   assistantLabel: string;
@@ -30,14 +32,31 @@ export function ChatThread(props: ChatThreadProps) {
     emptyHint,
     pickHint,
     messages,
+    model,
     viewportRef,
     userLabel,
     assistantLabel,
   } = props;
 
+  const subtitleText = useMemo(() => {
+    if (!model) {
+      return subtitle;
+    }
+    return `${subtitle} ${model}`;
+  }, [subtitle, model]);
+
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
-      <Text type="secondary">{title ? `${title} · ${subtitle}` : subtitle}</Text>
+    <div
+      style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+        minWidth: 0,
+        maxHeight: 'calc(100% - 152px)',
+      }}
+    >
+      <Text type="secondary">{title ? `${title} · ${subtitleText}` : subtitleText}</Text>
       {error ? <Alert type="error" message={error} showIcon /> : null}
       <div
         ref={viewportRef}

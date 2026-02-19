@@ -87,6 +87,7 @@ subscription ChatSessionStream($sessionId: ID!, $messageId: ID!) {
     chunk
     done
     createdAt
+    model
     error
   }
 }

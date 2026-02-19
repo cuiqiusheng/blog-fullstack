@@ -67,10 +67,12 @@ export function useChatSessionController() {
 
   const [input, setInput] = useState('');
   const [actionPendingId, setActionPendingId] = useState<string | null>(null);
+  const [currentModel, setCurrentModel] = useState<string | null>(null);
   const [state, dispatch] = useReducer(chatThreadReducer, initialChatThreadState);
   const activeStreamRef = useRef<{ unsubscribe: () => void } | null>(null);
   const processedEventRef = useRef<Set<string>>(new Set());
   const messageViewportRef = useRef<HTMLDivElement | null>(null);
+  const shouldAutoScrollRef = useRef(true);
 
   const [startChatSession] = useMutation(StartChatSessionDocument);
   const [sendChatMessage] = useMutation(SendChatMessageDocument);
@@ -152,6 +154,9 @@ export function useChatSessionController() {
     if (state.phase !== 'streaming') {
       return;
     }
+    if (!shouldAutoScrollRef.current) {
+      return;
+    }
     const viewport = messageViewportRef.current;
     if (!viewport) {
       return;
@@ -161,6 +166,28 @@ export function useChatSessionController() {
     });
     return () => window.cancelAnimationFrame(task);
   }, [state.messages, state.phase]);
+
+  useEffect(() => {
+    const viewport = messageViewportRef.current;
+    if (!viewport) {
+      return;
+    }
+    const detectAutoScroll = () => {
+      const distanceToBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+      // Resume auto-scroll when user returns close to the bottom.
+      shouldAutoScrollRef.current = distanceToBottom <= 24;
+    };
+    viewport.addEventListener('scroll', detectAutoScroll);
+    return () => {
+      viewport.removeEventListener('scroll', detectAutoScroll);
+    };
+  }, [topicId]);
+
+  useEffect(() => {
+    if (state.phase === 'streaming') {
+      shouldAutoScrollRef.current = true;
+    }
+  }, [state.phase, state.activeSessionId]);
 
   useEffect(
     () => () => {
@@ -261,6 +288,8 @@ export function useChatSessionController() {
               chunk: event.chunk,
               createdAt: event.createdAt,
             });
+            console.log('event.model', event.model);
+            setCurrentModel(event.model ?? null);
             return;
           }
           if (event.type === 'MESSAGE_COMPLETED') {
@@ -362,6 +391,7 @@ export function useChatSessionController() {
     activeSessionId: topicId ?? null,
     activeSessionTitle: sessionData?.chatSession?.title ?? '',
     messages: state.messages,
+    model: currentModel,
     input,
     setInput,
     phase: state.phase,

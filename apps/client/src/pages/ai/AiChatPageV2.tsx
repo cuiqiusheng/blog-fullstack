@@ -77,6 +77,7 @@ export function AiChatPageV2() {
               pickHint={t('ai.chat.pickOrStart')}
               messages={controller.messages}
               viewportRef={controller.messageViewportRef}
+              model={controller.model}
               userLabel={t('ai.chat.user')}
               assistantLabel={t('ai.chat.assistant')}
             />

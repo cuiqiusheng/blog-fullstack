@@ -53,7 +53,7 @@
   "ai": {
     "chat": {
       "title": "AI 对话",
-      "subtitle": "对话模型：本地 Ollama / qwen2.5:14b",
+      "subtitle": "对话模型：",
       "empty": "开始提问吧，按 Enter 发送，Shift+Enter 换行。",
       "pickOrStart": "从左侧选择历史话题，或直接发送消息创建新话题。",
       "history": "历史话题",

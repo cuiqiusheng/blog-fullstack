@@ -99,6 +99,7 @@ export type ChatSessionStreamEvent = {
   error?: Maybe<Scalars['String']['output']>;
   eventId: Scalars['String']['output'];
   messageId: Scalars['ID']['output'];
+  model?: Maybe<Scalars['String']['output']>;
   seq: Scalars['Int']['output'];
   sessionId: Scalars['ID']['output'];
   type: ChatStreamEventType;
@@ -580,6 +581,7 @@ export type ChatSessionStreamEventResolvers<
   error?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   eventId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   messageId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  model?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   seq?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   sessionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['ChatStreamEventType'], ParentType, ContextType>;

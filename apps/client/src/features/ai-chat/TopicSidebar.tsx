@@ -1,5 +1,6 @@
-import { Button, List, Popconfirm, Space, Spin, Typography } from 'antd';
+import { Button, Dropdown, List, Popconfirm, Space, Spin, Typography } from 'antd';
 import dayjs from 'dayjs';
+import { useState } from 'react';
 
 const { Text } = Typography;
 
@@ -28,6 +29,8 @@ interface TopicSidebarProps {
 }
 
 export function TopicSidebar(props: TopicSidebarProps) {
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
   const {
     loading,
     items,
@@ -76,6 +79,12 @@ export function TopicSidebar(props: TopicSidebarProps) {
             locale={{ emptyText }}
             renderItem={item => (
               <List.Item
+                onMouseEnter={() => {
+                  setHoveredId(item.id);
+                }}
+                onMouseLeave={() => {
+                  setHoveredId(null);
+                }}
                 onClick={() => {
                   onSelect(item.id);
                 }}
@@ -96,46 +105,82 @@ export function TopicSidebar(props: TopicSidebarProps) {
                   title={<Text ellipsis>{item.title}</Text>}
                   description={dayjs(item.updatedAt).format('YYYY-MM-DD HH:mm')}
                 />
-                <Space size={4}>
-                  <Popconfirm
-                    title={archiveConfirmText}
-                    onConfirm={event => {
-                      event?.stopPropagation();
-                      onArchive(item.id);
+                <Dropdown
+                  trigger={['click']}
+                  placement="bottomRight"
+                  dropdownRender={() => (
+                    <Space
+                      direction="vertical"
+                      size={4}
+                      style={{
+                        background: '#fff',
+                        border: '1px solid #f0f0f0',
+                        borderRadius: 8,
+                        padding: 6,
+                        boxShadow: '0 6px 16px rgba(0, 0, 0, 0.08)',
+                      }}
+                      onClick={event => event.stopPropagation()}
+                    >
+                      <Popconfirm
+                        title={archiveConfirmText}
+                        onConfirm={event => {
+                          event?.stopPropagation();
+                          onArchive(item.id);
+                        }}
+                      >
+                        <Button
+                          size="small"
+                          type="text"
+                          block
+                          loading={actionPendingId === item.id}
+                          onClick={event => {
+                            event.stopPropagation();
+                          }}
+                        >
+                          {archiveText}
+                        </Button>
+                      </Popconfirm>
+                      <Popconfirm
+                        title={deleteConfirmText}
+                        okButtonProps={{ danger: true }}
+                        onConfirm={event => {
+                          event?.stopPropagation();
+                          onDelete(item.id);
+                        }}
+                      >
+                        <Button
+                          size="small"
+                          type="text"
+                          danger
+                          block
+                          loading={actionPendingId === item.id}
+                          onClick={event => {
+                            event.stopPropagation();
+                          }}
+                        >
+                          {deleteText}
+                        </Button>
+                      </Popconfirm>
+                    </Space>
+                  )}
+                >
+                  <Button
+                    size="small"
+                    type="text"
+                    loading={actionPendingId === item.id}
+                    style={{
+                      visibility:
+                        hoveredId === item.id || item.id === activeId || actionPendingId === item.id
+                          ? 'visible'
+                          : 'hidden',
+                    }}
+                    onClick={event => {
+                      event.stopPropagation();
                     }}
                   >
-                    <Button
-                      size="small"
-                      type="text"
-                      loading={actionPendingId === item.id}
-                      onClick={event => {
-                        event.stopPropagation();
-                      }}
-                    >
-                      {archiveText}
-                    </Button>
-                  </Popconfirm>
-                  <Popconfirm
-                    title={deleteConfirmText}
-                    okButtonProps={{ danger: true }}
-                    onConfirm={event => {
-                      event?.stopPropagation();
-                      onDelete(item.id);
-                    }}
-                  >
-                    <Button
-                      size="small"
-                      type="text"
-                      danger
-                      loading={actionPendingId === item.id}
-                      onClick={event => {
-                        event.stopPropagation();
-                      }}
-                    >
-                      {deleteText}
-                    </Button>
-                  </Popconfirm>
-                </Space>
+                    ...
+                  </Button>
+                </Dropdown>
               </List.Item>
             )}
           />

@@ -97,6 +97,7 @@ export type ChatSessionStreamEvent = {
   error?: Maybe<Scalars['String']['output']>;
   eventId: Scalars['String']['output'];
   messageId: Scalars['ID']['output'];
+  model?: Maybe<Scalars['String']['output']>;
   seq: Scalars['Int']['output'];
   sessionId: Scalars['ID']['output'];
   type: ChatStreamEventType;
@@ -490,6 +491,7 @@ export type ChatSessionStreamSubscription = {
     chunk: string;
     done: boolean;
     createdAt: string;
+    model?: string | null;
     error?: string | null;
   };
 };
@@ -1071,6 +1073,7 @@ export const ChatSessionStreamDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'chunk' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'done' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'error' } },
               ],
             },

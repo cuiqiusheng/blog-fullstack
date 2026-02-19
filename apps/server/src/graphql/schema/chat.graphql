@@ -49,6 +49,7 @@ type ChatSessionStreamEvent {
   chunk: String!
   done: Boolean!
   createdAt: String!
+  model: String
   error: String
 }
 

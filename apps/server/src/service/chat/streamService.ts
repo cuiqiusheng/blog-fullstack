@@ -2,24 +2,7 @@ import { ChatMessageRole, ChatMessageStatus } from '@/generated/prisma/client';
 import { generateTextStreamWithOllama } from '@/lib/ollama';
 import { prisma } from '@/lib/prisma';
 import { finalizeAssistantMessage, maybeGenerateSessionTitle } from './commandService';
-
-export type ChatStreamEventType =
-  | 'MESSAGE_STARTED'
-  | 'MESSAGE_CHUNK'
-  | 'MESSAGE_COMPLETED'
-  | 'MESSAGE_FAILED';
-
-export interface ChatSessionStreamEvent {
-  eventId: string;
-  seq: number;
-  type: ChatStreamEventType;
-  sessionId: string;
-  messageId: string;
-  chunk: string;
-  done: boolean;
-  createdAt: string;
-  error: string | null;
-}
+import { ChatSessionStreamEvent, ChatStreamEventType } from '@/graphql/__generated__/types';
 
 function buildPromptFromMessages(
   messages: Array<{ role: ChatMessageRole; content: string; status: ChatMessageStatus }>,
@@ -83,7 +66,7 @@ export async function* streamSessionAssistantReply(options: {
     ...base,
     eventId: `${options.messageId}:${seq}`,
     seq,
-    type: 'MESSAGE_STARTED',
+    type: ChatStreamEventType.MessageStarted,
     chunk: '',
     done: false,
     createdAt: new Date().toISOString(),
@@ -100,10 +83,11 @@ export async function* streamSessionAssistantReply(options: {
         ...base,
         eventId: `${options.messageId}:${seq}`,
         seq,
-        type: 'MESSAGE_CHUNK',
+        type: ChatStreamEventType.MessageChunk,
         chunk: item.chunk,
         done: false,
         createdAt: item.createdAt ?? new Date().toISOString(),
+        model: item.model ?? undefined,
         error: null,
       };
     }
@@ -121,7 +105,7 @@ export async function* streamSessionAssistantReply(options: {
       ...base,
       eventId: `${options.messageId}:${seq}`,
       seq,
-      type: 'MESSAGE_COMPLETED',
+      type: ChatStreamEventType.MessageCompleted,
       chunk: '',
       done: true,
       createdAt: new Date().toISOString(),
@@ -140,7 +124,7 @@ export async function* streamSessionAssistantReply(options: {
       ...base,
       eventId: `${options.messageId}:${seq}`,
       seq,
-      type: 'MESSAGE_FAILED',
+      type: ChatStreamEventType.MessageFailed,
       chunk: '',
       done: true,
       createdAt: new Date().toISOString(),

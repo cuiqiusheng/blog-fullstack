@@ -53,7 +53,7 @@
   "ai": {
     "chat": {
       "title": "AI Chat",
-      "subtitle": "Model: local Ollama / qwen2.5:14b",
+      "subtitle": "Model: ",
       "empty": "Start asking. Press Enter to send, Shift+Enter for newline.",
       "pickOrStart": "Select a topic from history or send a message to start a new topic.",
       "history": "History Topics",
