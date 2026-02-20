@@ -10,7 +10,8 @@
     "home": "Home",
     "posts": "Posts",
     "userSetting": "User Setting",
-    "ai": "AI"
+    "ai": "AI",
+    "reactDemos": "React Demos"
   },
   "auth": {
     "login": {
