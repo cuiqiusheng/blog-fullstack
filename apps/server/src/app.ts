@@ -11,16 +11,7 @@ import { requestLogger } from './middleware/requestLogger';
 import type { GraphQLContext } from './types/context';
 import { typeDefs } from './graphql/schema';
 import { resolvers } from './graphql/resolvers';
-
-const { useServer } = require('graphql-ws/use/ws') as {
-  useServer: (
-    _options: {
-      schema: ReturnType<typeof makeExecutableSchema>;
-      context: (_ctx: { connectionParams?: Record<string, unknown> }) => Promise<unknown>;
-    },
-    _wsServer: WebSocketServer,
-  ) => { dispose: () => Promise<void> };
-};
+import { useServer } from 'graphql-ws/use/ws';
 
 dotenv.config();
 

@@ -4,11 +4,15 @@ import { useTranslation } from 'react-i18next';
 import { clearToken } from '@/lib/auth';
 import { setLocale, type Locale } from '@/lib/i18n';
 
-const NAV_ITEMS: { path: string; i18nKey: 'home' | 'posts' | 'userSetting' | 'ai' }[] = [
+const NAV_ITEMS: {
+  path: string;
+  i18nKey: 'home' | 'posts' | 'userSetting' | 'ai' | 'reactDemos';
+}[] = [
   { path: 'home', i18nKey: 'home' },
   { path: 'posts', i18nKey: 'posts' },
   { path: 'user-setting', i18nKey: 'userSetting' },
   { path: 'ai', i18nKey: 'ai' },
+  { path: 'react-demos', i18nKey: 'reactDemos' },
 ];
 
 export function Nav() {

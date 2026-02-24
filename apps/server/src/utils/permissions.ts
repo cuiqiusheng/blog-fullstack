@@ -3,7 +3,7 @@ import type { GraphQLContext } from '../types/context';
 import type { AuthUser } from '../middleware/auth';
 
 /**
- * 要求已认证，否则抛出 UNAUTHENTICATED
+ * Require authentication, otherwise throw UNAUTHENTICATED
  */
 export function requireAuth(context: GraphQLContext): AuthUser {
   if (!context.isAuthenticated || !context.user) {
@@ -15,7 +15,7 @@ export function requireAuth(context: GraphQLContext): AuthUser {
 }
 
 /**
- * 要求拥有指定角色，否则抛出 FORBIDDEN
+ * Require having the specified role, otherwise throw FORBIDDEN
  */
 export function requireRole(context: GraphQLContext, roleName: string): AuthUser {
   const user = requireAuth(context);
@@ -29,7 +29,7 @@ export function requireRole(context: GraphQLContext, roleName: string): AuthUser
 }
 
 /**
- * 要求拥有任意一个指定角色
+ * Require having any of the specified roles
  */
 export function requireAnyRole(context: GraphQLContext, roleNames: string[]): AuthUser {
   const user = requireAuth(context);

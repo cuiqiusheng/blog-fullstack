@@ -288,7 +288,6 @@ export function useChatSessionController() {
               chunk: event.chunk,
               createdAt: event.createdAt,
             });
-            console.log('event.model', event.model);
             setCurrentModel(event.model ?? null);
             return;
           }

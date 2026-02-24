@@ -8,15 +8,11 @@ import { createChildLogger } from '../utils/logger';
  */
 export type RequestLogger = ReturnType<typeof createChildLogger>;
 
-declare global {
-  /* eslint-disable no-unused-vars -- TypeScript ambient declaration: Express.Request augmentation (req.id, req.log) */
-  namespace Express {
-    interface Request {
-      id?: string;
-      log?: RequestLogger;
-    }
+declare module 'express' {
+  interface Request {
+    id?: string;
+    log?: RequestLogger;
   }
-  /* eslint-enable no-unused-vars */
 }
 
 /**

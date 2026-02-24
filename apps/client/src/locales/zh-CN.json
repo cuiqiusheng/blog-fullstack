@@ -10,7 +10,8 @@
     "home": "首页",
     "posts": "文章",
     "userSetting": "用户设置",
-    "ai": "AI"
+    "ai": "AI",
+    "reactDemos": "React Demos"
   },
   "auth": {
     "login": {
