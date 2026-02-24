@@ -16,6 +16,7 @@
     "@blog-fullstack/markdown-renderer": "workspace:*",
     "@graphql-typed-document-node/core": "^3.2.0",
     "antd": "^6.3.0",
+    "babel-plugin-react-compiler": "^1.0.0",
     "dayjs": "^1.11.19",
     "graphql": "^16.12.0",
     "graphql-ws": "^6.0.7",
