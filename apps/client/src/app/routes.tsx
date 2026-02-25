@@ -17,6 +17,7 @@ const PostListPage = lazy(() => import('@/pages/posts').then(m => ({ default: m.
 const PostDetailPage = lazy(() =>
   import('@/pages/posts').then(m => ({ default: m.PostDetailPage })),
 );
+const PostWritePage = lazy(() => import('@/pages/posts').then(m => ({ default: m.PostWritePage })));
 const AiChatPage = lazy(() => import('@/pages/ai/index').then(m => ({ default: m.AiChatPage })));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -87,6 +88,26 @@ export function AppRoutes() {
             <ProtectedRoute>
               <AppLayout>
                 <PostListPage />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/posts/new"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <PostWritePage />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/posts/:id/edit"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <PostWritePage />
               </AppLayout>
             </ProtectedRoute>
           }

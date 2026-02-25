@@ -1,5 +1,5 @@
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react';
-import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArchiveChatSessionDocument,
@@ -87,10 +87,7 @@ export function useChatSessionController() {
     variables: { limit: 100, offset: 0 },
     fetchPolicy: 'cache-and-network',
   });
-  const sessionQueryVariables = useMemo(
-    () => ({ id: topicId ?? '', limit: 200, offset: 0 }),
-    [topicId],
-  );
+  const sessionQueryVariables = { id: topicId ?? '', limit: 200, offset: 0 };
 
   const { data: sessionData, loading: sessionLoading } = useQuery(ChatSessionDocument, {
     variables: sessionQueryVariables,
@@ -99,7 +96,7 @@ export function useChatSessionController() {
     fetchPolicy: 'cache-and-network',
   });
 
-  const sessions = useMemo(() => sessionsData?.chatSessions ?? [], [sessionsData?.chatSessions]);
+  const sessions = sessionsData?.chatSessions ?? [];
 
   useEffect(() => {
     // Cleanup is only tied to route/session switching, not to data refresh.

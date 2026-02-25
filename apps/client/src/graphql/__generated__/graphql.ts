@@ -1,3 +1,4 @@
+/* eslint-disable */
 import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -110,6 +111,14 @@ export enum ChatStreamEventType {
   MessageStarted = 'MESSAGE_STARTED',
 }
 
+export type CreatePostInput = {
+  content: Scalars['String']['input'];
+  status?: InputMaybe<PostStatus>;
+  subtopic?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+  topic?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type GeneratePostsInput = {
   autoPublish?: InputMaybe<Scalars['Boolean']['input']>;
   concurrency?: InputMaybe<Scalars['Int']['input']>;
@@ -156,7 +165,9 @@ export type Mutation = {
   _empty?: Maybe<Scalars['String']['output']>;
   aiChat: ChatResponse;
   archiveChatSession: ChatSession;
+  createPost: Post;
   deleteChatSession: Scalars['Boolean']['output'];
+  deletePost: Scalars['Boolean']['output'];
   generatePosts: GenerationBatchReport;
   login: AuthPayload;
   register: AuthPayload;
@@ -164,6 +175,7 @@ export type Mutation = {
   retryGenerationBatch: GenerationBatchReport;
   sendChatMessage: SendChatMessagePayload;
   startChatSession: ChatSession;
+  updatePost: Post;
 };
 
 export type MutationAiChatArgs = {
@@ -176,8 +188,16 @@ export type MutationArchiveChatSessionArgs = {
   sessionId: Scalars['ID']['input'];
 };
 
+export type MutationCreatePostArgs = {
+  input: CreatePostInput;
+};
+
 export type MutationDeleteChatSessionArgs = {
   sessionId: Scalars['ID']['input'];
+};
+
+export type MutationDeletePostArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type MutationGeneratePostsArgs = {
@@ -211,6 +231,11 @@ export type MutationSendChatMessageArgs = {
 
 export type MutationStartChatSessionArgs = {
   input?: InputMaybe<StartChatSessionInput>;
+};
+
+export type MutationUpdatePostArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdatePostInput;
 };
 
 export type Post = {
@@ -345,6 +370,14 @@ export type SubscriptionAiChatStreamArgs = {
 export type SubscriptionChatSessionStreamArgs = {
   messageId: Scalars['ID']['input'];
   sessionId: Scalars['ID']['input'];
+};
+
+export type UpdatePostInput = {
+  content?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<PostStatus>;
+  subtopic?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  topic?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type User = {
@@ -650,6 +683,43 @@ export type PostNeighborsQuery = {
     } | null;
   };
 };
+
+export type CreatePostMutationVariables = Exact<{
+  input: CreatePostInput;
+}>;
+
+export type CreatePostMutation = {
+  __typename?: 'Mutation';
+  createPost: {
+    __typename?: 'Post';
+    id: string;
+    title: string;
+    status: PostStatus;
+    createdAt: string;
+  };
+};
+
+export type UpdatePostMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: UpdatePostInput;
+}>;
+
+export type UpdatePostMutation = {
+  __typename?: 'Mutation';
+  updatePost: {
+    __typename?: 'Post';
+    id: string;
+    title: string;
+    status: PostStatus;
+    updatedAt: string;
+  };
+};
+
+export type DeletePostMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+export type DeletePostMutation = { __typename?: 'Mutation'; deletePost: boolean };
 
 export const ChatSessionsDocument = {
   kind: 'Document',
@@ -1645,3 +1715,142 @@ export const PostNeighborsDocument = {
     },
   ],
 } as unknown as DocumentNode<PostNeighborsQuery, PostNeighborsQueryVariables>;
+export const CreatePostDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreatePost' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreatePostInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createPost' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreatePostMutation, CreatePostMutationVariables>;
+export const UpdatePostDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdatePost' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdatePostInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updatePost' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdatePostMutation, UpdatePostMutationVariables>;
+export const DeletePostDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeletePost' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deletePost' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeletePostMutation, DeletePostMutationVariables>;

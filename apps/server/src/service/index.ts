@@ -5,6 +5,7 @@ export {
   startArticleGenerationScheduler,
 } from './article-generation';
 export { listPosts, countPosts, getPostById, getPostNeighbors, buildPostWhere } from './post';
+export { createPost, updatePost, deletePost } from './post';
 export {
   listChatSessions,
   getChatSessionById,

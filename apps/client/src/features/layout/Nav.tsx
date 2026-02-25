@@ -52,6 +52,9 @@ export function Nav() {
         items={navItems}
         style={{ flex: 1, minWidth: 0 }}
       />
+      <Button type="primary" onClick={() => navigate('/posts/new')} style={{ marginRight: 8 }}>
+        {t('nav.write')}
+      </Button>
       <Dropdown
         menu={{
           items: langMenuItems,

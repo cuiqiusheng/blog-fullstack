@@ -101,7 +101,26 @@ extend type Query {
   generationBatch(batchId: String!): GenerationBatchReport!
 }
 
+input CreatePostInput {
+  title: String!
+  content: String!
+  topic: String
+  subtopic: String
+  status: PostStatus
+}
+
+input UpdatePostInput {
+  title: String
+  content: String
+  topic: String
+  subtopic: String
+  status: PostStatus
+}
+
 extend type Mutation {
+  createPost(input: CreatePostInput!): Post!
+  updatePost(id: ID!, input: UpdatePostInput!): Post!
+  deletePost(id: ID!): Boolean!
   generatePosts(input: GeneratePostsInput!): GenerationBatchReport!
   retryGenerationBatch(batchId: String!, countPerSubtopic: Int): GenerationBatchReport!
 }
