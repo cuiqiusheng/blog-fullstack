@@ -1,33 +1,26 @@
 # Dependencies
 node_modules/
-.pnp
-.pnp.js
-
-# Testing
-coverage/
-*.lcov
-.nyc_output
 
 # Build outputs
 dist/
 build/
 *.tsbuildinfo
 
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
 # Environment variables
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env*.local
+
+# Logs
+*.log
+
+# Testing
+coverage/
+*.lcov
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Editor/IDE
 .vscode/
@@ -35,43 +28,18 @@ lerna-debug.log*
 *.swp
 *.swo
 *~
-.DS_Store
 
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Temporary files
-*.tmp
-*.temp
+# Cache
 .cache/
-.parcel-cache/
-
-# Debug
-.vscode-test/
-*.pid
-*.seed
-*.pid.lock
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
 .eslintcache
-
-# Optional prettier cache
 .prettiercache
 
-# Microservices/Deployment
+# Deployment
 .vercel
-.netlify
 
-# Misc
+# Temporary
+*.tmp
+*.temp
+
+# Security
 *.pem
-.ssh/
-*.key

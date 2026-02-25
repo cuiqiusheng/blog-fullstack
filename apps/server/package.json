@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "author": "Jack",
   "description": "A full-stack blog system backend built with Express, Apollo Server, GraphQL, and PostgreSQL.",
-  "type": "commonjs",
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon",
