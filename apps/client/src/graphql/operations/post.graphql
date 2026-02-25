@@ -99,3 +99,25 @@ query PostNeighbors($id: ID!) {
   }
 }
 
+mutation CreatePost($input: CreatePostInput!) {
+  createPost(input: $input) {
+    id
+    title
+    status
+    createdAt
+  }
+}
+
+mutation UpdatePost($id: ID!, $input: UpdatePostInput!) {
+  updatePost(id: $id, input: $input) {
+    id
+    title
+    status
+    updatedAt
+  }
+}
+
+mutation DeletePost($id: ID!) {
+  deletePost(id: $id)
+}
+

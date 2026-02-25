@@ -1,4 +1,3 @@
-import { PostStatus as PrismaPostStatus } from '@/generated/prisma/client';
 import {
   runBatchGeneration,
   getGenerationBatchReport,
@@ -7,15 +6,20 @@ import {
   getPostById,
   getPostNeighbors,
   listPosts,
+  createPost,
+  updatePost,
+  deletePost,
   type TopicGenerationPlan,
 } from '@/service';
 import {
-  PostStatus as GqlPostStatus,
   PostSortField as GqlPostSortField,
   SortDirection as GqlSortDirection,
   type GeneratePostsInput,
+  type MutationCreatePostArgs,
+  type MutationDeletePostArgs,
   type MutationGeneratePostsArgs,
   type MutationRetryGenerationBatchArgs,
+  type MutationUpdatePostArgs,
   type QueryPostArgs,
   type QueryGenerationBatchArgs,
   type QueryPostNeighborsArgs,
@@ -24,6 +28,7 @@ import {
 } from '../__generated__/types';
 import type { GraphQLContext } from '@/types/context';
 import { requireAuth } from '@/utils/permissions';
+import { gqlToPrismaStatus, toGqlPost } from './postMapper';
 
 function normalizePlans(plans: GeneratePostsInput['plans']): TopicGenerationPlan[] {
   return plans.map(plan => ({
@@ -31,18 +36,6 @@ function normalizePlans(plans: GeneratePostsInput['plans']): TopicGenerationPlan
     subtopics: plan.subtopics,
   }));
 }
-
-const gqlToPrismaStatus: Record<GqlPostStatus, PrismaPostStatus> = {
-  [GqlPostStatus.Draft]: PrismaPostStatus.DRAFT,
-  [GqlPostStatus.Published]: PrismaPostStatus.PUBLISHED,
-  [GqlPostStatus.Archived]: PrismaPostStatus.ARCHIVED,
-};
-
-const prismaToGqlStatus: Record<PrismaPostStatus, GqlPostStatus> = {
-  [PrismaPostStatus.DRAFT]: GqlPostStatus.Draft,
-  [PrismaPostStatus.PUBLISHED]: GqlPostStatus.Published,
-  [PrismaPostStatus.ARCHIVED]: GqlPostStatus.Archived,
-};
 
 const gqlToServiceSortField: Record<GqlPostSortField, 'createdAt' | 'updatedAt' | 'subtopic'> = {
   [GqlPostSortField.CreatedAt]: 'createdAt',
@@ -63,31 +56,14 @@ export const postResolvers = {
       if (!row) {
         return null;
       }
-      return {
-        ...row,
-        status: prismaToGqlStatus[row.status],
-        seriesKey: row.seriesKey,
-        seriesOrder: row.seriesOrder,
-        createdAt: row.createdAt.toISOString(),
-        updatedAt: row.updatedAt.toISOString(),
-        publishedAt: row.publishedAt ? row.publishedAt.toISOString() : null,
-      };
+      return toGqlPost(row);
     },
     postNeighbors: async (_: unknown, args: QueryPostNeighborsArgs, context: GraphQLContext) => {
       requireAuth(context);
       const neighbors = await getPostNeighbors(args.id);
-      const mapPost = (post: NonNullable<typeof neighbors.prev>) => ({
-        ...post,
-        status: prismaToGqlStatus[post.status],
-        seriesKey: post.seriesKey,
-        seriesOrder: post.seriesOrder,
-        createdAt: post.createdAt.toISOString(),
-        updatedAt: post.updatedAt.toISOString(),
-        publishedAt: post.publishedAt ? post.publishedAt.toISOString() : null,
-      });
       return {
-        prev: neighbors.prev ? mapPost(neighbors.prev) : null,
-        next: neighbors.next ? mapPost(neighbors.next) : null,
+        prev: neighbors.prev ? toGqlPost(neighbors.prev) : null,
+        next: neighbors.next ? toGqlPost(neighbors.next) : null,
       };
     },
     posts: async (_: unknown, args: QueryPostsArgs, context: GraphQLContext) => {
@@ -106,15 +82,7 @@ export const postResolvers = {
         limit: args.limit ?? 20,
         offset: args.offset ?? 0,
       });
-      return rows.map(post => ({
-        ...post,
-        status: prismaToGqlStatus[post.status],
-        seriesKey: post.seriesKey,
-        seriesOrder: post.seriesOrder,
-        createdAt: post.createdAt.toISOString(),
-        updatedAt: post.updatedAt.toISOString(),
-        publishedAt: post.publishedAt ? post.publishedAt.toISOString() : null,
-      }));
+      return rows.map(toGqlPost);
     },
     postsTotal: async (_: unknown, args: QueryPostsTotalArgs, context: GraphQLContext) => {
       const user = requireAuth(context);
@@ -158,6 +126,20 @@ export const postResolvers = {
     ) => {
       requireAuth(context);
       return retryGenerationBatch(args.batchId, args.countPerSubtopic ?? 1);
+    },
+    createPost: async (_: unknown, args: MutationCreatePostArgs, context: GraphQLContext) => {
+      const user = requireAuth(context);
+      const post = await createPost(user.id, args.input);
+      return toGqlPost(post);
+    },
+    updatePost: async (_: unknown, args: MutationUpdatePostArgs, context: GraphQLContext) => {
+      const user = requireAuth(context);
+      const post = await updatePost(args.id, user.id, args.input);
+      return toGqlPost(post);
+    },
+    deletePost: async (_: unknown, args: MutationDeletePostArgs, context: GraphQLContext) => {
+      const user = requireAuth(context);
+      return deletePost(args.id, user.id);
     },
   },
 };

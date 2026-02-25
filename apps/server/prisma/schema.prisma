@@ -89,7 +89,7 @@ model Post {
   subtopic          String?
   seriesKey         String?
   seriesOrder       Int?
-  status            PostStatus @default(PUBLISHED)
+  status            PostStatus @default(DRAFT)
   publishedAt       DateTime?
   source            String?
   wordCount         Int?

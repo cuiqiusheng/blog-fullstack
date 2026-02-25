@@ -3,8 +3,6 @@ import dayjs from 'dayjs';
 import { ChatRole } from '@/graphql/codegen';
 import { MarkdownRenderer } from '@blog-fullstack/markdown-renderer';
 import type { UiChatMessage } from './types';
-import { useMemo } from 'react';
-
 const { Paragraph, Text } = Typography;
 
 interface ChatThreadProps {
@@ -38,12 +36,7 @@ export function ChatThread(props: ChatThreadProps) {
     assistantLabel,
   } = props;
 
-  const subtitleText = useMemo(() => {
-    if (!model) {
-      return subtitle;
-    }
-    return `${subtitle} ${model}`;
-  }, [subtitle, model]);
+  const subtitleText = model ? `${subtitle} ${model}` : subtitle;
 
   return (
     <div

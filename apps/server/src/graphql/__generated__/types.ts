@@ -112,6 +112,14 @@ export enum ChatStreamEventType {
   MessageStarted = 'MESSAGE_STARTED',
 }
 
+export type CreatePostInput = {
+  content: Scalars['String']['input'];
+  status?: InputMaybe<PostStatus>;
+  subtopic?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+  topic?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type GeneratePostsInput = {
   autoPublish?: InputMaybe<Scalars['Boolean']['input']>;
   concurrency?: InputMaybe<Scalars['Int']['input']>;
@@ -158,7 +166,9 @@ export type Mutation = {
   _empty?: Maybe<Scalars['String']['output']>;
   aiChat: ChatResponse;
   archiveChatSession: ChatSession;
+  createPost: Post;
   deleteChatSession: Scalars['Boolean']['output'];
+  deletePost: Scalars['Boolean']['output'];
   generatePosts: GenerationBatchReport;
   login: AuthPayload;
   register: AuthPayload;
@@ -166,6 +176,7 @@ export type Mutation = {
   retryGenerationBatch: GenerationBatchReport;
   sendChatMessage: SendChatMessagePayload;
   startChatSession: ChatSession;
+  updatePost: Post;
 };
 
 export type MutationAiChatArgs = {
@@ -178,8 +189,16 @@ export type MutationArchiveChatSessionArgs = {
   sessionId: Scalars['ID']['input'];
 };
 
+export type MutationCreatePostArgs = {
+  input: CreatePostInput;
+};
+
 export type MutationDeleteChatSessionArgs = {
   sessionId: Scalars['ID']['input'];
+};
+
+export type MutationDeletePostArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type MutationGeneratePostsArgs = {
@@ -213,6 +232,11 @@ export type MutationSendChatMessageArgs = {
 
 export type MutationStartChatSessionArgs = {
   input?: InputMaybe<StartChatSessionInput>;
+};
+
+export type MutationUpdatePostArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdatePostInput;
 };
 
 export type Post = {
@@ -349,6 +373,14 @@ export type SubscriptionChatSessionStreamArgs = {
   sessionId: Scalars['ID']['input'];
 };
 
+export type UpdatePostInput = {
+  content?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<PostStatus>;
+  subtopic?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  topic?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type User = {
   __typename?: 'User';
   email: Scalars['String']['output'];
@@ -455,6 +487,7 @@ export type ResolversTypes = ResolversObject<{
   ChatSessionStatus: ChatSessionStatus;
   ChatSessionStreamEvent: ResolverTypeWrapper<ChatSessionStreamEvent>;
   ChatStreamEventType: ChatStreamEventType;
+  CreatePostInput: CreatePostInput;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   GeneratePostsInput: GeneratePostsInput;
   GenerationBatchReport: ResolverTypeWrapper<GenerationBatchReport>;
@@ -474,6 +507,7 @@ export type ResolversTypes = ResolversObject<{
   StartChatSessionInput: StartChatSessionInput;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
+  UpdatePostInput: UpdatePostInput;
   User: ResolverTypeWrapper<User>;
 }>;
 
@@ -487,6 +521,7 @@ export type ResolversParentTypes = ResolversObject<{
   ChatResponse: ChatResponse;
   ChatSession: ChatSession;
   ChatSessionStreamEvent: ChatSessionStreamEvent;
+  CreatePostInput: CreatePostInput;
   Float: Scalars['Float']['output'];
   GeneratePostsInput: GeneratePostsInput;
   GenerationBatchReport: GenerationBatchReport;
@@ -503,6 +538,7 @@ export type ResolversParentTypes = ResolversObject<{
   StartChatSessionInput: StartChatSessionInput;
   String: Scalars['String']['output'];
   Subscription: {};
+  UpdatePostInput: UpdatePostInput;
   User: User;
 }>;
 
@@ -638,11 +674,23 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationArchiveChatSessionArgs, 'sessionId'>
   >;
+  createPost?: Resolver<
+    ResolversTypes['Post'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationCreatePostArgs, 'input'>
+  >;
   deleteChatSession?: Resolver<
     ResolversTypes['Boolean'],
     ParentType,
     ContextType,
     RequireFields<MutationDeleteChatSessionArgs, 'sessionId'>
+  >;
+  deletePost?: Resolver<
+    ResolversTypes['Boolean'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationDeletePostArgs, 'id'>
   >;
   generatePosts?: Resolver<
     ResolversTypes['GenerationBatchReport'],
@@ -685,6 +733,12 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     Partial<MutationStartChatSessionArgs>
+  >;
+  updatePost?: Resolver<
+    ResolversTypes['Post'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationUpdatePostArgs, 'id' | 'input'>
   >;
 }>;
 

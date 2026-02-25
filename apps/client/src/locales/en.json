@@ -11,7 +11,8 @@
     "posts": "Posts",
     "userSetting": "User Setting",
     "ai": "AI",
-    "reactDemos": "React Demos"
+    "reactDemos": "React Demos",
+    "write": "Write"
   },
   "auth": {
     "login": {
@@ -110,7 +111,43 @@
       "notFound": "Post not found",
       "backToList": "Back to list",
       "prev": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "edit": "Edit",
+      "publish": "Publish",
+      "delete": "Delete",
+      "deleteConfirm": "Are you sure you want to delete this post?",
+      "deleteSuccess": "Deleted",
+      "publishSuccess": "Published successfully"
+    },
+    "actions": {
+      "edit": "Edit",
+      "publish": "Publish",
+      "delete": "Delete",
+      "deleteConfirm": "Are you sure you want to delete this post?",
+      "deleteSuccess": "Deleted",
+      "publishSuccess": "Published successfully"
+    },
+    "write": {
+      "pageTitle": "Write",
+      "editPageTitle": "Edit Article",
+      "titlePlaceholder": "Enter post title...",
+      "topicPlaceholder": "Topic (optional)",
+      "subtopicPlaceholder": "Subtopic (optional)",
+      "metadata": "Post Info",
+      "saveDraft": "Save Draft",
+      "save": "Save",
+      "update": "Update",
+      "publish": "Publish",
+      "preview": "Preview",
+      "draftSaved": "Draft saved",
+      "published": "Published",
+      "updated": "Updated successfully",
+      "titleRequired": "Title is required",
+      "contentRequired": "Content is required",
+      "saveFailed": "Save failed, please try again",
+      "notFound": "Post not found",
+      "notAuthor": "Not authorized to edit this post",
+      "editorPlaceholder": "Start writing, type / for commands..."
     }
   },
   "placeholders": {

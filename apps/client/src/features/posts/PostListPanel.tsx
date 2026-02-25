@@ -1,17 +1,33 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useQuery } from '@apollo/client/react';
-import { Card, Empty, Input, List, Pagination, Select, Space, Tag, Typography } from 'antd';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery } from '@apollo/client/react';
+import {
+  App,
+  Button,
+  Card,
+  Empty,
+  Input,
+  List,
+  Pagination,
+  Popconfirm,
+  Select,
+  Space,
+  Tag,
+  Typography,
+} from 'antd';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { createExcerpt, estimateReadMinutes } from '@blog-fullstack/content-utils';
 import {
+  DeletePostDocument,
   PostsDocument,
   PostsTotalDocument,
   PostStatus,
   PostSortField,
   SortDirection,
+  UpdatePostDocument,
 } from '@/graphql/codegen';
 import { useTranslation } from 'react-i18next';
+import { statusColor } from './postUtils';
 
 const { Text } = Typography;
 
@@ -39,20 +55,11 @@ const sortDirectionOptions = [
   { value: SortDirection.Desc, labelKey: 'posts.filter.sortDirectionDesc' },
 ];
 
-function statusColor(status: PostStatus): string {
-  switch (status) {
-    case PostStatus.Published:
-      return 'green';
-    case PostStatus.Draft:
-      return 'orange';
-    default:
-      return 'default';
-  }
-}
-
 export function PostListPanel({ mode, title }: PostListPanelProps) {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { message } = App.useApp();
   const [searchParams, setSearchParams] = useSearchParams();
   const paramPrefix = mode === 'mine' ? 'mine' : 'all';
   const pageKey = `${paramPrefix}Page`;
@@ -235,18 +242,15 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
   ]);
 
   const offset = (page - 1) * PAGE_SIZE;
-  const baseVariables = useMemo(
-    () => ({
-      mine: mode === 'mine',
-      topic: topic || undefined,
-      subtopic: subtopic || undefined,
-      search: search || undefined,
-      status,
-      sortBy,
-      sortDirection,
-    }),
-    [mode, topic, subtopic, search, status, sortBy, sortDirection],
-  );
+  const baseVariables = {
+    mine: mode === 'mine',
+    topic: topic || undefined,
+    subtopic: subtopic || undefined,
+    search: search || undefined,
+    status,
+    sortBy,
+    sortDirection,
+  };
 
   const { data, loading } = useQuery(PostsDocument, {
     variables: {
@@ -261,6 +265,31 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
     variables: baseVariables,
     fetchPolicy: 'cache-and-network',
   });
+
+  const refetchQueries = [PostsDocument, PostsTotalDocument];
+
+  const [publishPost] = useMutation(UpdatePostDocument, { refetchQueries });
+  const [deletePost] = useMutation(DeletePostDocument, { refetchQueries });
+
+  const handlePublish = async (postId: string) => {
+    try {
+      await publishPost({
+        variables: { id: postId, input: { status: PostStatus.Published } },
+      });
+      message.success(t('posts.actions.publishSuccess'));
+    } catch {
+      message.error(t('posts.write.saveFailed'));
+    }
+  };
+
+  const handleDelete = async (postId: string) => {
+    try {
+      await deletePost({ variables: { id: postId } });
+      message.success(t('posts.actions.deleteSuccess'));
+    } catch {
+      message.error(t('posts.write.saveFailed'));
+    }
+  };
 
   return (
     <Card title={title}>
@@ -350,49 +379,88 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
         loading={loading}
         dataSource={data?.posts ?? []}
         locale={{ emptyText: <Empty description={t('posts.empty')} /> }}
-        renderItem={item => (
-          <List.Item>
-            <List.Item.Meta
-              title={
-                <Space size={8} wrap>
-                  {item.seriesOrder != null ? (
-                    <Tag color="blue">
-                      {t('posts.meta.seriesOrder', { order: item.seriesOrder })}
-                    </Tag>
-                  ) : null}
-                  <Link
-                    to={`/posts/${item.id}?from=${encodeURIComponent(`${location.pathname}${location.search}`)}`}
+        renderItem={item => {
+          const actions =
+            mode === 'mine'
+              ? [
+                  <Button
+                    key="edit"
+                    type="link"
+                    size="small"
+                    onClick={() => navigate(`/posts/${item.id}/edit`)}
                   >
-                    {item.title}
-                  </Link>
-                </Space>
-              }
-              description={
-                <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                  <Text type="secondary">{createExcerpt(item.content, 160)}</Text>
-                  <Space wrap size={[8, 4]}>
-                    <Tag color={statusColor(item.status)}>
-                      {t(`posts.status.${item.status.toLowerCase()}`)}
-                    </Tag>
-                    {item.topic ? <Tag>{item.topic}</Tag> : null}
-                    {item.subtopic ? <Tag>{item.subtopic}</Tag> : null}
-                    <Text type="secondary">
-                      {t('posts.meta.author')}: {item.author.email}
-                    </Text>
-                    <Text type="secondary">
-                      {t('posts.meta.createdAt')}:{' '}
-                      {dayjs(item.createdAt).format('YYYY-MM-DD HH:mm')}
-                    </Text>
-                    <Text type="secondary">
-                      {t('posts.meta.readTime')}: {estimateReadMinutes(item.content)}{' '}
-                      {t('posts.meta.minuteUnit')}
-                    </Text>
+                    {t('posts.actions.edit')}
+                  </Button>,
+                  ...(item.status === PostStatus.Draft
+                    ? [
+                        <Button
+                          key="publish"
+                          type="link"
+                          size="small"
+                          onClick={() => handlePublish(item.id)}
+                        >
+                          {t('posts.actions.publish')}
+                        </Button>,
+                      ]
+                    : []),
+                  <Popconfirm
+                    key="delete"
+                    title={t('posts.actions.deleteConfirm')}
+                    onConfirm={() => handleDelete(item.id)}
+                    okText={t('common.ok')}
+                    cancelText={t('common.cancel')}
+                  >
+                    <Button type="link" size="small" danger>
+                      {t('posts.actions.delete')}
+                    </Button>
+                  </Popconfirm>,
+                ]
+              : undefined;
+
+          return (
+            <List.Item actions={actions}>
+              <List.Item.Meta
+                title={
+                  <Space size={8} wrap>
+                    {item.seriesOrder != null ? (
+                      <Tag color="blue">
+                        {t('posts.meta.seriesOrder', { order: item.seriesOrder })}
+                      </Tag>
+                    ) : null}
+                    <Link
+                      to={`/posts/${item.id}?from=${encodeURIComponent(`${location.pathname}${location.search}`)}`}
+                    >
+                      {item.title}
+                    </Link>
                   </Space>
-                </Space>
-              }
-            />
-          </List.Item>
-        )}
+                }
+                description={
+                  <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                    <Text type="secondary">{createExcerpt(item.content, 160)}</Text>
+                    <Space wrap size={[8, 4]}>
+                      <Tag color={statusColor(item.status)}>
+                        {t(`posts.status.${item.status.toLowerCase()}`)}
+                      </Tag>
+                      {item.topic ? <Tag>{item.topic}</Tag> : null}
+                      {item.subtopic ? <Tag>{item.subtopic}</Tag> : null}
+                      <Text type="secondary">
+                        {t('posts.meta.author')}: {item.author.email}
+                      </Text>
+                      <Text type="secondary">
+                        {t('posts.meta.createdAt')}:{' '}
+                        {dayjs(item.createdAt).format('YYYY-MM-DD HH:mm')}
+                      </Text>
+                      <Text type="secondary">
+                        {t('posts.meta.readTime')}: {estimateReadMinutes(item.content)}{' '}
+                        {t('posts.meta.minuteUnit')}
+                      </Text>
+                    </Space>
+                  </Space>
+                }
+              />
+            </List.Item>
+          );
+        }}
       />
 
       <div style={{ marginTop: 16, display: 'flex', justifyContent: 'flex-end' }}>

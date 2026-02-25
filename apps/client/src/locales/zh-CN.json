@@ -11,7 +11,8 @@
     "posts": "文章",
     "userSetting": "用户设置",
     "ai": "AI",
-    "reactDemos": "React Demos"
+    "reactDemos": "React Demos",
+    "write": "写文章"
   },
   "auth": {
     "login": {
@@ -110,7 +111,43 @@
       "notFound": "文章不存在",
       "backToList": "返回列表",
       "prev": "上一篇",
-      "next": "下一篇"
+      "next": "下一篇",
+      "edit": "编辑",
+      "publish": "发布",
+      "delete": "删除",
+      "deleteConfirm": "确定要删除这篇文章吗？",
+      "deleteSuccess": "已删除",
+      "publishSuccess": "发布成功"
+    },
+    "actions": {
+      "edit": "编辑",
+      "publish": "发布",
+      "delete": "删除",
+      "deleteConfirm": "确定要删除这篇文章吗？",
+      "deleteSuccess": "已删除",
+      "publishSuccess": "发布成功"
+    },
+    "write": {
+      "pageTitle": "写文章",
+      "editPageTitle": "编辑文章",
+      "titlePlaceholder": "输入文章标题...",
+      "topicPlaceholder": "主题（可选）",
+      "subtopicPlaceholder": "子主题（可选）",
+      "metadata": "文章信息",
+      "saveDraft": "存草稿",
+      "save": "保存",
+      "update": "更新",
+      "publish": "发布",
+      "preview": "预览",
+      "draftSaved": "草稿已保存",
+      "published": "发布成功",
+      "updated": "更新成功",
+      "titleRequired": "请输入标题",
+      "contentRequired": "请输入内容",
+      "saveFailed": "保存失败，请重试",
+      "notFound": "文章不存在",
+      "notAuthor": "无权编辑此文章",
+      "editorPlaceholder": "开始写作，输入 / 唤起命令菜单..."
     }
   },
   "placeholders": {
