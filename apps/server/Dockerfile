@@ -13,4 +13,4 @@ RUN pnpm build
 
 ENV NODE_ENV=production
 EXPOSE 4000
-CMD ["node", "-r", "tsconfig-paths/register", "dist/server.js"]
+CMD ["node", "dist/server.js"]
