@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: blog-server
+    runtime: docker
+    dockerfilePath: apps/server/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: '4000'
+      - key: CORS_ORIGIN
+        sync: false
+      - key: ARTICLE_CRON_ENABLED
+        value: 'false'

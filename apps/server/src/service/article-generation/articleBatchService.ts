@@ -1,4 +1,4 @@
-import { generateTextWithOllama } from '@/lib/ollama';
+import { generateText } from '@/lib/llm';
 import { logger } from '@/utils/logger';
 import { buildArticlePrompt } from './articlePromptService';
 import { parseArticleFromModelOutput, validateGeneratedArticle } from './articleValidationService';
@@ -35,7 +35,7 @@ async function runSingleGenerationJob(
         maxWords: runtime.maxWords,
       });
 
-      const output = await generateTextWithOllama({
+      const output = await generateText({
         model: runtime.model,
         prompt,
         temperature: runtime.temperature,

@@ -1,5 +1,5 @@
 import { ChatMessageRole } from '@/generated/prisma/client';
-import { generateTextWithOllama } from '@/lib/ollama';
+import { generateText } from '@/lib/llm';
 import { normalizeOptionalText } from '../shared/textNormalization';
 
 function sanitizeGeneratedTitle(raw: string | undefined): string | undefined {
@@ -22,7 +22,7 @@ export async function generateSessionTitleFromMessages(
   }
 
   try {
-    const raw = await generateTextWithOllama({
+    const raw = await generateText({
       prompt: [
         'Generate a concise chat topic title based on this conversation.',
         'Rules:',

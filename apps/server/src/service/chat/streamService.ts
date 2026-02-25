@@ -1,5 +1,5 @@
 import { ChatMessageRole, ChatMessageStatus } from '@/generated/prisma/client';
-import { generateTextStreamWithOllama } from '@/lib/ollama';
+import { generateTextStream } from '@/lib/llm';
 import { prisma } from '@/lib/prisma';
 import { finalizeAssistantMessage, maybeGenerateSessionTitle } from './commandService';
 import { ChatSessionStreamEvent, ChatStreamEventType } from '@/graphql/__generated__/types';
@@ -74,7 +74,7 @@ export async function* streamSessionAssistantReply(options: {
   };
 
   try {
-    for await (const item of generateTextStreamWithOllama({ prompt })) {
+    for await (const item of generateTextStream({ prompt })) {
       if (item.chunk) {
         accumulated += item.chunk;
       }
