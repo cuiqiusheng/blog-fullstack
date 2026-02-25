@@ -41,13 +41,9 @@ Deploy blog-fullstack using **Vercel** (frontend) + **Render** (backend) + **Neo
 4. Add environment variables (see table below).
 5. Deploy.
 
-### First deployment: run Prisma migration
+### Prisma migration
 
-After the first deploy, open the Render **Shell** tab and run:
-
-```bash
-cd /app/apps/server && npx prisma migrate deploy
-```
+Database migrations run automatically on every container start via `prisma migrate deploy` (configured in the Dockerfile CMD). This command is idempotent — already-applied migrations are skipped, so it is safe to run repeatedly.
 
 ### Backend environment variables
 
@@ -116,7 +112,7 @@ OLLAMA_MODEL=qwen2.5:14b
 
 - [ ] Neon database created with connection string
 - [ ] Render service deployed and healthy (`/health` returns OK)
-- [ ] Prisma migration applied (`prisma migrate deploy`)
+- [ ] Prisma migration applied automatically on first startup (check Render logs)
 - [ ] Vercel frontend deployed and loading
 - [ ] `CORS_ORIGIN` on Render matches Vercel URL
 - [ ] `VITE_GRAPHQL_URI` on Vercel matches Render URL
