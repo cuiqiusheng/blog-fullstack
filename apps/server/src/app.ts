@@ -12,15 +12,32 @@ import type { GraphQLContext } from './types/context';
 import { typeDefs } from './graphql/schema';
 import { resolvers } from './graphql/resolvers';
 import { useServer } from 'graphql-ws/use/ws';
+import helmet from 'helmet';
+import { authLimiter, globalLimiter } from './middleware/rateLimiter';
+import { logger } from './utils/logger';
 
 dotenv.config();
 
 const app = express();
 
 // global middleware
-app.use(cors());
-app.use(express.json());
+app.use(helmet());
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN?.split(',') ?? ['http://localhost:5173'],
+    credentials: true,
+  }),
+);
 app.use(requestLogger);
+app.use(globalLimiter);
+app.use(express.json());
+app.use('/graphql', (req, res, next) => {
+  const operationName = req.body?.operationName;
+  if (operationName === 'Login' || operationName === 'Register') {
+    return authLimiter(req, res, next);
+  }
+  next();
+});
 
 app.get('/health', (_, res) => {
   res.json({
@@ -32,11 +49,31 @@ app.get('/health', (_, res) => {
 });
 
 export async function startServer() {
+  const MAX_WS_CONNECTIONS = parseInt(process.env.MAX_WS_CONNECTIONS ?? '100');
+  let wsConnectionCount = 0;
+
   const httpServer = http.createServer(app);
   const schema = makeExecutableSchema({ typeDefs, resolvers });
   const wsServer = new WebSocketServer({
     server: httpServer,
     path: '/graphql',
+    verifyClient: (_info, callback) => {
+      if (wsConnectionCount >= MAX_WS_CONNECTIONS) {
+        logger.error('Too many connections: %d', wsConnectionCount);
+        callback(false, 429, 'Too many connections');
+        return;
+      }
+      callback(true);
+    },
+  });
+  wsServer.on('connection', socket => {
+    wsConnectionCount++;
+    logger.info('wsConnectionCount increased to: %d', wsConnectionCount);
+
+    socket.on('close', () => {
+      wsConnectionCount = Math.max(0, wsConnectionCount - 1);
+      logger.info('wsConnectionCount decreased to: %d', wsConnectionCount);
+    });
   });
   const serverCleanup = useServer(
     {
