@@ -1,4 +1,4 @@
-import { generateTextStreamWithOllama, generateTextWithOllama } from '@/lib/ollama';
+import { generateText, generateTextStream, getActiveModel } from '@/lib/llm';
 import type { GraphQLContext } from '@/types/context';
 import { requireAuth } from '@/utils/permissions';
 import { ChatRole } from '../__generated__/types';
@@ -31,12 +31,12 @@ export const aiResolvers = {
     aiChat: async (_: unknown, args: MutationAiChatArgs, context: GraphQLContext) => {
       requireAuth(context);
       const prompt = buildChatPrompt(args.messages);
-      const reply = await generateTextWithOllama({
+      const reply = await generateText({
         prompt,
         model: args.model ?? undefined,
         temperature: args.temperature ?? undefined,
       });
-      const model = args.model ?? process.env.OLLAMA_MODEL ?? 'qwen2.5:14b';
+      const model = args.model ?? getActiveModel();
       return {
         reply,
         model,
@@ -53,10 +53,10 @@ export const aiResolvers = {
       ) {
         requireAuth(context);
         const prompt = buildChatPrompt(args.messages);
-        const fallbackModel = args.model ?? process.env.OLLAMA_MODEL ?? 'qwen2.5:14b';
+        const fallbackModel = args.model ?? getActiveModel();
         let seq = 0;
         try {
-          for await (const item of generateTextStreamWithOllama({
+          for await (const item of generateTextStream({
             prompt,
             model: args.model ?? undefined,
             temperature: args.temperature ?? undefined,
