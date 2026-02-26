@@ -1,0 +1,135 @@
+# ============================================================================
+# Docker Compose — 博客后端服务编排
+# ============================================================================
+#
+# 【什么是 Docker Compose】
+#   Docker Compose 是 Docker 的多容器编排工具。
+#   一个 docker-compose.yml 文件描述了"一组需要协同工作的容器"。
+#   用 docker compose up 一条命令就能启动所有服务（数据库 + 后端）。
+#
+# 【为什么用 Docker Compose 而不是直接 docker run】
+#   - docker run 只能启动一个容器，多个服务需要手动管理启动顺序和网络
+#   - Docker Compose 自动创建内部网络，让容器之间通过服务名互相访问
+#   - 一个文件描述全部配置，可版本控制、可复现
+#
+# 【本文件管理的服务】
+#   1. db      — PostgreSQL 数据库
+#   2. server  — Node.js 后端 API 服务
+#
+# 【前端为什么不在这里】
+#   前端是纯静态文件（HTML/CSS/JS），不需要运行时环境，
+#   直接由宿主机的 Nginx 托管，性能更好、配置更简单。
+#   把前端放进容器反而增加了不必要的网络层和复杂度。
+#
+# ============================================================================
+
+# ── 版本声明 ────────────────────────────────────────────────────────────
+# Docker Compose V2 不再需要 version 字段（V1 时代用 version: "3.8"）。
+# 如果你在终端用 docker compose（不带横杠）命令，就是 V2。
+# 前面的 setup-ecs.sh 安装的 docker-compose-plugin 就是 V2。
+
+services:
+  # ====================================================================
+  # 服务一：PostgreSQL 数据库
+  # ====================================================================
+  db:
+    # image: 指定使用的 Docker 镜像。
+    # postgres:14-alpine 含义：
+    #   postgres  — Docker Hub 上的官方 PostgreSQL 镜像
+    #   14        — PostgreSQL 大版本号
+    #   alpine    — 基于 Alpine Linux 的精简版（~80MB vs 普通版 ~400MB）
+    #               Alpine 体积小、攻击面少，适合生产环境
+    image: postgres:14-alpine
+
+    # container_name: 给容器一个固定名称（否则 Docker 会自动生成随机名）
+    # 方便在 docker ps、docker logs 中快速识别
+    container_name: blog-db
+
+    # restart: 容器退出后的重启策略
+    #   unless-stopped — 除非你手动 docker stop，否则崩溃或重启后自动拉起
+    #   其他选项：no（不重启）、always（总是重启）、on-failure（仅失败时重启）
+    restart: unless-stopped
+
+    # environment: 设置容器内的环境变量
+    # PostgreSQL 官方镜像用这些环境变量初始化数据库（仅首次启动生效）：
+    #   POSTGRES_DB       — 创建的数据库名
+    #   POSTGRES_USER     — 超级用户名
+    #   POSTGRES_PASSWORD — 超级用户密码，从 .env 文件读取（${变量名} 语法）
+    environment:
+      POSTGRES_DB: blog
+      POSTGRES_USER: blog
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    # volumes: 数据持久化
+    # 容器是临时的——删除容器后，容器内的文件全部丢失。
+    # volumes 把容器内的路径映射到宿主机的存储，容器删了数据还在。
+    #
+    # blog-data:/var/lib/postgresql/data 含义：
+    #   blog-data                     — 命名卷（Named Volume），Docker 管理的存储
+    #   /var/lib/postgresql/data      — PostgreSQL 存数据的默认路径
+    #
+    # 命名卷 vs 绑定挂载：
+    #   命名卷（blog-data:）：Docker 管理，存储在 /var/lib/docker/volumes/，
+    #                        适合数据库这种只需要持久化、不需要直接编辑的场景
+    #   绑定挂载（./data:）：直接映射宿主机目录，适合配置文件、源码等需要编辑的场景
+    volumes:
+      - blog-data:/var/lib/postgresql/data
+
+    # ports: 端口映射（宿主机端口:容器端口）
+    # 127.0.0.1:5432:5432 含义：
+    #   127.0.0.1 — 只绑定到 localhost，外网无法直接访问数据库（安全！）
+    #   5432      — PostgreSQL 默认端口
+    # 如果写成 5432:5432（不加 127.0.0.1），外网也能直接连接，非常危险
+    ports:
+      - '127.0.0.1:5432:5432'
+
+    # healthcheck: 健康检查
+    # Docker 定期执行这个命令来判断容器是否"健康"。
+    # pg_isready 是 PostgreSQL 自带的连接检查工具。
+    # 后端服务设置了 depends_on: db: condition: service_healthy，
+    # 意味着后端会等数据库通过健康检查后才启动，避免连接失败。
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U blog -d blog']
+      interval: 5s # 每 5 秒检查一次
+      timeout: 3s # 单次检查超时 3 秒
+      retries: 5 # 连续失败 5 次才判定为不健康
+      start_period: 10s # 容器启动后等 10 秒再开始检查（给数据库初始化时间）
+
+  # ====================================================================
+  # 服务二：Node.js 后端 API
+  # ====================================================================
+  server:
+    # build: 从 Dockerfile 构建镜像（而不是从 Docker Hub 拉取现成镜像）
+    #   context: ../       — 构建上下文是项目根目录（因为 Dockerfile 需要 pnpm-workspace.yaml 等根目录文件）
+    #   dockerfile: apps/server/Dockerfile — Dockerfile 的路径（相对于 context）
+    build:
+      context: ../
+      dockerfile: apps/server/Dockerfile
+
+    container_name: blog-server
+    restart: unless-stopped
+
+    # env_file: 从文件加载环境变量到容器中
+    # 这里的 .env 是 deploy/.env（和 docker-compose.yml 同目录）
+    # 包含 DATABASE_URL、JWT_SECRET 等敏感配置
+    env_file:
+      - .env
+
+    # ports: 后端暴露 4000 端口
+    # 同样绑定 127.0.0.1，外网通过 Nginx 反向代理访问，不直接暴露
+    ports:
+      - '127.0.0.1:4000:4000'
+
+    # depends_on: 服务依赖关系
+    # condition: service_healthy 表示等 db 服务的健康检查通过后才启动 server
+    # 这保证后端连接数据库时，数据库已经准备好接受连接
+    depends_on:
+      db:
+        condition: service_healthy
+
+# ── 命名卷声明 ──────────────────────────────────────────────────────────
+# 顶层 volumes 声明命名卷。Docker 会在 /var/lib/docker/volumes/ 下创建。
+# 即使执行 docker compose down，数据卷也不会被删除。
+# 只有 docker compose down -v（加 -v 参数）才会删除数据卷——生产环境慎用！
+volumes:
+  blog-data:
