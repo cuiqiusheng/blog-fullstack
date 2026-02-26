@@ -24,6 +24,8 @@ stages:
 # shell executor 启动的是非交互式 shell，nvm 不会自动加载。
 # 每个 job 开始前都需要手动加载 nvm，否则 node/pnpm 命令不可用。
 default:
+  tags:
+    - ecs-blog-runner
   before_script:
     - export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
 
