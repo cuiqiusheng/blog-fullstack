@@ -1,0 +1,84 @@
+# ============================================================================
+# GitLab CI/CD — 博客自动构建与部署
+# ============================================================================
+#
+# 【工作原理】
+#   1. 代码推送到 GitHub main 分支
+#   2. GitHub Action 将代码镜像到 GitLab
+#   3. GitLab 检测到推送，将此流水线分配给注册的 Runner（ECS 上的 shell executor）
+#   4. Runner 在 ECS 上执行下面定义的脚本：构建前端、构建后端 Docker 镜像、部署
+#
+# 【Runner 要求】
+#   - Executor 类型：shell（直接在 ECS 宿主机上执行命令）
+#   - gitlab-runner 用户需要 docker 组权限（setup-ecs.sh 已配置）
+#   - gitlab-runner 用户需要 /var/www/blog/ 和 /opt/blog/ 的写权限（setup-ecs.sh 已配置）
+#   - gitlab-runner 用户需要 nvm + Node.js + pnpm 环境（setup-ecs.sh 已配置）
+#
+# ============================================================================
+
+stages:
+  - build
+  - deploy
+
+# ── 全局 before_script ────────────────────────────────────────────────
+# shell executor 启动的是非交互式 shell，nvm 不会自动加载。
+# 每个 job 开始前都需要手动加载 nvm，否则 node/pnpm 命令不可用。
+default:
+  before_script:
+    - export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+
+# ======================================================================
+# Job 1: 构建
+# ======================================================================
+# 安装依赖并构建前端和后端 Docker 镜像。
+# artifacts 将前端构建产物传递给 deploy 阶段。
+build:
+  stage: build
+  script:
+    - pnpm install --frozen-lockfile
+
+    # 构建前端
+    # VITE_GRAPHQL_URI=/graphql ：
+    #   Vite 在构建时将环境变量内联到代码中（替换 import.meta.env.VITE_*）。
+    #   生产环境中前端和后端共用同一个域名，Nginx 代理 /graphql 到后端，
+    #   所以前端直接请求 /graphql（不需要开发时的 /api 前缀重写）。
+    - VITE_GRAPHQL_URI=/graphql pnpm --filter @blog-fullstack/client build
+
+    # 构建后端 Docker 镜像（仅构建，不启动）
+    # docker compose build 会读取 deploy/docker-compose.yml 中的 build 配置，
+    # 使用 apps/server/Dockerfile 构建镜像。
+    - cd deploy
+    - docker compose build server
+
+  artifacts:
+    paths:
+      - apps/client/dist/
+    expire_in: 1 hour
+  only:
+    - main
+
+# ======================================================================
+# Job 2: 部署
+# ======================================================================
+# 将前端文件部署到 Nginx 目录，重启后端容器。
+deploy:
+  stage: deploy
+  script:
+    # 部署前端静态文件
+    # rsync 只传输变更的文件，比 cp 更高效。
+    #   -a : archive 模式（递归 + 保留权限/时间戳）
+    #   -v : verbose（显示传输了哪些文件）
+    #   --delete : 删除目标目录中源目录没有的文件（保持两边完全一致）
+    - rsync -av --delete apps/client/dist/ /var/www/blog/
+
+    # 部署后端
+    # 将 ECS 上持久化的 .env 复制到 deploy/ 目录，
+    # 因为 docker-compose.yml 中 env_file: .env 相对于 compose 文件查找。
+    - cp /opt/blog/.env deploy/.env
+    - cd deploy
+    - docker compose up -d --no-build
+    # --no-build : 不重新构建（已在 build 阶段构建完成）
+    # -d : detached（后台运行）
+
+  only:
+    - main
