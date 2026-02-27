@@ -40,7 +40,7 @@ deploy:
     # VITE_GRAPHQL_URI=/graphql：
     #   生产环境前端和后端共用同一域名，Nginx 代理 /graphql 到后端，
     #   不需要开发时的 /api 前缀重写。
-    - VITE_GRAPHQL_URI=/graphql pnpm --filter @blog-fullstack/client build
+    - NODE_OPTIONS=--max-old-space-size=1024 VITE_GRAPHQL_URI=/graphql pnpm --filter @blog-fullstack/client build
 
     # ── 部署前端 ──────────────────────────────────────────────────────
     # rsync 只传输变更的文件，比 cp 更高效。

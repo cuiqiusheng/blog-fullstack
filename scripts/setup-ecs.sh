@@ -61,6 +61,32 @@ info "开始部署博客服务器环境..."
 echo ""
 
 # ======================================================================
+# 0. 配置 Swap（防止构建时 OOM）
+# ======================================================================
+# 低配 ECS（1-2GB RAM）在 Vite/Rollup 构建前端时可能内存不足，
+# 被 Linux OOM Killer 直接 kill 掉。
+# 添加 1GB swap 文件作为内存溢出缓冲区：
+#   - fallocate 预分配空间（比 dd 快）
+#   - chmod 600 限制只有 root 可读写（安全要求）
+#   - mkswap 格式化为 swap 分区
+#   - swapon 立即启用
+#   - 写入 /etc/fstab 确保重启后自动挂载
+# ======================================================================
+info "步骤 0/7：配置 Swap"
+
+if swapon --show | grep -q '/swapfile'; then
+  warn "Swap 已配置，跳过"
+else
+  fallocate -l 1G /swapfile
+  chmod 600 /swapfile
+  mkswap /swapfile
+  swapon /swapfile
+  echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  ok "已创建 1GB swap 文件"
+fi
+echo ""
+
+# ======================================================================
 # 1. 系统更新 + 基础工具
 # ======================================================================
 # dnf 是 ACL3/CentOS 8+/Fedora 的包管理器（yum 的下一代）
