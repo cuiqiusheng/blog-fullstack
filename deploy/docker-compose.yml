@@ -99,6 +99,11 @@ services:
   # 服务二：Node.js 后端 API
   # ====================================================================
   server:
+    # image: 给构建产物打标签。
+    #   CI 用 --build 时：构建镜像并标记为 blog-server:latest
+    #   手动操作时（不加 --build）：直接使用已有的 blog-server:latest 镜像
+    image: blog-server:latest
+
     # build: 从 Dockerfile 构建镜像（而不是从 Docker Hub 拉取现成镜像）
     #   context: ../       — 构建上下文是项目根目录（因为 Dockerfile 需要 pnpm-workspace.yaml 等根目录文件）
     #   dockerfile: apps/server/Dockerfile — Dockerfile 的路径（相对于 context）

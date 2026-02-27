@@ -49,13 +49,14 @@ deploy:
     - rsync -av --delete apps/client/dist/ /var/www/blog/
 
     # ── 构建并部署后端 ────────────────────────────────────────────────
-    # 将 ECS 上持久化的 .env 复制到 deploy/ 目录，
-    # docker-compose.yml 中的 env_file 相对于 compose 文件查找。
+    # 1. 复制 .env 到 deploy/（构建时 docker-compose.yml 需要）
+    # 2. 在 deploy/ 下构建镜像并启动服务
+    # 3. 同步 compose 文件到 /opt/blog/，方便后续手动操作
+    #    （手动改 .env 后只需 cd /opt/blog && docker compose up -d --force-recreate）
     - cp /opt/blog/.env deploy/.env
     - cd deploy
     - docker compose up -d --build
-    # --build : 根据 Dockerfile 重新构建镜像
-    # -d      : detached（后台运行）
+    - cp docker-compose.yml /opt/blog/docker-compose.yml
 
   after_script:
     # 清理复制过来的 .env（避免敏感信息残留在构建目录中）
