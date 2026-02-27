@@ -2,6 +2,9 @@ query Me {
   me {
     id
     email
+    nickname
+    avatarUrl
+    createdAt
     roles {
       id
       name
@@ -15,6 +18,8 @@ mutation Login($email: String!, $password: String!) {
     user {
       id
       email
+      nickname
+      avatarUrl
       roles {
         id
         name
@@ -29,10 +34,29 @@ mutation Register($email: String!, $password: String!) {
     user {
       id
       email
+      nickname
+      avatarUrl
       roles {
         id
         name
       }
     }
   }
+}
+
+mutation UpdateProfile($nickname: String, $avatarUrl: String) {
+  updateProfile(nickname: $nickname, avatarUrl: $avatarUrl) {
+    id
+    email
+    nickname
+    avatarUrl
+    roles {
+      id
+      name
+    }
+  }
+}
+
+mutation ChangePassword($currentPassword: String!, $newPassword: String!) {
+  changePassword(currentPassword: $currentPassword, newPassword: $newPassword)
 }

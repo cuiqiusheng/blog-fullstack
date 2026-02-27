@@ -33,6 +33,14 @@ globs:
 - New folders/files and naming must follow `06-naming-and-placement.mdc`.
 - Structural adjustments must follow `07-architecture-change-governance.mdc`.
 
+## React Compiler (babel-plugin-react-compiler)
+
+- The project has React Compiler enabled (`babel-plugin-react-compiler` in `vite.config.ts`).
+- React Compiler auto-memoizes components, values, and callbacks at build time.
+- **Do NOT** use `React.memo`, `useMemo`, or `useCallback` for memoization purposes — the compiler handles this.
+- Plain functions and object literals are fine; the compiler will memoize them when beneficial.
+- `useState`, `useEffect`, `useRef`, `useContext`, and other non-memoization hooks remain necessary.
+
 ## Styling Rules
 
 - Current styling baseline: antd + component/page CSS + targeted inline style.

@@ -5,6 +5,9 @@ export const postAuthorInclude = {
     select: {
       id: true,
       email: true,
+      nickname: true,
+      avatarUrl: true,
+      createdAt: true,
       roles: {
         select: {
           id: true,

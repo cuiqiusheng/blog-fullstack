@@ -165,6 +165,7 @@ export type Mutation = {
   _empty?: Maybe<Scalars['String']['output']>;
   aiChat: ChatResponse;
   archiveChatSession: ChatSession;
+  changePassword: Scalars['Boolean']['output'];
   createPost: Post;
   deleteChatSession: Scalars['Boolean']['output'];
   deletePost: Scalars['Boolean']['output'];
@@ -176,6 +177,7 @@ export type Mutation = {
   sendChatMessage: SendChatMessagePayload;
   startChatSession: ChatSession;
   updatePost: Post;
+  updateProfile: User;
 };
 
 export type MutationAiChatArgs = {
@@ -186,6 +188,11 @@ export type MutationAiChatArgs = {
 
 export type MutationArchiveChatSessionArgs = {
   sessionId: Scalars['ID']['input'];
+};
+
+export type MutationChangePasswordArgs = {
+  currentPassword: Scalars['String']['input'];
+  newPassword: Scalars['String']['input'];
 };
 
 export type MutationCreatePostArgs = {
@@ -236,6 +243,11 @@ export type MutationStartChatSessionArgs = {
 export type MutationUpdatePostArgs = {
   id: Scalars['ID']['input'];
   input: UpdatePostInput;
+};
+
+export type MutationUpdateProfileArgs = {
+  avatarUrl?: InputMaybe<Scalars['String']['input']>;
+  nickname?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Post = {
@@ -382,8 +394,11 @@ export type UpdatePostInput = {
 
 export type User = {
   __typename?: 'User';
+  avatarUrl?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['String']['output'];
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  nickname?: Maybe<Scalars['String']['output']>;
   roles: Array<Role>;
 };
 
@@ -537,6 +552,9 @@ export type MeQuery = {
     __typename?: 'User';
     id: string;
     email: string;
+    nickname?: string | null;
+    avatarUrl?: string | null;
+    createdAt: string;
     roles: Array<{ __typename?: 'Role'; id: string; name: string }>;
   } | null;
 };
@@ -555,6 +573,8 @@ export type LoginMutation = {
       __typename?: 'User';
       id: string;
       email: string;
+      nickname?: string | null;
+      avatarUrl?: string | null;
       roles: Array<{ __typename?: 'Role'; id: string; name: string }>;
     };
   };
@@ -574,10 +594,36 @@ export type RegisterMutation = {
       __typename?: 'User';
       id: string;
       email: string;
+      nickname?: string | null;
+      avatarUrl?: string | null;
       roles: Array<{ __typename?: 'Role'; id: string; name: string }>;
     };
   };
 };
+
+export type UpdateProfileMutationVariables = Exact<{
+  nickname?: InputMaybe<Scalars['String']['input']>;
+  avatarUrl?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+export type UpdateProfileMutation = {
+  __typename?: 'Mutation';
+  updateProfile: {
+    __typename?: 'User';
+    id: string;
+    email: string;
+    nickname?: string | null;
+    avatarUrl?: string | null;
+    roles: Array<{ __typename?: 'Role'; id: string; name: string }>;
+  };
+};
+
+export type ChangePasswordMutationVariables = Exact<{
+  currentPassword: Scalars['String']['input'];
+  newPassword: Scalars['String']['input'];
+}>;
+
+export type ChangePasswordMutation = { __typename?: 'Mutation'; changePassword: boolean };
 
 export type PostsQueryVariables = Exact<{
   topic?: InputMaybe<Scalars['String']['input']>;
@@ -1171,6 +1217,9 @@ export const MeDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'roles' },
@@ -1245,6 +1294,8 @@ export const LoginDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'roles' },
@@ -1322,6 +1373,8 @@ export const RegisterDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'roles' },
@@ -1344,6 +1397,118 @@ export const RegisterDocument = {
     },
   ],
 } as unknown as DocumentNode<RegisterMutation, RegisterMutationVariables>;
+export const UpdateProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'nickname' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'avatarUrl' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'nickname' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'nickname' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'avatarUrl' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'avatarUrl' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'roles' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateProfileMutation, UpdateProfileMutationVariables>;
+export const ChangePasswordDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'ChangePassword' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'currentPassword' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'newPassword' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'changePassword' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'currentPassword' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'currentPassword' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'newPassword' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'newPassword' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ChangePasswordMutation, ChangePasswordMutationVariables>;
 export const PostsDocument = {
   kind: 'Document',
   definitions: [

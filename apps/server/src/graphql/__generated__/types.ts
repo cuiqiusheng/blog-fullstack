@@ -166,6 +166,7 @@ export type Mutation = {
   _empty?: Maybe<Scalars['String']['output']>;
   aiChat: ChatResponse;
   archiveChatSession: ChatSession;
+  changePassword: Scalars['Boolean']['output'];
   createPost: Post;
   deleteChatSession: Scalars['Boolean']['output'];
   deletePost: Scalars['Boolean']['output'];
@@ -177,6 +178,7 @@ export type Mutation = {
   sendChatMessage: SendChatMessagePayload;
   startChatSession: ChatSession;
   updatePost: Post;
+  updateProfile: User;
 };
 
 export type MutationAiChatArgs = {
@@ -187,6 +189,11 @@ export type MutationAiChatArgs = {
 
 export type MutationArchiveChatSessionArgs = {
   sessionId: Scalars['ID']['input'];
+};
+
+export type MutationChangePasswordArgs = {
+  currentPassword: Scalars['String']['input'];
+  newPassword: Scalars['String']['input'];
 };
 
 export type MutationCreatePostArgs = {
@@ -237,6 +244,11 @@ export type MutationStartChatSessionArgs = {
 export type MutationUpdatePostArgs = {
   id: Scalars['ID']['input'];
   input: UpdatePostInput;
+};
+
+export type MutationUpdateProfileArgs = {
+  avatarUrl?: InputMaybe<Scalars['String']['input']>;
+  nickname?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Post = {
@@ -383,8 +395,11 @@ export type UpdatePostInput = {
 
 export type User = {
   __typename?: 'User';
+  avatarUrl?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['String']['output'];
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  nickname?: Maybe<Scalars['String']['output']>;
   roles: Array<Role>;
 };
 
@@ -674,6 +689,12 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationArchiveChatSessionArgs, 'sessionId'>
   >;
+  changePassword?: Resolver<
+    ResolversTypes['Boolean'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>
+  >;
   createPost?: Resolver<
     ResolversTypes['Post'],
     ParentType,
@@ -739,6 +760,12 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     RequireFields<MutationUpdatePostArgs, 'id' | 'input'>
+  >;
+  updateProfile?: Resolver<
+    ResolversTypes['User'],
+    ParentType,
+    ContextType,
+    Partial<MutationUpdateProfileArgs>
   >;
 }>;
 
@@ -865,8 +892,11 @@ export type UserResolvers<
   ContextType = GraphQLContext,
   ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User'],
 > = ResolversObject<{
+  avatarUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  nickname?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

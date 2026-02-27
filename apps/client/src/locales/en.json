@@ -7,8 +7,8 @@
     "cancel": "Cancel"
   },
   "nav": {
-    "home": "Home",
-    "posts": "Posts",
+    "explore": "Explore",
+    "myPosts": "My Posts",
     "userSetting": "User Setting",
     "ai": "AI",
     "reactDemos": "React Demos",
@@ -48,9 +48,8 @@
     "hasAccount": "Already have an account?",
     "goToLogin": "Log in"
   },
-  "home": {
-    "title": "Home",
-    "welcome": "Welcome back. This is the home page."
+  "explore": {
+    "title": "Explore"
   },
   "ai": {
     "chat": {
@@ -149,6 +148,44 @@
       "notAuthor": "Not authorized to edit this post",
       "editorPlaceholder": "Start writing, type / for commands..."
     }
+  },
+  "userSetting": {
+    "pageTitle": "User Settings",
+    "accountInfo": "Account Info",
+    "email": "Email",
+    "roles": "Roles",
+    "registeredAt": "Registered",
+    "stats": "My Stats",
+    "totalPosts": "Total Posts",
+    "published": "Published",
+    "drafts": "Drafts",
+    "chatTopics": "AI Chats",
+    "profile": "Profile",
+    "nickname": "Nickname",
+    "nicknamePlaceholder": "Enter nickname",
+    "avatarUrl": "Avatar URL",
+    "avatarUrlPlaceholder": "Enter avatar image URL",
+    "saveProfile": "Save Profile",
+    "profileSaved": "Profile updated",
+    "profileSaveFailed": "Save failed, please try again",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "currentPasswordPlaceholder": "Enter current password",
+    "currentPasswordRequired": "Please enter current password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Enter new password",
+    "newPasswordRequired": "Please enter new password",
+    "newPasswordMinLength": "Password must be at least 6 characters",
+    "confirmNewPassword": "Confirm New Password",
+    "confirmNewPasswordPlaceholder": "Enter new password again",
+    "confirmNewPasswordRequired": "Please confirm new password",
+    "confirmNewPasswordMismatch": "Passwords do not match",
+    "submitPassword": "Change Password",
+    "passwordChanged": "Password changed",
+    "passwordChangeFailed": "Failed, please check current password",
+    "appearance": "Appearance",
+    "darkMode": "Dark Mode",
+    "language": "Language"
   },
   "placeholders": {
     "posts": "Posts (placeholder)",

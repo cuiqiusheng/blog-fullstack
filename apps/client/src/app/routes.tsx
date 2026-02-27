@@ -1,14 +1,8 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Spin } from 'antd';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { AppLayout } from '@/features/layout';
-
-function PlaceholderPage({ name }: { name: 'posts' | 'userSetting' }) {
-  const { t } = useTranslation();
-  return <div style={{ color: 'rgba(0, 0, 0, 0.65)' }}>{t(`placeholders.${name}`)}</div>;
-}
 
 const LoginPage = lazy(() => import('@/pages/auth').then(m => ({ default: m.LoginPage })));
 const RegisterPage = lazy(() => import('@/pages/auth').then(m => ({ default: m.RegisterPage })));
@@ -19,6 +13,9 @@ const PostDetailPage = lazy(() =>
 );
 const PostWritePage = lazy(() => import('@/pages/posts').then(m => ({ default: m.PostWritePage })));
 const AiChatPage = lazy(() => import('@/pages/ai/index').then(m => ({ default: m.AiChatPage })));
+const UserSettingPage = lazy(() =>
+  import('@/pages/user-setting').then(m => ({ default: m.UserSettingPage })),
+);
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -31,14 +28,14 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   if (isAuthenticated) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/explore" replace />;
   }
   return <>{children}</>;
 }
 
 function RootRedirect() {
   const { isAuthenticated } = useAuth();
-  return <Navigate to={isAuthenticated ? '/home' : '/login'} replace />;
+  return <Navigate to={isAuthenticated ? '/posts' : '/login'} replace />;
 }
 
 function PageFallback() {
@@ -73,21 +70,21 @@ export function AppRoutes() {
           }
         />
         <Route
-          path="/home"
-          element={
-            <ProtectedRoute>
-              <AppLayout>
-                <HomePage />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/posts"
           element={
             <ProtectedRoute>
               <AppLayout>
                 <PostListPage />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/explore"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <HomePage />
               </AppLayout>
             </ProtectedRoute>
           }
@@ -127,7 +124,7 @@ export function AppRoutes() {
           element={
             <ProtectedRoute>
               <AppLayout>
-                <PlaceholderPage name="userSetting" />
+                <UserSettingPage />
               </AppLayout>
             </ProtectedRoute>
           }
@@ -142,7 +139,7 @@ export function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/home" replace />} />
+        <Route path="*" element={<Navigate to="/explore" replace />} />
       </Routes>
     </Suspense>
   );

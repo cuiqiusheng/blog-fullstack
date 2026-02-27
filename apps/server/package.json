@@ -9,7 +9,7 @@
     "build": "tsc && tsc-alias && node scripts/copy-graphql-schema.cjs",
     "codegen": "graphql-codegen --config codegen.ts --concurrency 1",
     "start": "node dist/server.js",
-    "batch:generate": "ts-node -r tsconfig-paths/register src/cli/batchGenerate.ts",
+    "batch:generate": "tsx src/cli/batchGenerate.ts",
     "prisma:init": "prisma init",
     "prisma:format": "prisma format",
     "prisma:migrate": "prisma migrate dev",
@@ -49,9 +49,8 @@
     "@types/pg": "^8.16.0",
     "@types/ws": "^8.18.1",
     "nodemon": "^3.1.11",
-    "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
-    "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.3"
   }
 }
