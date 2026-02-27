@@ -18,12 +18,27 @@ async function bootstrap() {
     });
   });
 
+  let shuttingDown = false;
   const shutdown = () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    logger.info({ msg: 'Shutting down...' });
+
     stopScheduler();
+
+    const forceExit = setTimeout(() => {
+      logger.warn({ msg: 'Graceful shutdown timed out, forcing exit' });
+      process.exit(1);
+    }, 5000);
+    forceExit.unref();
+
     httpServer.close(() => {
+      clearTimeout(forceExit);
       logger.info({ msg: 'Server stopped gracefully' });
       process.exit(0);
     });
+
+    httpServer.closeAllConnections();
   };
 
   process.on('SIGINT', shutdown);

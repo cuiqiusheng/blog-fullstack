@@ -10,6 +10,9 @@ type Comment {
   id: ID!
   content: String!
   author: User!
+  parentId: ID
+  replies: [Comment!]!
+  repliesCount: Int!
   createdAt: String!
   updatedAt: String!
 }
@@ -27,6 +30,7 @@ extend type Post {
 extend type Query {
   comments(postId: ID!, limit: Int, offset: Int): [Comment!]!
   commentsTotal(postId: ID!): Int!
+  commentReplies(commentId: ID!, limit: Int, offset: Int): [Comment!]!
   myBookmarks(limit: Int, offset: Int): [Post!]!
   myBookmarksTotal: Int!
   myInteractionStats: InteractionStats!
@@ -35,6 +39,6 @@ extend type Query {
 extend type Mutation {
   toggleLike(postId: ID!): PostInteractionInfo!
   toggleBookmark(postId: ID!): PostInteractionInfo!
-  createComment(postId: ID!, content: String!): Comment!
+  createComment(postId: ID!, content: String!, parentId: ID): Comment!
   deleteComment(id: ID!): Boolean!
 }

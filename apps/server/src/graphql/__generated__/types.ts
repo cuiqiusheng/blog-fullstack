@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql';
-import { PostParent } from './types.mapper';
+import { PostParent, CommentParent } from './types.mapper';
 import { GraphQLContext } from '../../types/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -120,6 +120,9 @@ export type Comment = {
   content: Scalars['String']['output'];
   createdAt: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  parentId?: Maybe<Scalars['ID']['output']>;
+  replies: Array<Comment>;
+  repliesCount: Scalars['Int']['output'];
   updatedAt: Scalars['String']['output'];
 };
 
@@ -220,6 +223,7 @@ export type MutationChangePasswordArgs = {
 
 export type MutationCreateCommentArgs = {
   content: Scalars['String']['input'];
+  parentId?: InputMaybe<Scalars['ID']['input']>;
   postId: Scalars['ID']['input'];
 };
 
@@ -343,6 +347,7 @@ export type Query = {
   chatSession?: Maybe<ChatSession>;
   chatSessions: Array<ChatSession>;
   chatSessionsTotal: Scalars['Int']['output'];
+  commentReplies: Array<Comment>;
   comments: Array<Comment>;
   commentsTotal: Scalars['Int']['output'];
   generationBatch: GenerationBatchReport;
@@ -365,6 +370,12 @@ export type QueryChatSessionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type QueryCommentRepliesArgs = {
+  commentId: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryCommentsArgs = {
@@ -572,7 +583,7 @@ export type ResolversTypes = ResolversObject<{
   ChatSessionStatus: ChatSessionStatus;
   ChatSessionStreamEvent: ResolverTypeWrapper<ChatSessionStreamEvent>;
   ChatStreamEventType: ChatStreamEventType;
-  Comment: ResolverTypeWrapper<Comment>;
+  Comment: ResolverTypeWrapper<CommentParent>;
   CreatePostInput: CreatePostInput;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   GeneratePostsInput: GeneratePostsInput;
@@ -614,7 +625,7 @@ export type ResolversParentTypes = ResolversObject<{
   ChatResponse: ChatResponse;
   ChatSession: ChatSession;
   ChatSessionStreamEvent: ChatSessionStreamEvent;
-  Comment: Comment;
+  Comment: CommentParent;
   CreatePostInput: CreatePostInput;
   Float: Scalars['Float']['output'];
   GeneratePostsInput: GeneratePostsInput;
@@ -731,6 +742,9 @@ export type CommentResolvers<
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  parentId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  replies?: Resolver<Array<ResolversTypes['Comment']>, ParentType, ContextType>;
+  repliesCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -963,6 +977,12 @@ export type QueryResolvers<
     Partial<QueryChatSessionsArgs>
   >;
   chatSessionsTotal?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  commentReplies?: Resolver<
+    Array<ResolversTypes['Comment']>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryCommentRepliesArgs, 'commentId'>
+  >;
   comments?: Resolver<
     Array<ResolversTypes['Comment']>,
     ParentType,
