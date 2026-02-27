@@ -1,4 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql';
+import { PostParent } from './types.mapper';
 import { GraphQLContext } from '../../types/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -11,6 +12,7 @@ export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> =
 export type Incremental<T> =
   | T
   | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -112,6 +114,15 @@ export enum ChatStreamEventType {
   MessageStarted = 'MESSAGE_STARTED',
 }
 
+export type Comment = {
+  __typename?: 'Comment';
+  author: User;
+  content: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  updatedAt: Scalars['String']['output'];
+};
+
 export type CreatePostInput = {
   content: Scalars['String']['input'];
   status?: InputMaybe<PostStatus>;
@@ -161,14 +172,23 @@ export type GenerationPlanInput = {
   topic: Scalars['String']['input'];
 };
 
+export type InteractionStats = {
+  __typename?: 'InteractionStats';
+  totalBookmarks: Scalars['Int']['output'];
+  totalComments: Scalars['Int']['output'];
+  totalLikesReceived: Scalars['Int']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
   aiChat: ChatResponse;
   archiveChatSession: ChatSession;
   changePassword: Scalars['Boolean']['output'];
+  createComment: Comment;
   createPost: Post;
   deleteChatSession: Scalars['Boolean']['output'];
+  deleteComment: Scalars['Boolean']['output'];
   deletePost: Scalars['Boolean']['output'];
   generatePosts: GenerationBatchReport;
   login: AuthPayload;
@@ -177,6 +197,8 @@ export type Mutation = {
   retryGenerationBatch: GenerationBatchReport;
   sendChatMessage: SendChatMessagePayload;
   startChatSession: ChatSession;
+  toggleBookmark: PostInteractionInfo;
+  toggleLike: PostInteractionInfo;
   updatePost: Post;
   updateProfile: User;
 };
@@ -196,12 +218,21 @@ export type MutationChangePasswordArgs = {
   newPassword: Scalars['String']['input'];
 };
 
+export type MutationCreateCommentArgs = {
+  content: Scalars['String']['input'];
+  postId: Scalars['ID']['input'];
+};
+
 export type MutationCreatePostArgs = {
   input: CreatePostInput;
 };
 
 export type MutationDeleteChatSessionArgs = {
   sessionId: Scalars['ID']['input'];
+};
+
+export type MutationDeleteCommentArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type MutationDeletePostArgs = {
@@ -241,6 +272,14 @@ export type MutationStartChatSessionArgs = {
   input?: InputMaybe<StartChatSessionInput>;
 };
 
+export type MutationToggleBookmarkArgs = {
+  postId: Scalars['ID']['input'];
+};
+
+export type MutationToggleLikeArgs = {
+  postId: Scalars['ID']['input'];
+};
+
 export type MutationUpdatePostArgs = {
   id: Scalars['ID']['input'];
   input: UpdatePostInput;
@@ -258,6 +297,7 @@ export type Post = {
   createdAt: Scalars['String']['output'];
   generationBatchId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  interactionInfo: PostInteractionInfo;
   publishedAt?: Maybe<Scalars['String']['output']>;
   seriesKey?: Maybe<Scalars['String']['output']>;
   seriesOrder?: Maybe<Scalars['Int']['output']>;
@@ -268,6 +308,15 @@ export type Post = {
   topic?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['String']['output'];
   wordCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type PostInteractionInfo = {
+  __typename?: 'PostInteractionInfo';
+  bookmarkCount: Scalars['Int']['output'];
+  bookmarked: Scalars['Boolean']['output'];
+  commentCount: Scalars['Int']['output'];
+  likeCount: Scalars['Int']['output'];
+  liked: Scalars['Boolean']['output'];
 };
 
 export type PostNeighbors = {
@@ -293,9 +342,15 @@ export type Query = {
   _empty?: Maybe<Scalars['String']['output']>;
   chatSession?: Maybe<ChatSession>;
   chatSessions: Array<ChatSession>;
+  chatSessionsTotal: Scalars['Int']['output'];
+  comments: Array<Comment>;
+  commentsTotal: Scalars['Int']['output'];
   generationBatch: GenerationBatchReport;
   hello?: Maybe<Scalars['String']['output']>;
   me?: Maybe<User>;
+  myBookmarks: Array<Post>;
+  myBookmarksTotal: Scalars['Int']['output'];
+  myInteractionStats: InteractionStats;
   post?: Maybe<Post>;
   postNeighbors: PostNeighbors;
   posts: Array<Post>;
@@ -312,8 +367,23 @@ export type QueryChatSessionsArgs = {
   search?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type QueryCommentsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  postId: Scalars['ID']['input'];
+};
+
+export type QueryCommentsTotalArgs = {
+  postId: Scalars['ID']['input'];
+};
+
 export type QueryGenerationBatchArgs = {
   batchId: Scalars['String']['input'];
+};
+
+export type QueryMyBookmarksArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryPostArgs = {
@@ -502,6 +572,7 @@ export type ResolversTypes = ResolversObject<{
   ChatSessionStatus: ChatSessionStatus;
   ChatSessionStreamEvent: ResolverTypeWrapper<ChatSessionStreamEvent>;
   ChatStreamEventType: ChatStreamEventType;
+  Comment: ResolverTypeWrapper<Comment>;
   CreatePostInput: CreatePostInput;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   GeneratePostsInput: GeneratePostsInput;
@@ -510,9 +581,16 @@ export type ResolversTypes = ResolversObject<{
   GenerationPlanInput: GenerationPlanInput;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  InteractionStats: ResolverTypeWrapper<InteractionStats>;
   Mutation: ResolverTypeWrapper<{}>;
-  Post: ResolverTypeWrapper<Post>;
-  PostNeighbors: ResolverTypeWrapper<PostNeighbors>;
+  Post: ResolverTypeWrapper<PostParent>;
+  PostInteractionInfo: ResolverTypeWrapper<PostInteractionInfo>;
+  PostNeighbors: ResolverTypeWrapper<
+    Omit<PostNeighbors, 'next' | 'prev'> & {
+      next?: Maybe<ResolversTypes['Post']>;
+      prev?: Maybe<ResolversTypes['Post']>;
+    }
+  >;
   PostSortField: PostSortField;
   PostStatus: PostStatus;
   Query: ResolverTypeWrapper<{}>;
@@ -536,6 +614,7 @@ export type ResolversParentTypes = ResolversObject<{
   ChatResponse: ChatResponse;
   ChatSession: ChatSession;
   ChatSessionStreamEvent: ChatSessionStreamEvent;
+  Comment: Comment;
   CreatePostInput: CreatePostInput;
   Float: Scalars['Float']['output'];
   GeneratePostsInput: GeneratePostsInput;
@@ -544,9 +623,14 @@ export type ResolversParentTypes = ResolversObject<{
   GenerationPlanInput: GenerationPlanInput;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
+  InteractionStats: InteractionStats;
   Mutation: {};
-  Post: Post;
-  PostNeighbors: PostNeighbors;
+  Post: PostParent;
+  PostInteractionInfo: PostInteractionInfo;
+  PostNeighbors: Omit<PostNeighbors, 'next' | 'prev'> & {
+    next?: Maybe<ResolversParentTypes['Post']>;
+    prev?: Maybe<ResolversParentTypes['Post']>;
+  };
   Query: {};
   Role: Role;
   SendChatMessagePayload: SendChatMessagePayload;
@@ -639,6 +723,18 @@ export type ChatSessionStreamEventResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CommentResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['Comment'] = ResolversParentTypes['Comment'],
+> = ResolversObject<{
+  author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type GenerationBatchReportResolvers<
   ContextType = GraphQLContext,
   ParentType extends ResolversParentTypes['GenerationBatchReport'] =
@@ -672,6 +768,17 @@ export type GenerationItemResultResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type InteractionStatsResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['InteractionStats'] =
+    ResolversParentTypes['InteractionStats'],
+> = ResolversObject<{
+  totalBookmarks?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalComments?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalLikesReceived?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MutationResolvers<
   ContextType = GraphQLContext,
   ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation'],
@@ -695,6 +802,12 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>
   >;
+  createComment?: Resolver<
+    ResolversTypes['Comment'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationCreateCommentArgs, 'content' | 'postId'>
+  >;
   createPost?: Resolver<
     ResolversTypes['Post'],
     ParentType,
@@ -706,6 +819,12 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     RequireFields<MutationDeleteChatSessionArgs, 'sessionId'>
+  >;
+  deleteComment?: Resolver<
+    ResolversTypes['Boolean'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationDeleteCommentArgs, 'id'>
   >;
   deletePost?: Resolver<
     ResolversTypes['Boolean'],
@@ -755,6 +874,18 @@ export type MutationResolvers<
     ContextType,
     Partial<MutationStartChatSessionArgs>
   >;
+  toggleBookmark?: Resolver<
+    ResolversTypes['PostInteractionInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationToggleBookmarkArgs, 'postId'>
+  >;
+  toggleLike?: Resolver<
+    ResolversTypes['PostInteractionInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationToggleLikeArgs, 'postId'>
+  >;
   updatePost?: Resolver<
     ResolversTypes['Post'],
     ParentType,
@@ -778,6 +909,7 @@ export type PostResolvers<
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   generationBatchId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  interactionInfo?: Resolver<ResolversTypes['PostInteractionInfo'], ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   seriesKey?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   seriesOrder?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -788,6 +920,19 @@ export type PostResolvers<
   topic?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   wordCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PostInteractionInfoResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['PostInteractionInfo'] =
+    ResolversParentTypes['PostInteractionInfo'],
+> = ResolversObject<{
+  bookmarkCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  bookmarked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  commentCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  likeCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  liked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -817,6 +962,19 @@ export type QueryResolvers<
     ContextType,
     Partial<QueryChatSessionsArgs>
   >;
+  chatSessionsTotal?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  comments?: Resolver<
+    Array<ResolversTypes['Comment']>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryCommentsArgs, 'postId'>
+  >;
+  commentsTotal?: Resolver<
+    ResolversTypes['Int'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryCommentsTotalArgs, 'postId'>
+  >;
   generationBatch?: Resolver<
     ResolversTypes['GenerationBatchReport'],
     ParentType,
@@ -825,6 +983,14 @@ export type QueryResolvers<
   >;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  myBookmarks?: Resolver<
+    Array<ResolversTypes['Post']>,
+    ParentType,
+    ContextType,
+    Partial<QueryMyBookmarksArgs>
+  >;
+  myBookmarksTotal?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  myInteractionStats?: Resolver<ResolversTypes['InteractionStats'], ParentType, ContextType>;
   post?: Resolver<
     Maybe<ResolversTypes['Post']>,
     ParentType,
@@ -908,10 +1074,13 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ChatResponse?: ChatResponseResolvers<ContextType>;
   ChatSession?: ChatSessionResolvers<ContextType>;
   ChatSessionStreamEvent?: ChatSessionStreamEventResolvers<ContextType>;
+  Comment?: CommentResolvers<ContextType>;
   GenerationBatchReport?: GenerationBatchReportResolvers<ContextType>;
   GenerationItemResult?: GenerationItemResultResolvers<ContextType>;
+  InteractionStats?: InteractionStatsResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
+  PostInteractionInfo?: PostInteractionInfoResolvers<ContextType>;
   PostNeighbors?: PostNeighborsResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Role?: RoleResolvers<ContextType>;

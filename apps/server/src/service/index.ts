@@ -8,6 +8,7 @@ export { listPosts, countPosts, getPostById, getPostNeighbors, buildPostWhere } 
 export { createPost, updatePost, deletePost } from './post';
 export {
   listChatSessions,
+  countChatSessions,
   getChatSessionById,
   listChatSessionMessages,
   startChatSession,

@@ -16,6 +16,9 @@ const AiChatPage = lazy(() => import('@/pages/ai/index').then(m => ({ default: m
 const UserSettingPage = lazy(() =>
   import('@/pages/user-setting').then(m => ({ default: m.UserSettingPage })),
 );
+const BookmarksPage = lazy(() =>
+  import('@/pages/bookmarks').then(m => ({ default: m.BookmarksPage })),
+);
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -115,6 +118,16 @@ export function AppRoutes() {
             <ProtectedRoute>
               <AppLayout>
                 <PostDetailPage />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/bookmarks"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <BookmarksPage />
               </AppLayout>
             </ProtectedRoute>
           }

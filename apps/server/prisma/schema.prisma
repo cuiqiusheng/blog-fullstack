@@ -54,6 +54,10 @@ model User {
   roles     Role[]     @relation("UserRoles")
   userRoles UserRole[]
 
+  likes      PostLike[]
+  bookmarks  PostBookmark[]
+  comments   PostComment[]
+
   @@map("users")
 }
 
@@ -106,10 +110,53 @@ model Post {
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Restrict)
 
+  likes      PostLike[]
+  bookmarks  PostBookmark[]
+  comments   PostComment[]
+
   @@index([topic, subtopic, status])
   @@index([seriesKey, seriesOrder])
   @@index([generationBatchId])
   @@map("posts")
+}
+
+model PostLike {
+  userId    String
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, postId])
+  @@index([postId])
+  @@map("post_likes")
+}
+
+model PostBookmark {
+  userId    String
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, postId])
+  @@index([postId])
+  @@index([userId, createdAt])
+  @@map("post_bookmarks")
+}
+
+model PostComment {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId, createdAt])
+  @@map("post_comments")
 }
 
 model ChatTopic {

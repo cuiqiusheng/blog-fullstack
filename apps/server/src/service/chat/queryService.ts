@@ -23,6 +23,12 @@ export async function listChatSessions(options: ListChatSessionsOptions) {
   });
 }
 
+export async function countChatSessions(userId: string) {
+  return prisma.chatTopic.count({
+    where: { userId, status: ChatSessionStatus.ACTIVE },
+  });
+}
+
 export async function getChatSessionById(id: string, userId: string) {
   return prisma.chatTopic.findFirst({
     where: {

@@ -18,4 +18,5 @@ export const typeDefs = [
   loadGraphQL('ai.graphql'),
   loadGraphQL('chat.graphql'),
   loadGraphQL('post.graphql'),
+  loadGraphQL('interaction.graphql'),
 ];

@@ -8,6 +8,9 @@ const config: CodegenConfig = {
       config: {
         contextType: '../../types/context#GraphQLContext',
         useIndexSignature: true,
+        mappers: {
+          Post: './types.mapper#PostParent',
+        },
       },
     },
   },

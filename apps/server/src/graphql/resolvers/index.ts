@@ -3,6 +3,7 @@ import { authResolvers } from './authResolver';
 import { aiResolvers } from './aiResolver';
 import { chatResolvers } from './chatResolver';
 import { postResolvers } from './postResolver';
+import { interactionResolvers } from './interactionResolver';
 
 export const resolvers: Resolvers = {
   Query: {
@@ -10,12 +11,17 @@ export const resolvers: Resolvers = {
     ...authResolvers.Query,
     ...chatResolvers.Query,
     ...postResolvers.Query,
+    ...interactionResolvers.Query,
   },
   Mutation: {
     ...authResolvers.Mutation,
     ...aiResolvers.Mutation,
     ...chatResolvers.Mutation,
     ...postResolvers.Mutation,
+    ...interactionResolvers.Mutation,
+  },
+  Post: {
+    ...interactionResolvers.Post,
   },
   ChatSession: {
     ...chatResolvers.ChatSession,

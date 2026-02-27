@@ -111,6 +111,15 @@ export enum ChatStreamEventType {
   MessageStarted = 'MESSAGE_STARTED',
 }
 
+export type Comment = {
+  __typename?: 'Comment';
+  author: User;
+  content: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  updatedAt: Scalars['String']['output'];
+};
+
 export type CreatePostInput = {
   content: Scalars['String']['input'];
   status?: InputMaybe<PostStatus>;
@@ -160,14 +169,23 @@ export type GenerationPlanInput = {
   topic: Scalars['String']['input'];
 };
 
+export type InteractionStats = {
+  __typename?: 'InteractionStats';
+  totalBookmarks: Scalars['Int']['output'];
+  totalComments: Scalars['Int']['output'];
+  totalLikesReceived: Scalars['Int']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
   aiChat: ChatResponse;
   archiveChatSession: ChatSession;
   changePassword: Scalars['Boolean']['output'];
+  createComment: Comment;
   createPost: Post;
   deleteChatSession: Scalars['Boolean']['output'];
+  deleteComment: Scalars['Boolean']['output'];
   deletePost: Scalars['Boolean']['output'];
   generatePosts: GenerationBatchReport;
   login: AuthPayload;
@@ -176,6 +194,8 @@ export type Mutation = {
   retryGenerationBatch: GenerationBatchReport;
   sendChatMessage: SendChatMessagePayload;
   startChatSession: ChatSession;
+  toggleBookmark: PostInteractionInfo;
+  toggleLike: PostInteractionInfo;
   updatePost: Post;
   updateProfile: User;
 };
@@ -195,12 +215,21 @@ export type MutationChangePasswordArgs = {
   newPassword: Scalars['String']['input'];
 };
 
+export type MutationCreateCommentArgs = {
+  content: Scalars['String']['input'];
+  postId: Scalars['ID']['input'];
+};
+
 export type MutationCreatePostArgs = {
   input: CreatePostInput;
 };
 
 export type MutationDeleteChatSessionArgs = {
   sessionId: Scalars['ID']['input'];
+};
+
+export type MutationDeleteCommentArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type MutationDeletePostArgs = {
@@ -240,6 +269,14 @@ export type MutationStartChatSessionArgs = {
   input?: InputMaybe<StartChatSessionInput>;
 };
 
+export type MutationToggleBookmarkArgs = {
+  postId: Scalars['ID']['input'];
+};
+
+export type MutationToggleLikeArgs = {
+  postId: Scalars['ID']['input'];
+};
+
 export type MutationUpdatePostArgs = {
   id: Scalars['ID']['input'];
   input: UpdatePostInput;
@@ -257,6 +294,7 @@ export type Post = {
   createdAt: Scalars['String']['output'];
   generationBatchId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  interactionInfo: PostInteractionInfo;
   publishedAt?: Maybe<Scalars['String']['output']>;
   seriesKey?: Maybe<Scalars['String']['output']>;
   seriesOrder?: Maybe<Scalars['Int']['output']>;
@@ -267,6 +305,15 @@ export type Post = {
   topic?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['String']['output'];
   wordCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type PostInteractionInfo = {
+  __typename?: 'PostInteractionInfo';
+  bookmarkCount: Scalars['Int']['output'];
+  bookmarked: Scalars['Boolean']['output'];
+  commentCount: Scalars['Int']['output'];
+  likeCount: Scalars['Int']['output'];
+  liked: Scalars['Boolean']['output'];
 };
 
 export type PostNeighbors = {
@@ -292,9 +339,15 @@ export type Query = {
   _empty?: Maybe<Scalars['String']['output']>;
   chatSession?: Maybe<ChatSession>;
   chatSessions: Array<ChatSession>;
+  chatSessionsTotal: Scalars['Int']['output'];
+  comments: Array<Comment>;
+  commentsTotal: Scalars['Int']['output'];
   generationBatch: GenerationBatchReport;
   hello?: Maybe<Scalars['String']['output']>;
   me?: Maybe<User>;
+  myBookmarks: Array<Post>;
+  myBookmarksTotal: Scalars['Int']['output'];
+  myInteractionStats: InteractionStats;
   post?: Maybe<Post>;
   postNeighbors: PostNeighbors;
   posts: Array<Post>;
@@ -311,8 +364,23 @@ export type QueryChatSessionsArgs = {
   search?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type QueryCommentsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  postId: Scalars['ID']['input'];
+};
+
+export type QueryCommentsTotalArgs = {
+  postId: Scalars['ID']['input'];
+};
+
 export type QueryGenerationBatchArgs = {
   batchId: Scalars['String']['input'];
+};
+
+export type QueryMyBookmarksArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type QueryPostArgs = {
@@ -420,6 +488,10 @@ export type ChatSessionsQuery = {
     lastMessageAt?: string | null;
   }>;
 };
+
+export type ChatSessionsTotalQueryVariables = Exact<{ [key: string]: never }>;
+
+export type ChatSessionsTotalQuery = { __typename?: 'Query'; chatSessionsTotal: number };
 
 export type ChatSessionQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -625,6 +697,148 @@ export type ChangePasswordMutationVariables = Exact<{
 
 export type ChangePasswordMutation = { __typename?: 'Mutation'; changePassword: boolean };
 
+export type ToggleLikeMutationVariables = Exact<{
+  postId: Scalars['ID']['input'];
+}>;
+
+export type ToggleLikeMutation = {
+  __typename?: 'Mutation';
+  toggleLike: {
+    __typename?: 'PostInteractionInfo';
+    liked: boolean;
+    likeCount: number;
+    bookmarked: boolean;
+    bookmarkCount: number;
+    commentCount: number;
+  };
+};
+
+export type ToggleBookmarkMutationVariables = Exact<{
+  postId: Scalars['ID']['input'];
+}>;
+
+export type ToggleBookmarkMutation = {
+  __typename?: 'Mutation';
+  toggleBookmark: {
+    __typename?: 'PostInteractionInfo';
+    liked: boolean;
+    likeCount: number;
+    bookmarked: boolean;
+    bookmarkCount: number;
+    commentCount: number;
+  };
+};
+
+export type CreateCommentMutationVariables = Exact<{
+  postId: Scalars['ID']['input'];
+  content: Scalars['String']['input'];
+}>;
+
+export type CreateCommentMutation = {
+  __typename?: 'Mutation';
+  createComment: {
+    __typename?: 'Comment';
+    id: string;
+    content: string;
+    createdAt: string;
+    updatedAt: string;
+    author: {
+      __typename?: 'User';
+      id: string;
+      email: string;
+      nickname?: string | null;
+      avatarUrl?: string | null;
+    };
+  };
+};
+
+export type DeleteCommentMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+export type DeleteCommentMutation = { __typename?: 'Mutation'; deleteComment: boolean };
+
+export type CommentsQueryVariables = Exact<{
+  postId: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+export type CommentsQuery = {
+  __typename?: 'Query';
+  comments: Array<{
+    __typename?: 'Comment';
+    id: string;
+    content: string;
+    createdAt: string;
+    updatedAt: string;
+    author: {
+      __typename?: 'User';
+      id: string;
+      email: string;
+      nickname?: string | null;
+      avatarUrl?: string | null;
+    };
+  }>;
+};
+
+export type CommentsTotalQueryVariables = Exact<{
+  postId: Scalars['ID']['input'];
+}>;
+
+export type CommentsTotalQuery = { __typename?: 'Query'; commentsTotal: number };
+
+export type MyBookmarksQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+export type MyBookmarksQuery = {
+  __typename?: 'Query';
+  myBookmarks: Array<{
+    __typename?: 'Post';
+    id: string;
+    title: string;
+    content: string;
+    topic?: string | null;
+    subtopic?: string | null;
+    status: PostStatus;
+    createdAt: string;
+    updatedAt: string;
+    author: {
+      __typename?: 'User';
+      id: string;
+      email: string;
+      nickname?: string | null;
+      avatarUrl?: string | null;
+    };
+    interactionInfo: {
+      __typename?: 'PostInteractionInfo';
+      liked: boolean;
+      likeCount: number;
+      bookmarked: boolean;
+      bookmarkCount: number;
+      commentCount: number;
+    };
+  }>;
+};
+
+export type MyBookmarksTotalQueryVariables = Exact<{ [key: string]: never }>;
+
+export type MyBookmarksTotalQuery = { __typename?: 'Query'; myBookmarksTotal: number };
+
+export type MyInteractionStatsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type MyInteractionStatsQuery = {
+  __typename?: 'Query';
+  myInteractionStats: {
+    __typename?: 'InteractionStats';
+    totalLikesReceived: number;
+    totalBookmarks: number;
+    totalComments: number;
+  };
+};
+
 export type PostsQueryVariables = Exact<{
   topic?: InputMaybe<Scalars['String']['input']>;
   subtopic?: InputMaybe<Scalars['String']['input']>;
@@ -660,6 +874,14 @@ export type PostsQuery = {
       id: string;
       email: string;
       roles: Array<{ __typename?: 'Role'; id: string; name: string }>;
+    };
+    interactionInfo: {
+      __typename?: 'PostInteractionInfo';
+      liked: boolean;
+      likeCount: number;
+      bookmarked: boolean;
+      bookmarkCount: number;
+      commentCount: number;
     };
   }>;
 };
@@ -701,6 +923,14 @@ export type PostQuery = {
       id: string;
       email: string;
       roles: Array<{ __typename?: 'Role'; id: string; name: string }>;
+    };
+    interactionInfo: {
+      __typename?: 'PostInteractionInfo';
+      liked: boolean;
+      likeCount: number;
+      bookmarked: boolean;
+      bookmarkCount: number;
+      commentCount: number;
     };
   } | null;
 };
@@ -831,6 +1061,20 @@ export const ChatSessionsDocument = {
     },
   ],
 } as unknown as DocumentNode<ChatSessionsQuery, ChatSessionsQueryVariables>;
+export const ChatSessionsTotalDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'ChatSessionsTotal' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'chatSessionsTotal' } }],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ChatSessionsTotalQuery, ChatSessionsTotalQueryVariables>;
 export const ChatSessionDocument = {
   kind: 'Document',
   definitions: [
@@ -1509,6 +1753,443 @@ export const ChangePasswordDocument = {
     },
   ],
 } as unknown as DocumentNode<ChangePasswordMutation, ChangePasswordMutationVariables>;
+export const ToggleLikeDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'ToggleLike' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'postId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'toggleLike' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'postId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'postId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'liked' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'likeCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'bookmarked' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'bookmarkCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'commentCount' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ToggleLikeMutation, ToggleLikeMutationVariables>;
+export const ToggleBookmarkDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'ToggleBookmark' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'postId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'toggleBookmark' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'postId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'postId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'liked' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'likeCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'bookmarked' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'bookmarkCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'commentCount' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ToggleBookmarkMutation, ToggleBookmarkMutationVariables>;
+export const CreateCommentDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateComment' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'postId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'content' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createComment' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'postId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'postId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'content' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'content' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'author' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateCommentMutation, CreateCommentMutationVariables>;
+export const DeleteCommentDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteComment' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteComment' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteCommentMutation, DeleteCommentMutationVariables>;
+export const CommentsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'Comments' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'postId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'comments' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'postId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'postId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'offset' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'author' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CommentsQuery, CommentsQueryVariables>;
+export const CommentsTotalDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'CommentsTotal' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'postId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'commentsTotal' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'postId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'postId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CommentsTotalQuery, CommentsTotalQueryVariables>;
+export const MyBookmarksDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'MyBookmarks' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'myBookmarks' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'offset' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'topic' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'subtopic' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'author' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'interactionInfo' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'liked' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'likeCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'bookmarked' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'bookmarkCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'commentCount' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MyBookmarksQuery, MyBookmarksQueryVariables>;
+export const MyBookmarksTotalDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'MyBookmarksTotal' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'myBookmarksTotal' } }],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MyBookmarksTotalQuery, MyBookmarksTotalQueryVariables>;
+export const MyInteractionStatsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'MyInteractionStats' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'myInteractionStats' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalLikesReceived' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalBookmarks' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalComments' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MyInteractionStatsQuery, MyInteractionStatsQueryVariables>;
 export const PostsDocument = {
   kind: 'Document',
   definitions: [
@@ -1652,6 +2333,20 @@ export const PostsDocument = {
                           ],
                         },
                       },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'interactionInfo' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'liked' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'likeCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'bookmarked' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'bookmarkCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'commentCount' } },
                     ],
                   },
                 },
@@ -1802,6 +2497,20 @@ export const PostDocument = {
                           ],
                         },
                       },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'interactionInfo' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'liked' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'likeCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'bookmarked' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'bookmarkCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'commentCount' } },
                     ],
                   },
                 },

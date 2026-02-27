@@ -14,6 +14,7 @@ import {
   Tag,
   Typography,
 } from 'antd';
+import { LikeOutlined, MessageOutlined } from '@ant-design/icons';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { createExcerpt, estimateReadMinutes } from '@blog-fullstack/content-utils';
@@ -454,6 +455,16 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
                         {t('posts.meta.readTime')}: {estimateReadMinutes(item.content)}{' '}
                         {t('posts.meta.minuteUnit')}
                       </Text>
+                      {item.interactionInfo && (
+                        <>
+                          <Text type="secondary">
+                            <LikeOutlined /> {item.interactionInfo.likeCount}
+                          </Text>
+                          <Text type="secondary">
+                            <MessageOutlined /> {item.interactionInfo.commentCount}
+                          </Text>
+                        </>
+                      )}
                     </Space>
                   </Space>
                 }

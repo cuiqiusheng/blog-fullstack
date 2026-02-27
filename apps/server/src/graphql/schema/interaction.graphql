@@ -1,0 +1,40 @@
+type PostInteractionInfo {
+  liked: Boolean!
+  likeCount: Int!
+  bookmarked: Boolean!
+  bookmarkCount: Int!
+  commentCount: Int!
+}
+
+type Comment {
+  id: ID!
+  content: String!
+  author: User!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type InteractionStats {
+  totalLikesReceived: Int!
+  totalBookmarks: Int!
+  totalComments: Int!
+}
+
+extend type Post {
+  interactionInfo: PostInteractionInfo!
+}
+
+extend type Query {
+  comments(postId: ID!, limit: Int, offset: Int): [Comment!]!
+  commentsTotal(postId: ID!): Int!
+  myBookmarks(limit: Int, offset: Int): [Post!]!
+  myBookmarksTotal: Int!
+  myInteractionStats: InteractionStats!
+}
+
+extend type Mutation {
+  toggleLike(postId: ID!): PostInteractionInfo!
+  toggleBookmark(postId: ID!): PostInteractionInfo!
+  createComment(postId: ID!, content: String!): Comment!
+  deleteComment(id: ID!): Boolean!
+}

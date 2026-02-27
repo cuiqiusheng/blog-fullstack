@@ -9,10 +9,11 @@ import { useCurrentUser } from '@/shared/hooks/useCurrentUser';
 
 const NAV_ITEMS: {
   path: string;
-  i18nKey: 'explore' | 'myPosts' | 'userSetting' | 'ai' | 'reactDemos';
+  i18nKey: 'explore' | 'myPosts' | 'bookmarks' | 'userSetting' | 'ai' | 'reactDemos';
 }[] = [
   { path: 'posts', i18nKey: 'myPosts' },
   { path: 'explore', i18nKey: 'explore' },
+  { path: 'bookmarks', i18nKey: 'bookmarks' },
   { path: 'user-setting', i18nKey: 'userSetting' },
   { path: 'ai', i18nKey: 'ai' },
   { path: 'react-demos', i18nKey: 'reactDemos' },

@@ -1,5 +1,30 @@
+import { useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client/react';
-import { Alert, App, Button, Card, Empty, Popconfirm, Space, Spin, Tag, Typography } from 'antd';
+import {
+  Alert,
+  App,
+  Avatar,
+  Button,
+  Card,
+  Divider,
+  Empty,
+  Input,
+  List,
+  Popconfirm,
+  Space,
+  Spin,
+  Tag,
+  Tooltip,
+  Typography,
+} from 'antd';
+import {
+  LikeOutlined,
+  LikeFilled,
+  StarOutlined,
+  StarFilled,
+  MessageOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { MarkdownRenderer } from '@blog-fullstack/markdown-renderer';
@@ -12,6 +37,12 @@ import {
   PostsTotalDocument,
   PostStatus,
   UpdatePostDocument,
+  ToggleLikeDocument,
+  ToggleBookmarkDocument,
+  CommentsDocument,
+  CommentsTotalDocument,
+  CreateCommentDocument,
+  DeleteCommentDocument,
 } from '@/graphql/codegen';
 import { useTranslation } from 'react-i18next';
 import { useCurrentUser } from '@/shared/hooks';
@@ -19,6 +50,9 @@ import { statusColor } from '@/features/posts/postUtils';
 import './posts.css';
 
 const { Title, Text } = Typography;
+const { TextArea } = Input;
+
+const COMMENTS_PAGE_SIZE = 10;
 
 export function PostDetailPage() {
   const { t } = useTranslation();
@@ -27,6 +61,8 @@ export function PostDetailPage() {
   const navigate = useNavigate();
   const { message } = App.useApp();
   const { currentUser } = useCurrentUser();
+  const [commentText, setCommentText] = useState('');
+  const [commentPage, setCommentPage] = useState(1);
 
   const { data, loading, error } = useQuery(PostDocument, {
     variables: { id: id ?? '' },
@@ -34,6 +70,18 @@ export function PostDetailPage() {
   });
   const { data: neighborsData } = useQuery(PostNeighborsDocument, {
     variables: { id: id ?? '' },
+    skip: !id,
+  });
+  const { data: commentsData, loading: commentsLoading } = useQuery(CommentsDocument, {
+    variables: {
+      postId: id ?? '',
+      limit: COMMENTS_PAGE_SIZE,
+      offset: (commentPage - 1) * COMMENTS_PAGE_SIZE,
+    },
+    skip: !id,
+  });
+  const { data: commentsTotalData } = useQuery(CommentsTotalDocument, {
+    variables: { postId: id ?? '' },
     skip: !id,
   });
 
@@ -44,6 +92,32 @@ export function PostDetailPage() {
   });
   const [deletePost, { loading: deleting }] = useMutation(DeletePostDocument, {
     refetchQueries,
+  });
+  const [toggleLike] = useMutation(ToggleLikeDocument);
+  const [toggleBookmark] = useMutation(ToggleBookmarkDocument);
+  const [createComment, { loading: submittingComment }] = useMutation(CreateCommentDocument, {
+    refetchQueries: [
+      {
+        query: CommentsDocument,
+        variables: { postId: id ?? '', limit: COMMENTS_PAGE_SIZE, offset: 0 },
+      },
+      { query: CommentsTotalDocument, variables: { postId: id ?? '' } },
+      { query: PostDocument, variables: { id: id ?? '' } },
+    ],
+  });
+  const [deleteComment] = useMutation(DeleteCommentDocument, {
+    refetchQueries: [
+      {
+        query: CommentsDocument,
+        variables: {
+          postId: id ?? '',
+          limit: COMMENTS_PAGE_SIZE,
+          offset: (commentPage - 1) * COMMENTS_PAGE_SIZE,
+        },
+      },
+      { query: CommentsTotalDocument, variables: { postId: id ?? '' } },
+      { query: PostDocument, variables: { id: id ?? '' } },
+    ],
   });
 
   if (!id) {
@@ -64,6 +138,7 @@ export function PostDetailPage() {
   }
 
   const post = data.post;
+  const interaction = post.interactionInfo;
   const from = new URLSearchParams(location.search).get('from');
   const backTarget = from && from.startsWith('/') ? from : '/posts';
   const isAuthor = currentUser?.id === post.author.id;
@@ -86,6 +161,42 @@ export function PostDetailPage() {
       navigate(backTarget);
     } catch {
       message.error(t('posts.write.saveFailed'));
+    }
+  };
+
+  const handleToggleLike = async () => {
+    await toggleLike({
+      variables: { postId: id },
+      refetchQueries: [{ query: PostDocument, variables: { id } }],
+    });
+  };
+
+  const handleToggleBookmark = async () => {
+    await toggleBookmark({
+      variables: { postId: id },
+      refetchQueries: [{ query: PostDocument, variables: { id } }],
+    });
+  };
+
+  const handleSubmitComment = async () => {
+    const content = commentText.trim();
+    if (!content) return;
+    try {
+      await createComment({ variables: { postId: id, content } });
+      setCommentText('');
+      setCommentPage(1);
+      message.success(t('interaction.commentCreated'));
+    } catch {
+      message.error(t('interaction.commentFailed'));
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await deleteComment({ variables: { id: commentId } });
+      message.success(t('interaction.commentDeleted'));
+    } catch {
+      message.error(t('interaction.commentFailed'));
     }
   };
 
@@ -146,6 +257,46 @@ export function PostDetailPage() {
           </Space>
         </div>
         <MarkdownRenderer content={post.content} className="post-markdown" />
+
+        {/* Interaction bar */}
+        <Divider />
+        <Space size={24}>
+          <Tooltip title={interaction.liked ? t('interaction.liked') : t('interaction.like')}>
+            <Button
+              type="text"
+              icon={
+                interaction.liked ? <LikeFilled style={{ color: '#1677ff' }} /> : <LikeOutlined />
+              }
+              onClick={handleToggleLike}
+            >
+              {interaction.likeCount > 0 ? interaction.likeCount : ''}
+            </Button>
+          </Tooltip>
+          <Tooltip
+            title={interaction.bookmarked ? t('interaction.bookmarked') : t('interaction.bookmark')}
+          >
+            <Button
+              type="text"
+              icon={
+                interaction.bookmarked ? (
+                  <StarFilled style={{ color: '#faad14' }} />
+                ) : (
+                  <StarOutlined />
+                )
+              }
+              onClick={handleToggleBookmark}
+            >
+              {interaction.bookmarkCount > 0 ? interaction.bookmarkCount : ''}
+            </Button>
+          </Tooltip>
+          <Tooltip title={t('interaction.comment')}>
+            <Button type="text" icon={<MessageOutlined />}>
+              {interaction.commentCount > 0 ? interaction.commentCount : ''}
+            </Button>
+          </Tooltip>
+        </Space>
+
+        {/* Navigation */}
         <div className="post-detail__nav">
           <Button
             disabled={!neighborsData?.postNeighbors.prev}
@@ -169,6 +320,90 @@ export function PostDetailPage() {
             {t('posts.detail.next')}
           </Button>
         </div>
+      </Card>
+
+      {/* Comments section */}
+      <Card style={{ marginTop: 16 }}>
+        <Title level={5} style={{ marginTop: 0 }}>
+          {t('interaction.comment')} ({commentsTotalData?.commentsTotal ?? 0})
+        </Title>
+
+        <div style={{ marginBottom: 16 }}>
+          <TextArea
+            rows={3}
+            value={commentText}
+            onChange={e => setCommentText(e.target.value)}
+            placeholder={t('interaction.commentPlaceholder')}
+            maxLength={2000}
+          />
+          <div style={{ marginTop: 8, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              type="primary"
+              onClick={handleSubmitComment}
+              loading={submittingComment}
+              disabled={!commentText.trim()}
+            >
+              {t('interaction.submitComment')}
+            </Button>
+          </div>
+        </div>
+
+        <List
+          loading={commentsLoading}
+          dataSource={commentsData?.comments ?? []}
+          locale={{ emptyText: <Empty description={t('interaction.noComments')} /> }}
+          pagination={
+            (commentsTotalData?.commentsTotal ?? 0) > COMMENTS_PAGE_SIZE
+              ? {
+                  current: commentPage,
+                  total: commentsTotalData?.commentsTotal ?? 0,
+                  pageSize: COMMENTS_PAGE_SIZE,
+                  onChange: setCommentPage,
+                  size: 'small',
+                }
+              : false
+          }
+          renderItem={item => (
+            <List.Item
+              actions={
+                currentUser?.id === item.author.id
+                  ? [
+                      <Popconfirm
+                        key="delete"
+                        title={t('interaction.deleteCommentConfirm')}
+                        onConfirm={() => handleDeleteComment(item.id)}
+                        okText={t('common.ok')}
+                        cancelText={t('common.cancel')}
+                      >
+                        <Button type="link" size="small" danger>
+                          {t('interaction.deleteComment')}
+                        </Button>
+                      </Popconfirm>,
+                    ]
+                  : undefined
+              }
+            >
+              <List.Item.Meta
+                avatar={
+                  <Avatar
+                    size="small"
+                    src={item.author.avatarUrl || undefined}
+                    icon={<UserOutlined />}
+                  />
+                }
+                title={
+                  <Space size={8}>
+                    <Text strong>{item.author.nickname || item.author.email.split('@')[0]}</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      {dayjs(item.createdAt).format('YYYY-MM-DD HH:mm')}
+                    </Text>
+                  </Space>
+                }
+                description={<Text>{item.content}</Text>}
+              />
+            </List.Item>
+          )}
+        />
       </Card>
     </div>
   );

@@ -5,6 +5,7 @@ import {
 } from '@/generated/prisma/client';
 import {
   archiveChatSession,
+  countChatSessions,
   deleteChatSession,
   getChatSessionById,
   listChatSessionMessages,
@@ -112,6 +113,10 @@ export const chatResolvers = {
         return null;
       }
       return toChatSession(row);
+    },
+    chatSessionsTotal: async (_: unknown, __: unknown, context: GraphQLContext) => {
+      const user = requireAuth(context);
+      return countChatSessions(user.id);
     },
   },
   Mutation: {
