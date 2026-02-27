@@ -23,7 +23,7 @@ export function LoginPage() {
       if (data?.login?.token) {
         setToken(data.login.token);
         form.resetFields();
-        navigate('/home', { replace: true });
+        navigate('/posts', { replace: true });
       }
     },
   });

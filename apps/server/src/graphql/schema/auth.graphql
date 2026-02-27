@@ -1,6 +1,9 @@
 type User {
   id: ID!
   email: String!
+  nickname: String
+  avatarUrl: String
+  createdAt: String!
   roles: [Role!]!
 }
 
@@ -22,4 +25,6 @@ extend type Query {
 extend type Mutation {
   login(email: String!, password: String!): AuthPayload!
   register(email: String!, password: String!): AuthPayload!
+  updateProfile(nickname: String, avatarUrl: String): User!
+  changePassword(currentPassword: String!, newPassword: String!): Boolean!
 }

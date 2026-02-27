@@ -1,4 +1,4 @@
-import { Layout } from 'antd';
+import { Layout, theme } from 'antd';
 import { Nav } from './Nav';
 
 const { Header, Content } = Layout;
@@ -8,6 +8,8 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
+  const { token } = theme.useToken();
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Header
@@ -15,8 +17,8 @@ export function AppLayout({ children }: AppLayoutProps) {
           display: 'flex',
           alignItems: 'center',
           padding: '0 24px',
-          background: '#fff',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
+          background: token.colorBgContainer,
+          borderBottom: `1px solid ${token.colorBorderSecondary}`,
           position: 'sticky',
           top: 0,
           zIndex: 100,

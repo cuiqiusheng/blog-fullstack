@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client/react';
 import { App, Avatar, Button, Dropdown, Menu, Space, Tag } from 'antd';
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -8,10 +9,10 @@ import { useCurrentUser } from '@/shared/hooks/useCurrentUser';
 
 const NAV_ITEMS: {
   path: string;
-  i18nKey: 'home' | 'posts' | 'userSetting' | 'ai' | 'reactDemos';
+  i18nKey: 'explore' | 'myPosts' | 'userSetting' | 'ai' | 'reactDemos';
 }[] = [
-  { path: 'home', i18nKey: 'home' },
-  { path: 'posts', i18nKey: 'posts' },
+  { path: 'posts', i18nKey: 'myPosts' },
+  { path: 'explore', i18nKey: 'explore' },
   { path: 'user-setting', i18nKey: 'userSetting' },
   { path: 'ai', i18nKey: 'ai' },
   { path: 'react-demos', i18nKey: 'reactDemos' },
@@ -26,8 +27,9 @@ export function Nav() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { modal } = App.useApp();
+  const apolloClient = useApolloClient();
   const { currentUser } = useCurrentUser();
-  const current = pathname.split('/').filter(Boolean)[0] ?? 'home';
+  const current = pathname.split('/').filter(Boolean)[0] ?? 'posts';
 
   const navItems = NAV_ITEMS.map(({ path, i18nKey }) => ({
     key: path,
@@ -39,8 +41,9 @@ export function Nav() {
       title: t('common.logoutConfirmTitle'),
       okText: t('common.ok'),
       cancelText: t('common.cancel'),
-      onOk() {
+      async onOk() {
         clearToken();
+        await apolloClient.clearStore();
         navigate('/login', { replace: true });
       },
     });
@@ -85,7 +88,7 @@ export function Nav() {
     },
   ];
 
-  const displayName = currentUser ? getEmailPrefix(currentUser.email) : '';
+  const displayName = currentUser ? currentUser.nickname || getEmailPrefix(currentUser.email) : '';
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -114,7 +117,7 @@ export function Nav() {
       </Dropdown>
       <Dropdown menu={{ items: userMenuItems }} trigger={['click']} placement="bottomRight">
         <Space style={{ cursor: 'pointer', marginLeft: 4 }}>
-          <Avatar size="small" icon={<UserOutlined />} />
+          <Avatar size="small" src={currentUser?.avatarUrl || undefined} icon={<UserOutlined />} />
           <span
             style={{
               fontSize: 14,

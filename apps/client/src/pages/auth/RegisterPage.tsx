@@ -23,7 +23,7 @@ export function RegisterPage() {
       if (data?.register?.token) {
         setToken(data.register.token);
         form.resetFields();
-        navigate('/home', { replace: true });
+        navigate('/posts', { replace: true });
       }
     },
   });

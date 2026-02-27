@@ -7,8 +7,8 @@
     "cancel": "取消"
   },
   "nav": {
-    "home": "首页",
-    "posts": "文章",
+    "explore": "广场",
+    "myPosts": "我的文章",
     "userSetting": "用户设置",
     "ai": "AI",
     "reactDemos": "React Demos",
@@ -48,9 +48,8 @@
     "hasAccount": "已有账号？",
     "goToLogin": "去登录"
   },
-  "home": {
-    "title": "首页",
-    "welcome": "欢迎回来，这里是首页。"
+  "explore": {
+    "title": "广场"
   },
   "ai": {
     "chat": {
@@ -149,6 +148,44 @@
       "notAuthor": "无权编辑此文章",
       "editorPlaceholder": "开始写作，输入 / 唤起命令菜单..."
     }
+  },
+  "userSetting": {
+    "pageTitle": "用户设置",
+    "accountInfo": "账户信息",
+    "email": "邮箱",
+    "roles": "角色",
+    "registeredAt": "注册时间",
+    "stats": "我的统计",
+    "totalPosts": "文章总数",
+    "published": "已发布",
+    "drafts": "草稿",
+    "chatTopics": "AI 对话",
+    "profile": "个人资料",
+    "nickname": "昵称",
+    "nicknamePlaceholder": "输入昵称",
+    "avatarUrl": "头像链接",
+    "avatarUrlPlaceholder": "输入头像图片链接",
+    "saveProfile": "保存资料",
+    "profileSaved": "资料已更新",
+    "profileSaveFailed": "保存失败，请重试",
+    "changePassword": "修改密码",
+    "currentPassword": "当前密码",
+    "currentPasswordPlaceholder": "输入当前密码",
+    "currentPasswordRequired": "请输入当前密码",
+    "newPassword": "新密码",
+    "newPasswordPlaceholder": "输入新密码",
+    "newPasswordRequired": "请输入新密码",
+    "newPasswordMinLength": "密码至少 6 位",
+    "confirmNewPassword": "确认新密码",
+    "confirmNewPasswordPlaceholder": "再次输入新密码",
+    "confirmNewPasswordRequired": "请确认新密码",
+    "confirmNewPasswordMismatch": "两次输入的密码不一致",
+    "submitPassword": "修改密码",
+    "passwordChanged": "密码已修改",
+    "passwordChangeFailed": "修改失败，请检查当前密码",
+    "appearance": "外观偏好",
+    "darkMode": "深色模式",
+    "language": "语言"
   },
   "placeholders": {
     "posts": "文章（占位）",

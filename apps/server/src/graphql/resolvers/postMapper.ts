@@ -21,5 +21,9 @@ export function toGqlPost(row: PostWithAuthor) {
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     publishedAt: row.publishedAt?.toISOString() ?? null,
+    author: {
+      ...row.author,
+      createdAt: row.author.createdAt.toISOString(),
+    },
   };
 }

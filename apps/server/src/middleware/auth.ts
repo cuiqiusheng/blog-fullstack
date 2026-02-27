@@ -5,6 +5,8 @@ import { prisma } from '../lib/prisma';
 export interface AuthUser {
   id: string;
   email: string;
+  nickname: string | null;
+  avatarUrl: string | null;
   roles: Array<{ id: string; name: string; description: string | null }>;
 }
 
@@ -34,6 +36,8 @@ async function buildAuthContextFromToken(token: string): Promise<AuthContext> {
       user: {
         id: user.id,
         email: user.email,
+        nickname: user.nickname,
+        avatarUrl: user.avatarUrl,
         roles: user.roles,
       },
       isAuthenticated: true,

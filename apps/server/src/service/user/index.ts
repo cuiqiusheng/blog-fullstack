@@ -5,3 +5,4 @@ export {
   getRoleUsers,
   removeRoleFromUser,
 } from './roleService';
+export { updateUserProfile, changeUserPassword } from './profileService';
