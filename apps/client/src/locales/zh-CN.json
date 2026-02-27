@@ -12,7 +12,8 @@
     "userSetting": "用户设置",
     "ai": "AI",
     "reactDemos": "React Demos",
-    "write": "写文章"
+    "write": "写文章",
+    "bookmarks": "我的收藏"
   },
   "auth": {
     "login": {
@@ -160,6 +161,9 @@
     "published": "已发布",
     "drafts": "草稿",
     "chatTopics": "AI 对话",
+    "totalLikesReceived": "获赞",
+    "totalBookmarks": "收藏",
+    "totalComments": "评论",
     "profile": "个人资料",
     "nickname": "昵称",
     "nicknamePlaceholder": "输入昵称",
@@ -186,6 +190,27 @@
     "appearance": "外观偏好",
     "darkMode": "深色模式",
     "language": "语言"
+  },
+  "interaction": {
+    "like": "点赞",
+    "liked": "已赞",
+    "bookmark": "收藏",
+    "bookmarked": "已收藏",
+    "comment": "评论",
+    "commentPlaceholder": "写下你的评论...",
+    "submitComment": "发表评论",
+    "deleteComment": "删除",
+    "deleteCommentConfirm": "确定要删除这条评论吗？",
+    "commentCreated": "评论已发表",
+    "commentDeleted": "评论已删除",
+    "commentFailed": "发表失败，请重试",
+    "noComments": "暂无评论",
+    "unbookmark": "取消收藏",
+    "unbookmarkSuccess": "已取消收藏"
+  },
+  "bookmarks": {
+    "pageTitle": "我的收藏",
+    "empty": "暂无收藏的文章"
   },
   "placeholders": {
     "posts": "文章（占位）",

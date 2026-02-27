@@ -42,6 +42,13 @@ query Posts(
         name
       }
     }
+    interactionInfo {
+      liked
+      likeCount
+      bookmarked
+      bookmarkCount
+      commentCount
+    }
   }
 }
 
@@ -78,6 +85,13 @@ query Post($id: ID!) {
         id
         name
       }
+    }
+    interactionInfo {
+      liked
+      likeCount
+      bookmarked
+      bookmarkCount
+      commentCount
     }
   }
 }

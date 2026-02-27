@@ -9,6 +9,10 @@ query ChatSessions($limit: Int, $offset: Int, $search: String) {
   }
 }
 
+query ChatSessionsTotal {
+  chatSessionsTotal
+}
+
 query ChatSession($id: ID!, $limit: Int, $offset: Int) {
   chatSession(id: $id) {
     id

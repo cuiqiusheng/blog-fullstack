@@ -1,4 +1,9 @@
-export { listChatSessions, getChatSessionById, listChatSessionMessages } from './queryService';
+export {
+  listChatSessions,
+  getChatSessionById,
+  listChatSessionMessages,
+  countChatSessions,
+} from './queryService';
 export {
   startChatSession,
   sendChatMessageCommand,

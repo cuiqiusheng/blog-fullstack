@@ -1,0 +1,95 @@
+mutation ToggleLike($postId: ID!) {
+  toggleLike(postId: $postId) {
+    liked
+    likeCount
+    bookmarked
+    bookmarkCount
+    commentCount
+  }
+}
+
+mutation ToggleBookmark($postId: ID!) {
+  toggleBookmark(postId: $postId) {
+    liked
+    likeCount
+    bookmarked
+    bookmarkCount
+    commentCount
+  }
+}
+
+mutation CreateComment($postId: ID!, $content: String!) {
+  createComment(postId: $postId, content: $content) {
+    id
+    content
+    author {
+      id
+      email
+      nickname
+      avatarUrl
+    }
+    createdAt
+    updatedAt
+  }
+}
+
+mutation DeleteComment($id: ID!) {
+  deleteComment(id: $id)
+}
+
+query Comments($postId: ID!, $limit: Int, $offset: Int) {
+  comments(postId: $postId, limit: $limit, offset: $offset) {
+    id
+    content
+    author {
+      id
+      email
+      nickname
+      avatarUrl
+    }
+    createdAt
+    updatedAt
+  }
+}
+
+query CommentsTotal($postId: ID!) {
+  commentsTotal(postId: $postId)
+}
+
+query MyBookmarks($limit: Int, $offset: Int) {
+  myBookmarks(limit: $limit, offset: $offset) {
+    id
+    title
+    content
+    topic
+    subtopic
+    status
+    createdAt
+    updatedAt
+    author {
+      id
+      email
+      nickname
+      avatarUrl
+    }
+    interactionInfo {
+      liked
+      likeCount
+      bookmarked
+      bookmarkCount
+      commentCount
+    }
+  }
+}
+
+query MyBookmarksTotal {
+  myBookmarksTotal
+}
+
+query MyInteractionStats {
+  myInteractionStats {
+    totalLikesReceived
+    totalBookmarks
+    totalComments
+  }
+}

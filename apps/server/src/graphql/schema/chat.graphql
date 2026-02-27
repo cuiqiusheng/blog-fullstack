@@ -60,6 +60,7 @@ input StartChatSessionInput {
 extend type Query {
   chatSession(id: ID!): ChatSession
   chatSessions(limit: Int, offset: Int, search: String): [ChatSession!]!
+  chatSessionsTotal: Int!
 }
 
 extend type Mutation {
