@@ -18,10 +18,11 @@ mutation ToggleBookmark($postId: ID!) {
   }
 }
 
-mutation CreateComment($postId: ID!, $content: String!) {
-  createComment(postId: $postId, content: $content) {
+mutation CreateComment($postId: ID!, $content: String!, $parentId: ID) {
+  createComment(postId: $postId, content: $content, parentId: $parentId) {
     id
     content
+    parentId
     author {
       id
       email
@@ -41,6 +42,41 @@ query Comments($postId: ID!, $limit: Int, $offset: Int) {
   comments(postId: $postId, limit: $limit, offset: $offset) {
     id
     content
+    parentId
+    repliesCount
+    author {
+      id
+      email
+      nickname
+      avatarUrl
+    }
+    replies {
+      id
+      content
+      parentId
+      author {
+        id
+        email
+        nickname
+        avatarUrl
+      }
+      createdAt
+      updatedAt
+    }
+    createdAt
+    updatedAt
+  }
+}
+
+query CommentsTotal($postId: ID!) {
+  commentsTotal(postId: $postId)
+}
+
+query CommentReplies($commentId: ID!, $limit: Int, $offset: Int) {
+  commentReplies(commentId: $commentId, limit: $limit, offset: $offset) {
+    id
+    content
+    parentId
     author {
       id
       email
@@ -50,10 +86,6 @@ query Comments($postId: ID!, $limit: Int, $offset: Int) {
     createdAt
     updatedAt
   }
-}
-
-query CommentsTotal($postId: ID!) {
-  commentsTotal(postId: $postId)
 }
 
 query MyBookmarks($limit: Int, $offset: Int) {

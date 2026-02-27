@@ -11,6 +11,33 @@ const COMMENT_AUTHOR_SELECT = {
   roles: { select: { id: true, name: true, description: true } },
 } as const;
 
+const REPLIES_PREVIEW_LIMIT = 3;
+
+function mapComment(r: {
+  id: string;
+  content: string;
+  parentId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  user: {
+    id: string;
+    email: string;
+    nickname: string | null;
+    avatarUrl: string | null;
+    createdAt: Date;
+    roles: { id: string; name: string; description: string | null }[];
+  };
+}) {
+  return {
+    id: r.id,
+    content: r.content,
+    parentId: r.parentId,
+    createdAt: r.createdAt.toISOString(),
+    updatedAt: r.updatedAt.toISOString(),
+    author: { ...r.user, createdAt: r.user.createdAt.toISOString() },
+  };
+}
+
 export async function getPostInteractionInfo(postId: string, userId: string | null) {
   const [likeCount, bookmarkCount, commentCount, liked, bookmarked] = await Promise.all([
     prisma.postLike.count({ where: { postId } }),
@@ -54,36 +81,79 @@ export async function toggleBookmark(userId: string, postId: string) {
 
 export async function getComments(postId: string, limit = 20, offset = 0) {
   const rows = await prisma.postComment.findMany({
-    where: { postId },
+    where: { postId, parentId: null },
     orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: offset,
+    include: {
+      user: { select: COMMENT_AUTHOR_SELECT },
+      replies: {
+        take: REPLIES_PREVIEW_LIMIT,
+        orderBy: { createdAt: 'asc' },
+        include: { user: { select: COMMENT_AUTHOR_SELECT } },
+      },
+      _count: { select: { replies: true } },
+    },
+  });
+  return rows.map(r => ({
+    ...mapComment(r),
+    replies: r.replies.map(mapComment),
+    repliesCount: r._count.replies,
+  }));
+}
+
+export async function getCommentsTotal(postId: string) {
+  return prisma.postComment.count({ where: { postId, parentId: null } });
+}
+
+export async function getCommentReplies(commentId: string, limit = 20, offset = 0) {
+  const rows = await prisma.postComment.findMany({
+    where: { parentId: commentId },
+    orderBy: { createdAt: 'asc' },
     take: limit,
     skip: offset,
     include: { user: { select: COMMENT_AUTHOR_SELECT } },
   });
   return rows.map(r => ({
-    id: r.id,
-    content: r.content,
-    createdAt: r.createdAt.toISOString(),
-    updatedAt: r.updatedAt.toISOString(),
-    author: { ...r.user, createdAt: r.user.createdAt.toISOString() },
+    ...mapComment(r),
+    replies: [] as ReturnType<typeof mapComment>[],
+    repliesCount: 0,
   }));
 }
 
-export async function getCommentsTotal(postId: string) {
-  return prisma.postComment.count({ where: { postId } });
-}
+export async function createComment(
+  userId: string,
+  postId: string,
+  content: string,
+  parentId?: string | null,
+) {
+  let resolvedParentId = parentId ?? null;
 
-export async function createComment(userId: string, postId: string, content: string) {
+  if (resolvedParentId) {
+    const parentComment = await prisma.postComment.findUnique({
+      where: { id: resolvedParentId },
+    });
+    if (!parentComment) {
+      throw new GraphQLError('Parent comment not found', { extensions: { code: 'NOT_FOUND' } });
+    }
+    if (parentComment.postId !== postId) {
+      throw new GraphQLError('Parent comment belongs to a different post', {
+        extensions: { code: 'BAD_USER_INPUT' },
+      });
+    }
+    if (parentComment.parentId) {
+      resolvedParentId = parentComment.parentId;
+    }
+  }
+
   const row = await prisma.postComment.create({
-    data: { userId, postId, content },
+    data: { userId, postId, content, parentId: resolvedParentId },
     include: { user: { select: COMMENT_AUTHOR_SELECT } },
   });
   return {
-    id: row.id,
-    content: row.content,
-    createdAt: row.createdAt.toISOString(),
-    updatedAt: row.updatedAt.toISOString(),
-    author: { ...row.user, createdAt: row.user.createdAt.toISOString() },
+    ...mapComment(row),
+    replies: [] as ReturnType<typeof mapComment>[],
+    repliesCount: 0,
   };
 }
 

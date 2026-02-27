@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMutation, useQuery } from '@apollo/client/react';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client/react';
 import {
   Alert,
   App,
@@ -16,6 +16,7 @@ import {
   Tag,
   Tooltip,
   Typography,
+  theme,
 } from 'antd';
 import {
   LikeOutlined,
@@ -43,6 +44,8 @@ import {
   CommentsTotalDocument,
   CreateCommentDocument,
   DeleteCommentDocument,
+  CommentRepliesDocument,
+  type CommentsQuery,
 } from '@/graphql/codegen';
 import { useTranslation } from 'react-i18next';
 import { useCurrentUser } from '@/shared/hooks';
@@ -54,6 +57,234 @@ const { TextArea } = Input;
 
 const COMMENTS_PAGE_SIZE = 10;
 
+type TopComment = CommentsQuery['comments'][number];
+type ReplyComment = TopComment['replies'][number];
+
+function getDisplayName(author: { nickname?: string | null; email: string }) {
+  return author.nickname || author.email.split('@')[0];
+}
+
+interface ReplyItemProps {
+  reply: ReplyComment;
+  currentUserId?: string;
+  onReply: (replyAuthorName: string) => void;
+  onDelete: (commentId: string) => void;
+  t: (key: string, opts?: Record<string, unknown>) => string;
+}
+
+function ReplyItem({ reply, currentUserId, onReply, onDelete, t }: ReplyItemProps) {
+  return (
+    <div style={{ display: 'flex', gap: 8, padding: '8px 0' }}>
+      <Avatar size="small" src={reply.author.avatarUrl || undefined} icon={<UserOutlined />} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <Space size={8}>
+          <Text strong style={{ fontSize: 13 }}>
+            {getDisplayName(reply.author)}
+          </Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            {dayjs(reply.createdAt).format('YYYY-MM-DD HH:mm')}
+          </Text>
+        </Space>
+        <div style={{ marginTop: 2 }}>
+          <Text>{reply.content}</Text>
+        </div>
+        <Space size={12} style={{ marginTop: 4 }}>
+          <Button
+            type="link"
+            size="small"
+            style={{ padding: 0 }}
+            onClick={() => onReply(getDisplayName(reply.author))}
+          >
+            {t('interaction.reply')}
+          </Button>
+          {currentUserId === reply.author.id && (
+            <Popconfirm
+              title={t('interaction.deleteCommentConfirm')}
+              onConfirm={() => onDelete(reply.id)}
+              okText={t('common.ok')}
+              cancelText={t('common.cancel')}
+            >
+              <Button type="link" size="small" danger style={{ padding: 0 }}>
+                {t('interaction.deleteComment')}
+              </Button>
+            </Popconfirm>
+          )}
+        </Space>
+      </div>
+    </div>
+  );
+}
+
+interface CommentItemProps {
+  comment: TopComment;
+  currentUserId?: string;
+  replyingTo: string | null;
+  replyText: string;
+  replyHint: string;
+  submittingReply: boolean;
+  onSetReplyingTo: (commentId: string | null, hint?: string) => void;
+  onSetReplyText: (text: string) => void;
+  onSubmitReply: (parentId: string) => Promise<boolean>;
+  onDeleteComment: (commentId: string) => Promise<void>;
+  t: (key: string, opts?: Record<string, unknown>) => string;
+}
+
+function CommentItem({
+  comment,
+  currentUserId,
+  replyingTo,
+  replyText,
+  replyHint,
+  submittingReply,
+  onSetReplyingTo,
+  onSetReplyText,
+  onSubmitReply,
+  onDeleteComment,
+  t,
+}: CommentItemProps) {
+  const { token } = theme.useToken();
+  const [expanded, setExpanded] = useState(false);
+
+  const [fetchAllReplies, { data: allRepliesData, loading: loadingReplies }] = useLazyQuery(
+    CommentRepliesDocument,
+    { fetchPolicy: 'network-only' },
+  );
+
+  const previewReplies = comment.replies;
+  const totalReplies = comment.repliesCount;
+  const fullReplies = allRepliesData?.commentReplies;
+  const displayReplies: ReplyComment[] = expanded && fullReplies ? fullReplies : previewReplies;
+  const isReplyingHere = replyingTo === comment.id;
+
+  const handleExpand = () => {
+    if (!expanded) {
+      fetchAllReplies({ variables: { commentId: comment.id, limit: 100 } });
+    }
+    setExpanded(!expanded);
+  };
+
+  const handleReplyToTop = () => {
+    onSetReplyingTo(comment.id);
+  };
+
+  const handleReplyToReply = (authorName: string) => {
+    onSetReplyingTo(comment.id, authorName);
+  };
+
+  const handleDeleteReply = async (replyId: string) => {
+    await onDeleteComment(replyId);
+    if (expanded) {
+      fetchAllReplies({ variables: { commentId: comment.id, limit: 100 } });
+    }
+  };
+
+  return (
+    <List.Item style={{ display: 'block', padding: '12px 0' }}>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <Avatar size="small" src={comment.author.avatarUrl || undefined} icon={<UserOutlined />} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <Space size={8}>
+            <Text strong>{getDisplayName(comment.author)}</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {dayjs(comment.createdAt).format('YYYY-MM-DD HH:mm')}
+            </Text>
+          </Space>
+          <div style={{ marginTop: 4 }}>
+            <Text>{comment.content}</Text>
+          </div>
+          <Space size={12} style={{ marginTop: 4 }}>
+            <Button type="link" size="small" style={{ padding: 0 }} onClick={handleReplyToTop}>
+              {t('interaction.reply')}
+            </Button>
+            {currentUserId === comment.author.id && (
+              <Popconfirm
+                title={t('interaction.deleteCommentConfirm')}
+                onConfirm={() => onDeleteComment(comment.id)}
+                okText={t('common.ok')}
+                cancelText={t('common.cancel')}
+              >
+                <Button type="link" size="small" danger style={{ padding: 0 }}>
+                  {t('interaction.deleteComment')}
+                </Button>
+              </Popconfirm>
+            )}
+          </Space>
+        </div>
+      </div>
+
+      {/* Replies */}
+      {(displayReplies.length > 0 || isReplyingHere) && (
+        <div
+          style={{
+            marginLeft: 40,
+            marginTop: 8,
+            paddingLeft: 12,
+            borderLeft: `2px solid ${token.colorBorderSecondary}`,
+          }}
+        >
+          {displayReplies.map(reply => (
+            <ReplyItem
+              key={reply.id}
+              reply={reply}
+              currentUserId={currentUserId}
+              onReply={handleReplyToReply}
+              onDelete={handleDeleteReply}
+              t={t}
+            />
+          ))}
+
+          {totalReplies > previewReplies.length && (
+            <Button
+              type="link"
+              size="small"
+              style={{ padding: 0, marginTop: 4 }}
+              loading={loadingReplies}
+              onClick={handleExpand}
+            >
+              {expanded
+                ? t('interaction.collapseReplies')
+                : t('interaction.expandReplies', { count: totalReplies })}
+            </Button>
+          )}
+
+          {isReplyingHere && (
+            <div style={{ marginTop: 8 }}>
+              <TextArea
+                rows={2}
+                value={replyText}
+                onChange={e => onSetReplyText(e.target.value)}
+                placeholder={replyHint || t('interaction.replyPlaceholder')}
+                maxLength={2000}
+                autoFocus
+              />
+              <Space style={{ marginTop: 6 }}>
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={async () => {
+                    const ok = await onSubmitReply(comment.id);
+                    if (ok) {
+                      setExpanded(true);
+                      fetchAllReplies({ variables: { commentId: comment.id, limit: 100 } });
+                    }
+                  }}
+                  loading={submittingReply}
+                  disabled={!replyText.trim()}
+                >
+                  {t('interaction.reply')}
+                </Button>
+                <Button size="small" onClick={() => onSetReplyingTo(null)}>
+                  {t('interaction.cancelReply')}
+                </Button>
+              </Space>
+            </div>
+          )}
+        </div>
+      )}
+    </List.Item>
+  );
+}
+
 export function PostDetailPage() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
@@ -63,6 +294,9 @@ export function PostDetailPage() {
   const { currentUser } = useCurrentUser();
   const [commentText, setCommentText] = useState('');
   const [commentPage, setCommentPage] = useState(1);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [replyHint, setReplyHint] = useState('');
 
   const { data, loading, error } = useQuery(PostDocument, {
     variables: { id: id ?? '' },
@@ -85,6 +319,19 @@ export function PostDetailPage() {
     skip: !id,
   });
 
+  const commentRefetchQueries = [
+    {
+      query: CommentsDocument,
+      variables: {
+        postId: id ?? '',
+        limit: COMMENTS_PAGE_SIZE,
+        offset: (commentPage - 1) * COMMENTS_PAGE_SIZE,
+      },
+    },
+    { query: CommentsTotalDocument, variables: { postId: id ?? '' } },
+    { query: PostDocument, variables: { id: id ?? '' } },
+  ];
+
   const refetchQueries = [PostsDocument, PostsTotalDocument];
 
   const [publishPost, { loading: publishing }] = useMutation(UpdatePostDocument, {
@@ -96,28 +343,11 @@ export function PostDetailPage() {
   const [toggleLike] = useMutation(ToggleLikeDocument);
   const [toggleBookmark] = useMutation(ToggleBookmarkDocument);
   const [createComment, { loading: submittingComment }] = useMutation(CreateCommentDocument, {
-    refetchQueries: [
-      {
-        query: CommentsDocument,
-        variables: { postId: id ?? '', limit: COMMENTS_PAGE_SIZE, offset: 0 },
-      },
-      { query: CommentsTotalDocument, variables: { postId: id ?? '' } },
-      { query: PostDocument, variables: { id: id ?? '' } },
-    ],
+    refetchQueries: commentRefetchQueries,
   });
   const [deleteComment] = useMutation(DeleteCommentDocument, {
-    refetchQueries: [
-      {
-        query: CommentsDocument,
-        variables: {
-          postId: id ?? '',
-          limit: COMMENTS_PAGE_SIZE,
-          offset: (commentPage - 1) * COMMENTS_PAGE_SIZE,
-        },
-      },
-      { query: CommentsTotalDocument, variables: { postId: id ?? '' } },
-      { query: PostDocument, variables: { id: id ?? '' } },
-    ],
+    refetchQueries: commentRefetchQueries,
+    awaitRefetchQueries: true,
   });
 
   if (!id) {
@@ -191,6 +421,22 @@ export function PostDetailPage() {
     }
   };
 
+  const handleSubmitReply = async (parentId: string): Promise<boolean> => {
+    const content = replyText.trim();
+    if (!content) return false;
+    try {
+      await createComment({ variables: { postId: id, content, parentId } });
+      setReplyText('');
+      setReplyingTo(null);
+      setReplyHint('');
+      message.success(t('interaction.commentCreated'));
+      return true;
+    } catch {
+      message.error(t('interaction.commentFailed'));
+      return false;
+    }
+  };
+
   const handleDeleteComment = async (commentId: string) => {
     try {
       await deleteComment({ variables: { id: commentId } });
@@ -198,6 +444,12 @@ export function PostDetailPage() {
     } catch {
       message.error(t('interaction.commentFailed'));
     }
+  };
+
+  const handleSetReplyingTo = (commentId: string | null, authorName?: string) => {
+    setReplyingTo(commentId);
+    setReplyText('');
+    setReplyHint(authorName ? t('interaction.replyTo', { name: authorName }) : '');
   };
 
   return (
@@ -363,45 +615,21 @@ export function PostDetailPage() {
                 }
               : false
           }
-          renderItem={item => (
-            <List.Item
-              actions={
-                currentUser?.id === item.author.id
-                  ? [
-                      <Popconfirm
-                        key="delete"
-                        title={t('interaction.deleteCommentConfirm')}
-                        onConfirm={() => handleDeleteComment(item.id)}
-                        okText={t('common.ok')}
-                        cancelText={t('common.cancel')}
-                      >
-                        <Button type="link" size="small" danger>
-                          {t('interaction.deleteComment')}
-                        </Button>
-                      </Popconfirm>,
-                    ]
-                  : undefined
-              }
-            >
-              <List.Item.Meta
-                avatar={
-                  <Avatar
-                    size="small"
-                    src={item.author.avatarUrl || undefined}
-                    icon={<UserOutlined />}
-                  />
-                }
-                title={
-                  <Space size={8}>
-                    <Text strong>{item.author.nickname || item.author.email.split('@')[0]}</Text>
-                    <Text type="secondary" style={{ fontSize: 12 }}>
-                      {dayjs(item.createdAt).format('YYYY-MM-DD HH:mm')}
-                    </Text>
-                  </Space>
-                }
-                description={<Text>{item.content}</Text>}
-              />
-            </List.Item>
+          renderItem={comment => (
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              currentUserId={currentUser?.id}
+              replyingTo={replyingTo}
+              replyText={replyText}
+              replyHint={replyHint}
+              submittingReply={submittingComment}
+              onSetReplyingTo={handleSetReplyingTo}
+              onSetReplyText={setReplyText}
+              onSubmitReply={handleSubmitReply}
+              onDeleteComment={handleDeleteComment}
+              t={t}
+            />
           )}
         />
       </Card>

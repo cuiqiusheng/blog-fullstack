@@ -7,6 +7,7 @@ import {
   getPostInteractionInfo,
   getComments,
   getCommentsTotal,
+  getCommentReplies,
   createComment,
   deleteComment,
   getMyBookmarks,
@@ -20,6 +21,7 @@ import type {
   MutationDeleteCommentArgs,
   QueryCommentsArgs,
   QueryCommentsTotalArgs,
+  QueryCommentRepliesArgs,
   QueryMyBookmarksArgs,
 } from '../__generated__/types';
 
@@ -30,6 +32,9 @@ export const interactionResolvers = {
     },
     commentsTotal: async (_: unknown, args: QueryCommentsTotalArgs) => {
       return getCommentsTotal(args.postId);
+    },
+    commentReplies: async (_: unknown, args: QueryCommentRepliesArgs) => {
+      return getCommentReplies(args.commentId, args.limit ?? 20, args.offset ?? 0);
     },
     myBookmarks: async (_: unknown, args: QueryMyBookmarksArgs, context: GraphQLContext) => {
       const user = requireAuth(context);
@@ -60,7 +65,7 @@ export const interactionResolvers = {
     },
     createComment: async (_: unknown, args: MutationCreateCommentArgs, context: GraphQLContext) => {
       const user = requireAuth(context);
-      return createComment(user.id, args.postId, args.content);
+      return createComment(user.id, args.postId, args.content, args.parentId);
     },
     deleteComment: async (_: unknown, args: MutationDeleteCommentArgs, context: GraphQLContext) => {
       const user = requireAuth(context);

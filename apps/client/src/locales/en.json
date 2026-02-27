@@ -206,7 +206,13 @@
     "commentFailed": "Failed to post comment",
     "noComments": "No comments yet",
     "unbookmark": "Remove Bookmark",
-    "unbookmarkSuccess": "Bookmark removed"
+    "unbookmarkSuccess": "Bookmark removed",
+    "reply": "Reply",
+    "replyTo": "Reply to @{{name}}",
+    "cancelReply": "Cancel",
+    "expandReplies": "Show all {{count}} replies",
+    "collapseReplies": "Hide replies",
+    "replyPlaceholder": "Write a reply..."
   },
   "bookmarks": {
     "pageTitle": "My Bookmarks",

@@ -206,7 +206,13 @@
     "commentFailed": "发表失败，请重试",
     "noComments": "暂无评论",
     "unbookmark": "取消收藏",
-    "unbookmarkSuccess": "已取消收藏"
+    "unbookmarkSuccess": "已取消收藏",
+    "reply": "回复",
+    "replyTo": "回复 @{{name}}",
+    "cancelReply": "取消",
+    "expandReplies": "展开全部 {{count}} 条回复",
+    "collapseReplies": "收起回复",
+    "replyPlaceholder": "写下你的回复..."
   },
   "bookmarks": {
     "pageTitle": "我的收藏",
