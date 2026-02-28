@@ -1,6 +1,6 @@
 import { useApolloClient } from '@apollo/client/react';
 import { App, Avatar, Button, Dropdown, Menu, Space, Tag } from 'antd';
-import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { GithubOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { clearToken } from '@/lib/auth';
@@ -10,14 +10,13 @@ import { NotificationBell } from '@/features/notification';
 
 const NAV_ITEMS: {
   path: string;
-  i18nKey: 'explore' | 'myPosts' | 'bookmarks' | 'userSetting' | 'ai' | 'reactDemos';
+  i18nKey: 'explore' | 'myPosts' | 'bookmarks' | 'userSetting' | 'ai';
 }[] = [
   { path: 'posts', i18nKey: 'myPosts' },
   { path: 'explore', i18nKey: 'explore' },
   { path: 'bookmarks', i18nKey: 'bookmarks' },
   { path: 'user-setting', i18nKey: 'userSetting' },
   { path: 'ai', i18nKey: 'ai' },
-  { path: 'react-demos', i18nKey: 'reactDemos' },
 ];
 
 function getEmailPrefix(email: string): string {
@@ -117,6 +116,14 @@ export function Nav() {
           {i18n.language === 'zh-CN' ? '中文' : 'EN'}
         </Button>
       </Dropdown>
+      <Button
+        type="text"
+        icon={<GithubOutlined />}
+        href="https://github.com/cuiqiusheng/blog-fullstack"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ marginRight: 4 }}
+      />
       <NotificationBell />
       <Dropdown menu={{ items: userMenuItems }} trigger={['click']} placement="bottomRight">
         <Space style={{ cursor: 'pointer', marginLeft: 4 }}>
