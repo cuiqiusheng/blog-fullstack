@@ -198,25 +198,25 @@ export function UserSettingPage() {
             icon={<FileTextOutlined />}
             label={t('userSetting.totalPosts')}
             value={totalData?.postsTotal ?? 0}
-            color="#1677ff"
+            color="#6366f1"
           />
           <StatCard
             icon={<CheckCircleOutlined />}
             label={t('userSetting.published')}
             value={publishedData?.postsTotal ?? 0}
-            color="#52c41a"
+            color="#34d399"
           />
           <StatCard
             icon={<EditOutlined />}
             label={t('userSetting.drafts')}
             value={draftData?.postsTotal ?? 0}
-            color="#faad14"
+            color="#fbbf24"
           />
           <StatCard
             icon={<MessageOutlined />}
             label={t('userSetting.chatTopics')}
             value={chatTotalData?.chatSessionsTotal ?? 0}
-            color="#722ed1"
+            color="#8b5cf6"
           />
         </div>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
@@ -224,19 +224,19 @@ export function UserSettingPage() {
             icon={<LikeOutlined />}
             label={t('userSetting.totalLikesReceived')}
             value={stats?.totalLikesReceived ?? 0}
-            color="#eb2f96"
+            color="#ec4899"
           />
           <StatCard
             icon={<StarOutlined />}
             label={t('userSetting.totalBookmarks')}
             value={stats?.totalBookmarks ?? 0}
-            color="#fa8c16"
+            color="#f97316"
           />
           <StatCard
             icon={<CommentOutlined />}
             label={t('userSetting.totalComments')}
             value={stats?.totalComments ?? 0}
-            color="#13c2c2"
+            color="#06b6d4"
           />
         </div>
       </Card>

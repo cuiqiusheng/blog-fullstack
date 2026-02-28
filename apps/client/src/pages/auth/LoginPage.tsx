@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { LoginDocument, type LoginMutation } from '@/graphql/codegen';
 import { setToken } from '@/lib/auth';
 import { setLocale, type Locale } from '@/lib/i18n';
+import { ParticleCanvas } from './ParticleCanvas';
 import './auth.css';
 
 const { Title, Text } = Typography;
@@ -34,6 +35,13 @@ export function LoginPage() {
 
   return (
     <div className="auth-page">
+      <div className="auth-page__orbs">
+        <div className="auth-page__orb auth-page__orb--1" />
+        <div className="auth-page__orb auth-page__orb--2" />
+        <div className="auth-page__orb auth-page__orb--3" />
+        <div className="auth-page__orb auth-page__orb--4" />
+      </div>
+      <ParticleCanvas />
       <div className="auth-page__lang">
         <Dropdown
           menu={{
@@ -50,8 +58,9 @@ export function LoginPage() {
               padding: '6px 16px',
               fontSize: 14,
               fontWeight: 500,
-              borderColor: 'rgba(107, 171, 144, 0.5)',
-              color: 'rgba(0, 0, 0, 0.85)',
+              borderColor: 'rgba(255, 255, 255, 0.25)',
+              color: 'rgba(255, 255, 255, 0.85)',
+              background: 'rgba(255, 255, 255, 0.08)',
             }}
           >
             {i18n.language === 'zh-CN' ? '中文' : 'EN'} ▾
@@ -59,6 +68,10 @@ export function LoginPage() {
         </Dropdown>
       </div>
       <div className="auth-page__center">
+        <div className="auth-page__brand">
+          <h1 className="auth-page__brand-name">Sans Blog</h1>
+          <p className="auth-page__brand-tagline">{t('auth.brandTagline')}</p>
+        </div>
         <Card style={{ width: '100%', maxWidth: 400 }} className="auth-page__card" bordered={false}>
           <Title level={3} style={{ marginBottom: 8 }}>
             {t('auth.login.title')}
