@@ -8,7 +8,6 @@
   "dependencies": {
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
-    "mermaid": "^11.12.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-markdown": "^10.1.0",
