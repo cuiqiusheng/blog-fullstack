@@ -19,10 +19,27 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-antd': ['antd', '@ant-design/icons'],
-          'vendor-apollo': ['@apollo/client', 'graphql'],
+        manualChunks(id) {
+          if (
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-router')
+          ) {
+            return 'vendor-react';
+          }
+          if (id.includes('node_modules/antd/') || id.includes('node_modules/@ant-design/')) {
+            return 'vendor-antd';
+          }
+          if (id.includes('node_modules/@apollo/') || id.includes('node_modules/graphql/')) {
+            return 'vendor-apollo';
+          }
+          if (
+            id.includes('node_modules/mermaid/') ||
+            id.includes('node_modules/d3') ||
+            id.includes('node_modules/dagre')
+          ) {
+            return 'vendor-mermaid';
+          }
         },
       },
     },
