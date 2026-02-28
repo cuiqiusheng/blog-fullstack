@@ -1,5 +1,6 @@
+import { NotificationType } from '../../generated/prisma/client';
 import { GraphQLResolveInfo } from 'graphql';
-import { PostParent, CommentParent } from './types.mapper';
+import { PostParent, CommentParent, NotificationParent } from './types.mapper';
 import { GraphQLContext } from '../../types/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -14,6 +15,7 @@ export type Incremental<T> =
   | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
+export type EnumResolverSignature<T, AllowedValues = any> = { [key in keyof T]?: AllowedValues };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string };
@@ -195,6 +197,8 @@ export type Mutation = {
   deletePost: Scalars['Boolean']['output'];
   generatePosts: GenerationBatchReport;
   login: AuthPayload;
+  markAllNotificationsRead: Scalars['Boolean']['output'];
+  markNotificationRead: Notification;
   register: AuthPayload;
   renameChatSession: ChatSession;
   retryGenerationBatch: GenerationBatchReport;
@@ -252,6 +256,10 @@ export type MutationLoginArgs = {
   password: Scalars['String']['input'];
 };
 
+export type MutationMarkNotificationReadArgs = {
+  id: Scalars['ID']['input'];
+};
+
 export type MutationRegisterArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -293,6 +301,21 @@ export type MutationUpdateProfileArgs = {
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
   nickname?: InputMaybe<Scalars['String']['input']>;
 };
+
+export type Notification = {
+  __typename?: 'Notification';
+  actor: User;
+  commentContent?: Maybe<Scalars['String']['output']>;
+  commentId?: Maybe<Scalars['ID']['output']>;
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  postId?: Maybe<Scalars['ID']['output']>;
+  postTitle?: Maybe<Scalars['String']['output']>;
+  read: Scalars['Boolean']['output'];
+  type: NotificationType;
+};
+
+export { NotificationType };
 
 export type Post = {
   __typename?: 'Post';
@@ -356,10 +379,12 @@ export type Query = {
   myBookmarks: Array<Post>;
   myBookmarksTotal: Scalars['Int']['output'];
   myInteractionStats: InteractionStats;
+  notifications: Array<Notification>;
   post?: Maybe<Post>;
   postNeighbors: PostNeighbors;
   posts: Array<Post>;
   postsTotal: Scalars['Int']['output'];
+  unreadNotificationCount: Scalars['Int']['output'];
 };
 
 export type QueryChatSessionArgs = {
@@ -393,6 +418,11 @@ export type QueryGenerationBatchArgs = {
 };
 
 export type QueryMyBookmarksArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryNotificationsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -453,6 +483,7 @@ export type Subscription = {
   _empty?: Maybe<Scalars['String']['output']>;
   aiChatStream: AiChatStreamEvent;
   chatSessionStream: ChatSessionStreamEvent;
+  notificationReceived: Notification;
 };
 
 export type SubscriptionAiChatStreamArgs = {
@@ -594,6 +625,8 @@ export type ResolversTypes = ResolversObject<{
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   InteractionStats: ResolverTypeWrapper<InteractionStats>;
   Mutation: ResolverTypeWrapper<{}>;
+  Notification: ResolverTypeWrapper<NotificationParent>;
+  NotificationType: NotificationType;
   Post: ResolverTypeWrapper<PostParent>;
   PostInteractionInfo: ResolverTypeWrapper<PostInteractionInfo>;
   PostNeighbors: ResolverTypeWrapper<
@@ -636,6 +669,7 @@ export type ResolversParentTypes = ResolversObject<{
   Int: Scalars['Int']['output'];
   InteractionStats: InteractionStats;
   Mutation: {};
+  Notification: NotificationParent;
   Post: PostParent;
   PostInteractionInfo: PostInteractionInfo;
   PostNeighbors: Omit<PostNeighbors, 'next' | 'prev'> & {
@@ -858,6 +892,13 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationLoginArgs, 'email' | 'password'>
   >;
+  markAllNotificationsRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  markNotificationRead?: Resolver<
+    ResolversTypes['Notification'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationMarkNotificationReadArgs, 'id'>
+  >;
   register?: Resolver<
     ResolversTypes['AuthPayload'],
     ParentType,
@@ -913,6 +954,27 @@ export type MutationResolvers<
     Partial<MutationUpdateProfileArgs>
   >;
 }>;
+
+export type NotificationResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['Notification'] = ResolversParentTypes['Notification'],
+> = ResolversObject<{
+  actor?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  commentContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  commentId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  postId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  postTitle?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  read?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['NotificationType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type NotificationTypeResolvers = EnumResolverSignature<
+  { COMMENT?: any; LIKE?: any; REPLY?: any },
+  ResolversTypes['NotificationType']
+>;
 
 export type PostResolvers<
   ContextType = GraphQLContext,
@@ -1011,6 +1073,12 @@ export type QueryResolvers<
   >;
   myBookmarksTotal?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   myInteractionStats?: Resolver<ResolversTypes['InteractionStats'], ParentType, ContextType>;
+  notifications?: Resolver<
+    Array<ResolversTypes['Notification']>,
+    ParentType,
+    ContextType,
+    Partial<QueryNotificationsArgs>
+  >;
   post?: Resolver<
     Maybe<ResolversTypes['Post']>,
     ParentType,
@@ -1030,6 +1098,7 @@ export type QueryResolvers<
     ContextType,
     Partial<QueryPostsTotalArgs>
   >;
+  unreadNotificationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 }>;
 
 export type RoleResolvers<
@@ -1072,6 +1141,12 @@ export type SubscriptionResolvers<
     ContextType,
     RequireFields<SubscriptionChatSessionStreamArgs, 'messageId' | 'sessionId'>
   >;
+  notificationReceived?: SubscriptionResolver<
+    ResolversTypes['Notification'],
+    'notificationReceived',
+    ParentType,
+    ContextType
+  >;
 }>;
 
 export type UserResolvers<
@@ -1099,6 +1174,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   GenerationItemResult?: GenerationItemResultResolvers<ContextType>;
   InteractionStats?: InteractionStatsResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  Notification?: NotificationResolvers<ContextType>;
+  NotificationType?: NotificationTypeResolvers;
   Post?: PostResolvers<ContextType>;
   PostInteractionInfo?: PostInteractionInfoResolvers<ContextType>;
   PostNeighbors?: PostNeighborsResolvers<ContextType>;

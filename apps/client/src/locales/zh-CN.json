@@ -222,5 +222,16 @@
     "posts": "文章（占位）",
     "userSetting": "用户设置（占位）",
     "ai": "AI（占位）"
+  },
+  "notification": {
+    "title": "通知",
+    "empty": "暂无通知",
+    "markAllRead": "全部已读",
+    "like": "{{name}} 赞了你的文章《{{postTitle}}》",
+    "likeNoTitle": "{{name}} 赞了你的文章",
+    "comment": "{{name}} 评论了你的文章《{{postTitle}}》",
+    "commentNoTitle": "{{name}} 评论了你的文章",
+    "reply": "{{name}} 回复了你的评论",
+    "replyWithTitle": "{{name}} 回复了你在《{{postTitle}}》的评论"
   }
 }

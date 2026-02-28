@@ -1,0 +1,31 @@
+type Notification {
+  id: ID!
+  type: NotificationType!
+  actor: User!
+  postId: ID
+  commentId: ID
+  postTitle: String
+  commentContent: String
+  read: Boolean!
+  createdAt: String!
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  REPLY
+}
+
+extend type Query {
+  notifications(limit: Int, offset: Int): [Notification!]!
+  unreadNotificationCount: Int!
+}
+
+extend type Mutation {
+  markNotificationRead(id: ID!): Notification!
+  markAllNotificationsRead: Boolean!
+}
+
+extend type Subscription {
+  notificationReceived: Notification!
+}

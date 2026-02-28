@@ -1,6 +1,8 @@
 import { GraphQLError } from 'graphql';
 import { prisma } from '../../lib/prisma';
+import { NotificationType } from '@/generated/prisma/client';
 import { postAuthorInclude } from '../post/postSelect';
+import { createNotification } from '../notification';
 
 const COMMENT_AUTHOR_SELECT = {
   id: true,
@@ -63,6 +65,19 @@ export async function toggleLike(userId: string, postId: string) {
     await prisma.postLike.delete({ where: { userId_postId: { userId, postId } } });
   } else {
     await prisma.postLike.create({ data: { userId, postId } });
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { authorId: true, title: true },
+    });
+    if (post) {
+      createNotification({
+        recipientId: post.authorId,
+        actorId: userId,
+        type: NotificationType.LIKE,
+        postId,
+        postTitle: post.title,
+      });
+    }
   }
   return getPostInteractionInfo(postId, userId);
 }
@@ -150,6 +165,40 @@ export async function createComment(
     data: { userId, postId, content, parentId: resolvedParentId },
     include: { user: { select: COMMENT_AUTHOR_SELECT } },
   });
+
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: { authorId: true, title: true },
+  });
+
+  if (resolvedParentId) {
+    const parentComment = await prisma.postComment.findUnique({
+      where: { id: resolvedParentId },
+      select: { userId: true },
+    });
+    if (parentComment) {
+      createNotification({
+        recipientId: parentComment.userId,
+        actorId: userId,
+        type: NotificationType.REPLY,
+        postId,
+        commentId: row.id,
+        postTitle: post?.title,
+        commentContent: content,
+      });
+    }
+  } else if (post) {
+    createNotification({
+      recipientId: post.authorId,
+      actorId: userId,
+      type: NotificationType.COMMENT,
+      postId,
+      commentId: row.id,
+      postTitle: post.title,
+      commentContent: content,
+    });
+  }
+
   return {
     ...mapComment(row),
     replies: [] as ReturnType<typeof mapComment>[],

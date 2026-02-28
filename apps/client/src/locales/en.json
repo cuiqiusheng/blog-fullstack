@@ -222,5 +222,16 @@
     "posts": "Posts (placeholder)",
     "userSetting": "User Setting (placeholder)",
     "ai": "AI (placeholder)"
+  },
+  "notification": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "markAllRead": "Mark all as read",
+    "like": "{{name}} liked your post \"{{postTitle}}\"",
+    "likeNoTitle": "{{name}} liked your post",
+    "comment": "{{name}} commented on your post \"{{postTitle}}\"",
+    "commentNoTitle": "{{name}} commented on your post",
+    "reply": "{{name}} replied to your comment",
+    "replyWithTitle": "{{name}} replied to your comment on \"{{postTitle}}\""
   }
 }

@@ -4,6 +4,7 @@ import { aiResolvers } from './aiResolver';
 import { chatResolvers } from './chatResolver';
 import { postResolvers } from './postResolver';
 import { interactionResolvers } from './interactionResolver';
+import { notificationResolvers } from './notificationResolver';
 
 export const resolvers: Resolvers = {
   Query: {
@@ -12,6 +13,7 @@ export const resolvers: Resolvers = {
     ...chatResolvers.Query,
     ...postResolvers.Query,
     ...interactionResolvers.Query,
+    ...notificationResolvers.Query,
   },
   Mutation: {
     ...authResolvers.Mutation,
@@ -19,6 +21,7 @@ export const resolvers: Resolvers = {
     ...chatResolvers.Mutation,
     ...postResolvers.Mutation,
     ...interactionResolvers.Mutation,
+    ...notificationResolvers.Mutation,
   },
   Post: {
     ...interactionResolvers.Post,
@@ -29,5 +32,6 @@ export const resolvers: Resolvers = {
   Subscription: {
     ...aiResolvers.Subscription,
     ...chatResolvers.Subscription,
+    ...notificationResolvers.Subscription,
   },
 };
