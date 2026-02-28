@@ -165,6 +165,9 @@ importers:
       graphql:
         specifier: ^16.12.0
         version: 16.12.0
+      graphql-subscriptions:
+        specifier: ^3.0.0
+        version: 3.0.0(graphql@16.12.0)
       graphql-ws:
         specifier: ^6.0.7
         version: 6.0.7(graphql@16.12.0)(ws@8.19.0)
@@ -3581,6 +3584,11 @@ packages:
     resolution: {integrity: sha512-p+XPfS4q7aIpKVcgmnZKhMNqhltk20hfXtkaIkTfjjmiKMJ5xrt5c743cL03y/K7y1rg3WrIC49xGiEQ4mxdNw==}
     peerDependencies:
       graphql: 14 - 16
+
+  graphql-subscriptions@3.0.0:
+    resolution: {integrity: sha512-kZCdevgmzDjGAOqH7GlDmQXYAkuHoKpMlJrqF40HMPhUhM5ZWSFSxCwD/nSi6AkaijmMfsFhoJRGJ27UseCvRA==}
+    peerDependencies:
+      graphql: ^15.7.2 || ^16.0.0
 
   graphql-tag@2.12.6:
     resolution: {integrity: sha512-FdSNcu2QQcWnM2VNvSCCDCVS5PpPqpzgFT8+GXzqJuoDd0CBncxCY278u4mhRO7tMgo2JjgJA5aZ+nWSQ/Z+xg==}
@@ -9911,6 +9919,10 @@ snapshots:
       graphql: 16.12.0
     transitivePeerDependencies:
       - encoding
+
+  graphql-subscriptions@3.0.0(graphql@16.12.0):
+    dependencies:
+      graphql: 16.12.0
 
   graphql-tag@2.12.6(graphql@16.12.0):
     dependencies:

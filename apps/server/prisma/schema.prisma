@@ -58,6 +58,9 @@ model User {
   bookmarks  PostBookmark[]
   comments   PostComment[]
 
+  notificationsReceived Notification[] @relation("NotificationsReceived")
+  notificationsActed    Notification[] @relation("NotificationsActed")
+
   @@map("users")
 }
 
@@ -161,6 +164,31 @@ model PostComment {
   @@index([postId, createdAt])
   @@index([parentId])
   @@map("post_comments")
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  REPLY
+}
+
+model Notification {
+  id             String           @id @default(uuid())
+  recipientId    String
+  actorId        String
+  type           NotificationType
+  postId         String?
+  commentId      String?
+  postTitle      String?
+  commentContent String?
+  read           Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+
+  recipient   User @relation("NotificationsReceived", fields: [recipientId], references: [id], onDelete: Cascade)
+  actor       User @relation("NotificationsActed", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId, read, createdAt])
+  @@map("notifications")
 }
 
 model ChatTopic {

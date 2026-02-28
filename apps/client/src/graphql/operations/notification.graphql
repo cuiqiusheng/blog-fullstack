@@ -1,0 +1,52 @@
+query Notifications($limit: Int, $offset: Int) {
+  notifications(limit: $limit, offset: $offset) {
+    id
+    type
+    actor {
+      id
+      email
+      nickname
+      avatarUrl
+    }
+    postId
+    commentId
+    postTitle
+    commentContent
+    read
+    createdAt
+  }
+}
+
+query UnreadNotificationCount {
+  unreadNotificationCount
+}
+
+mutation MarkNotificationRead($id: ID!) {
+  markNotificationRead(id: $id) {
+    id
+    read
+  }
+}
+
+mutation MarkAllNotificationsRead {
+  markAllNotificationsRead
+}
+
+subscription NotificationReceived {
+  notificationReceived {
+    id
+    type
+    actor {
+      id
+      email
+      nickname
+      avatarUrl
+    }
+    postId
+    commentId
+    postTitle
+    commentContent
+    read
+    createdAt
+  }
+}

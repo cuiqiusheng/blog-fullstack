@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { clearToken } from '@/lib/auth';
 import { setLocale, type Locale } from '@/lib/i18n';
 import { useCurrentUser } from '@/shared/hooks/useCurrentUser';
+import { NotificationBell } from '@/features/notification';
 
 const NAV_ITEMS: {
   path: string;
@@ -116,6 +117,7 @@ export function Nav() {
           {i18n.language === 'zh-CN' ? '中文' : 'EN'}
         </Button>
       </Dropdown>
+      <NotificationBell />
       <Dropdown menu={{ items: userMenuItems }} trigger={['click']} placement="bottomRight">
         <Space style={{ cursor: 'pointer', marginLeft: 4 }}>
           <Avatar size="small" src={currentUser?.avatarUrl || undefined} icon={<UserOutlined />} />

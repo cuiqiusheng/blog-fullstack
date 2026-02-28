@@ -19,4 +19,5 @@ export const typeDefs = [
   loadGraphQL('chat.graphql'),
   loadGraphQL('post.graphql'),
   loadGraphQL('interaction.graphql'),
+  loadGraphQL('notification.graphql'),
 ];

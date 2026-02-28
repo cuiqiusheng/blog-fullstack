@@ -192,6 +192,8 @@ export type Mutation = {
   deletePost: Scalars['Boolean']['output'];
   generatePosts: GenerationBatchReport;
   login: AuthPayload;
+  markAllNotificationsRead: Scalars['Boolean']['output'];
+  markNotificationRead: Notification;
   register: AuthPayload;
   renameChatSession: ChatSession;
   retryGenerationBatch: GenerationBatchReport;
@@ -249,6 +251,10 @@ export type MutationLoginArgs = {
   password: Scalars['String']['input'];
 };
 
+export type MutationMarkNotificationReadArgs = {
+  id: Scalars['ID']['input'];
+};
+
 export type MutationRegisterArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -290,6 +296,25 @@ export type MutationUpdateProfileArgs = {
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
   nickname?: InputMaybe<Scalars['String']['input']>;
 };
+
+export type Notification = {
+  __typename?: 'Notification';
+  actor: User;
+  commentContent?: Maybe<Scalars['String']['output']>;
+  commentId?: Maybe<Scalars['ID']['output']>;
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  postId?: Maybe<Scalars['ID']['output']>;
+  postTitle?: Maybe<Scalars['String']['output']>;
+  read: Scalars['Boolean']['output'];
+  type: NotificationType;
+};
+
+export enum NotificationType {
+  Comment = 'COMMENT',
+  Like = 'LIKE',
+  Reply = 'REPLY',
+}
 
 export type Post = {
   __typename?: 'Post';
@@ -353,10 +378,12 @@ export type Query = {
   myBookmarks: Array<Post>;
   myBookmarksTotal: Scalars['Int']['output'];
   myInteractionStats: InteractionStats;
+  notifications: Array<Notification>;
   post?: Maybe<Post>;
   postNeighbors: PostNeighbors;
   posts: Array<Post>;
   postsTotal: Scalars['Int']['output'];
+  unreadNotificationCount: Scalars['Int']['output'];
 };
 
 export type QueryChatSessionArgs = {
@@ -390,6 +417,11 @@ export type QueryGenerationBatchArgs = {
 };
 
 export type QueryMyBookmarksArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryNotificationsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -450,6 +482,7 @@ export type Subscription = {
   _empty?: Maybe<Scalars['String']['output']>;
   aiChatStream: AiChatStreamEvent;
   chatSessionStream: ChatSessionStreamEvent;
+  notificationReceived: Notification;
 };
 
 export type SubscriptionAiChatStreamArgs = {
@@ -891,6 +924,80 @@ export type MyInteractionStatsQuery = {
     totalLikesReceived: number;
     totalBookmarks: number;
     totalComments: number;
+  };
+};
+
+export type NotificationsQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+export type NotificationsQuery = {
+  __typename?: 'Query';
+  notifications: Array<{
+    __typename?: 'Notification';
+    id: string;
+    type: NotificationType;
+    postId?: string | null;
+    commentId?: string | null;
+    postTitle?: string | null;
+    commentContent?: string | null;
+    read: boolean;
+    createdAt: string;
+    actor: {
+      __typename?: 'User';
+      id: string;
+      email: string;
+      nickname?: string | null;
+      avatarUrl?: string | null;
+    };
+  }>;
+};
+
+export type UnreadNotificationCountQueryVariables = Exact<{ [key: string]: never }>;
+
+export type UnreadNotificationCountQuery = {
+  __typename?: 'Query';
+  unreadNotificationCount: number;
+};
+
+export type MarkNotificationReadMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+export type MarkNotificationReadMutation = {
+  __typename?: 'Mutation';
+  markNotificationRead: { __typename?: 'Notification'; id: string; read: boolean };
+};
+
+export type MarkAllNotificationsReadMutationVariables = Exact<{ [key: string]: never }>;
+
+export type MarkAllNotificationsReadMutation = {
+  __typename?: 'Mutation';
+  markAllNotificationsRead: boolean;
+};
+
+export type NotificationReceivedSubscriptionVariables = Exact<{ [key: string]: never }>;
+
+export type NotificationReceivedSubscription = {
+  __typename?: 'Subscription';
+  notificationReceived: {
+    __typename?: 'Notification';
+    id: string;
+    type: NotificationType;
+    postId?: string | null;
+    commentId?: string | null;
+    postTitle?: string | null;
+    commentContent?: string | null;
+    read: boolean;
+    createdAt: string;
+    actor: {
+      __typename?: 'User';
+      id: string;
+      email: string;
+      nickname?: string | null;
+      avatarUrl?: string | null;
+    };
   };
 };
 
@@ -2364,6 +2471,197 @@ export const MyInteractionStatsDocument = {
     },
   ],
 } as unknown as DocumentNode<MyInteractionStatsQuery, MyInteractionStatsQueryVariables>;
+export const NotificationsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'Notifications' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'notifications' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'offset' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'actor' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'postId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'commentId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'postTitle' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'commentContent' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'read' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<NotificationsQuery, NotificationsQueryVariables>;
+export const UnreadNotificationCountDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'UnreadNotificationCount' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'unreadNotificationCount' } }],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UnreadNotificationCountQuery, UnreadNotificationCountQueryVariables>;
+export const MarkNotificationReadDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'MarkNotificationRead' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'markNotificationRead' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'read' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MarkNotificationReadMutation, MarkNotificationReadMutationVariables>;
+export const MarkAllNotificationsReadDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'MarkAllNotificationsRead' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'markAllNotificationsRead' } }],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  MarkAllNotificationsReadMutation,
+  MarkAllNotificationsReadMutationVariables
+>;
+export const NotificationReceivedDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'subscription',
+      name: { kind: 'Name', value: 'NotificationReceived' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'notificationReceived' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'actor' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'postId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'commentId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'postTitle' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'commentContent' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'read' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  NotificationReceivedSubscription,
+  NotificationReceivedSubscriptionVariables
+>;
 export const PostsDocument = {
   kind: 'Document',
   definitions: [

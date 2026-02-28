@@ -14,6 +14,12 @@ alwaysApply: true
 - Keep functions focused; avoid multi-responsibility blocks.
 - Reuse existing utilities/components before adding new abstractions.
 
+## File Size Discipline
+
+- Single `.ts`/`.tsx` source file should not exceed **300 lines** (excluding generated files and test files).
+- When a file grows beyond 300 lines, split by responsibility into separate files (components, hooks, utility functions).
+- Place split files in the same directory or a colocated subdirectory; re-export via `index.ts` when needed.
+
 ## Code Style Consistency
 
 - Match surrounding code style in the touched module (imports, naming, component/function style, error handling pattern).
