@@ -33,13 +33,6 @@ export default defineConfig({
           if (id.includes('node_modules/@apollo/') || id.includes('node_modules/graphql/')) {
             return 'vendor-apollo';
           }
-          if (
-            id.includes('node_modules/mermaid/') ||
-            id.includes('node_modules/d3') ||
-            id.includes('node_modules/dagre')
-          ) {
-            return 'vendor-mermaid';
-          }
         },
       },
     },

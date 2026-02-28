@@ -65,24 +65,40 @@ echo ""
 # ======================================================================
 # 低配 ECS（1-2GB RAM）在 Vite/Rollup 构建前端时可能内存不足，
 # 被 Linux OOM Killer 直接 kill 掉。
-# 添加 1GB swap 文件作为内存溢出缓冲区：
+# 添加 2GB swap 文件作为内存溢出缓冲区：
 #   - fallocate 预分配空间（比 dd 快）
 #   - chmod 600 限制只有 root 可读写（安全要求）
 #   - mkswap 格式化为 swap 分区
 #   - swapon 立即启用
 #   - 写入 /etc/fstab 确保重启后自动挂载
+#
+# 为什么是 2GB？
+#   2GB RAM 的 ECS 在 Vite/Rollup 构建前端时，Node.js 峰值内存可达 1.2-1.5GB，
+#   加上系统和其他进程约 500MB，总需求约 2GB。1GB swap 仍可能被 OOM Killer 终止，
+#   2GB swap 提供了足够的安全余量（总可用 4GB）。
 # ======================================================================
 info "步骤 0/7：配置 Swap"
 
 if swapon --show | grep -q '/swapfile'; then
-  warn "Swap 已配置，跳过"
+  CURRENT_SWAP_MB=$(swapon --show --bytes --noheadings | awk '{print int($3/1048576)}')
+  if [[ $CURRENT_SWAP_MB -lt 2000 ]]; then
+    info "当前 swap 为 ${CURRENT_SWAP_MB}MB，升级到 2GB..."
+    swapoff /swapfile
+    fallocate -l 2G /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    ok "Swap 已升级到 2GB"
+  else
+    warn "Swap 已配置 (${CURRENT_SWAP_MB}MB)，跳过"
+  fi
 else
-  fallocate -l 1G /swapfile
+  fallocate -l 2G /swapfile
   chmod 600 /swapfile
   mkswap /swapfile
   swapon /swapfile
   echo '/swapfile none swap sw 0 0' >> /etc/fstab
-  ok "已创建 1GB swap 文件"
+  ok "已创建 2GB swap 文件"
 fi
 echo ""
 
