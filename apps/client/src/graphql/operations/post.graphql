@@ -37,6 +37,7 @@ query Posts(
     author {
       id
       email
+      nickname
       roles {
         id
         name
@@ -81,6 +82,7 @@ query Post($id: ID!) {
     author {
       id
       email
+      nickname
       roles {
         id
         name

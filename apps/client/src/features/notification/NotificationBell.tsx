@@ -14,6 +14,7 @@ import {
   NotificationReceivedDocument,
   NotificationType,
 } from '@/graphql/codegen';
+import { getDisplayName } from '@/shared/utils/displayName';
 import { getNotificationI18nKey, truncateContent } from './notificationUtils';
 
 dayjs.extend(relativeTime);
@@ -94,7 +95,7 @@ export function NotificationBell() {
         dataSource={notifications}
         locale={{ emptyText: <Empty description={t('notification.empty')} /> }}
         renderItem={item => {
-          const actorName = item.actor.nickname || item.actor.email.split('@')[0];
+          const actorName = getDisplayName(item.actor);
           const preview = truncateContent(item.commentContent);
           return (
             <List.Item

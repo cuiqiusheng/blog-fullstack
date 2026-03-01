@@ -11,6 +11,7 @@ import {
   ToggleBookmarkDocument,
 } from '@/graphql/codegen';
 import { useTranslation } from 'react-i18next';
+import { getDisplayName } from '@/shared/utils/displayName';
 
 const { Text, Title } = Typography;
 const PAGE_SIZE = 10;
@@ -81,9 +82,7 @@ export function BookmarksPage() {
                   <Space wrap size={[8, 4]}>
                     {item.topic ? <Tag>{item.topic}</Tag> : null}
                     {item.subtopic ? <Tag>{item.subtopic}</Tag> : null}
-                    <Text type="secondary">
-                      {item.author.nickname || item.author.email.split('@')[0]}
-                    </Text>
+                    <Text type="secondary">{getDisplayName(item.author)}</Text>
                     <Text type="secondary">{dayjs(item.createdAt).format('YYYY-MM-DD')}</Text>
                     {item.interactionInfo && (
                       <>
