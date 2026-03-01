@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { clearToken } from '@/lib/auth';
 import { setLocale, type Locale } from '@/lib/i18n';
 import { useCurrentUser } from '@/shared/hooks/useCurrentUser';
+import { getDisplayName } from '@/shared/utils/displayName';
 import { NotificationBell } from '@/features/notification';
 
 const NAV_ITEMS: {
@@ -18,10 +19,6 @@ const NAV_ITEMS: {
   { path: 'user-setting', i18nKey: 'userSetting' },
   { path: 'ai', i18nKey: 'ai' },
 ];
-
-function getEmailPrefix(email: string): string {
-  return email.split('@')[0];
-}
 
 export function Nav() {
   const { t, i18n } = useTranslation();
@@ -60,7 +57,10 @@ export function Nav() {
       key: 'user-info',
       label: (
         <div style={{ padding: '4px 0' }}>
-          <div style={{ fontWeight: 500 }}>{currentUser?.email}</div>
+          <div style={{ fontWeight: 500 }}>{currentUser ? getDisplayName(currentUser) : ''}</div>
+          <div style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)', marginTop: 2 }}>
+            {currentUser?.email}
+          </div>
           {currentUser?.roles && currentUser.roles.length > 0 && (
             <Space size={4} style={{ marginTop: 4 }}>
               {currentUser.roles.map(role => (
@@ -89,7 +89,7 @@ export function Nav() {
     },
   ];
 
-  const displayName = currentUser ? currentUser.nickname || getEmailPrefix(currentUser.email) : '';
+  const displayName = currentUser ? getDisplayName(currentUser) : '';
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>

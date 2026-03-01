@@ -1037,6 +1037,7 @@ export type PostsQuery = {
       __typename?: 'User';
       id: string;
       email: string;
+      nickname?: string | null;
       roles: Array<{ __typename?: 'Role'; id: string; name: string }>;
     };
     interactionInfo: {
@@ -1086,6 +1087,7 @@ export type PostQuery = {
       __typename?: 'User';
       id: string;
       email: string;
+      nickname?: string | null;
       roles: Array<{ __typename?: 'Role'; id: string; name: string }>;
     };
     interactionInfo: {
@@ -2806,6 +2808,7 @@ export const PostsDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'roles' },
@@ -2970,6 +2973,7 @@ export const PostDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'roles' },

@@ -28,6 +28,7 @@ import {
   UpdatePostDocument,
 } from '@/graphql/codegen';
 import { useTranslation } from 'react-i18next';
+import { getDisplayName } from '@/shared/utils/displayName';
 import { statusColor } from './postUtils';
 
 const { Text } = Typography;
@@ -445,7 +446,7 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
                       {item.topic ? <Tag>{item.topic}</Tag> : null}
                       {item.subtopic ? <Tag>{item.subtopic}</Tag> : null}
                       <Text type="secondary">
-                        {t('posts.meta.author')}: {item.author.email}
+                        {t('posts.meta.author')}: {getDisplayName(item.author)}
                       </Text>
                       <Text type="secondary">
                         {t('posts.meta.createdAt')}:{' '}
