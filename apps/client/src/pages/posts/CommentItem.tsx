@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLazyQuery } from '@apollo/client/react';
-import { Avatar, Button, Input, List, Popconfirm, Space, Typography, theme } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Button, Input, List, Popconfirm, Space, Typography, theme } from 'antd';
 import dayjs from 'dayjs';
 import { CommentRepliesDocument } from '@/graphql/codegen';
 import type { TopComment, ReplyComment } from './commentTypes';
-import { getDisplayName } from './commentTypes';
+import { AuthorInfo } from '@/shared/components/AuthorInfo';
 import { ReplyItem } from './ReplyItem';
 
 const { Text } = Typography;
@@ -154,10 +153,9 @@ export function CommentItem({
       }}
     >
       <div style={{ display: 'flex', gap: 8 }}>
-        <Avatar size="small" src={comment.author.avatarUrl || undefined} icon={<UserOutlined />} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <Space size={8}>
-            <Text strong>{getDisplayName(comment.author)}</Text>
+            <AuthorInfo author={comment.author} showCard avatarSize={24} />
             <Text type="secondary" style={{ fontSize: 12 }}>
               {dayjs(comment.createdAt).format('YYYY-MM-DD HH:mm')}
             </Text>

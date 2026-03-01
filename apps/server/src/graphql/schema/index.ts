@@ -20,4 +20,5 @@ export const typeDefs = [
   loadGraphQL('post.graphql'),
   loadGraphQL('interaction.graphql'),
   loadGraphQL('notification.graphql'),
+  loadGraphQL('follow.graphql'),
 ];

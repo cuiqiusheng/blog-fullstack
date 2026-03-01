@@ -1,6 +1,6 @@
 import { NotificationType } from '../../generated/prisma/client';
 import { GraphQLResolveInfo } from 'graphql';
-import { PostParent, CommentParent, NotificationParent } from '../types.mapper';
+import { PostParent, CommentParent, NotificationParent, UserParent } from '../types.mapper';
 import { GraphQLContext } from '../../types/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -136,6 +136,12 @@ export type CreatePostInput = {
   topic?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type FollowInfo = {
+  __typename?: 'FollowInfo';
+  followerCount: Scalars['Int']['output'];
+  following: Scalars['Boolean']['output'];
+};
+
 export type GeneratePostsInput = {
   autoPublish?: InputMaybe<Scalars['Boolean']['input']>;
   concurrency?: InputMaybe<Scalars['Int']['input']>;
@@ -205,6 +211,7 @@ export type Mutation = {
   sendChatMessage: SendChatMessagePayload;
   startChatSession: ChatSession;
   toggleBookmark: PostInteractionInfo;
+  toggleFollow: FollowInfo;
   toggleLike: PostInteractionInfo;
   updatePost: Post;
   updateProfile: User;
@@ -287,6 +294,10 @@ export type MutationStartChatSessionArgs = {
 
 export type MutationToggleBookmarkArgs = {
   postId: Scalars['ID']['input'];
+};
+
+export type MutationToggleFollowArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 export type MutationToggleLikeArgs = {
@@ -379,6 +390,8 @@ export type Query = {
   me?: Maybe<User>;
   myBookmarks: Array<Post>;
   myBookmarksTotal: Scalars['Int']['output'];
+  myFollowers: Array<User>;
+  myFollowing: Array<User>;
   myInteractionStats: InteractionStats;
   notifications: Array<Notification>;
   post?: Maybe<Post>;
@@ -386,6 +399,7 @@ export type Query = {
   posts: Array<Post>;
   postsTotal: Scalars['Int']['output'];
   unreadNotificationCount: Scalars['Int']['output'];
+  userProfile: User;
 };
 
 export type QueryChatSessionArgs = {
@@ -423,6 +437,16 @@ export type QueryMyBookmarksArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type QueryMyFollowersArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryMyFollowingArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type QueryNotificationsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -437,6 +461,7 @@ export type QueryPostNeighborsArgs = {
 };
 
 export type QueryPostsArgs = {
+  authorId?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   mine?: InputMaybe<Scalars['Boolean']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -454,6 +479,10 @@ export type QueryPostsTotalArgs = {
   status?: InputMaybe<PostStatus>;
   subtopic?: InputMaybe<Scalars['String']['input']>;
   topic?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type QueryUserProfileArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type Role = {
@@ -511,8 +540,12 @@ export type User = {
   avatarUrl?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['String']['output'];
   email: Scalars['String']['output'];
+  followerCount: Scalars['Int']['output'];
+  followingCount: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  isFollowing?: Maybe<Scalars['Boolean']['output']>;
   nickname?: Maybe<Scalars['String']['output']>;
+  postCount: Scalars['Int']['output'];
   roles: Array<Role>;
 };
 
@@ -604,7 +637,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   AiChatStreamEvent: ResolverTypeWrapper<AiChatStreamEvent>;
-  AuthPayload: ResolverTypeWrapper<AuthPayload>;
+  AuthPayload: ResolverTypeWrapper<Omit<AuthPayload, 'user'> & { user: ResolversTypes['User'] }>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   ChatMessage: ResolverTypeWrapper<ChatMessage>;
   ChatMessageInput: ChatMessageInput;
@@ -618,6 +651,7 @@ export type ResolversTypes = ResolversObject<{
   Comment: ResolverTypeWrapper<CommentParent>;
   CreatePostInput: CreatePostInput;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
+  FollowInfo: ResolverTypeWrapper<FollowInfo>;
   GeneratePostsInput: GeneratePostsInput;
   GenerationBatchReport: ResolverTypeWrapper<GenerationBatchReport>;
   GenerationItemResult: ResolverTypeWrapper<GenerationItemResult>;
@@ -646,13 +680,13 @@ export type ResolversTypes = ResolversObject<{
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
   UpdatePostInput: UpdatePostInput;
-  User: ResolverTypeWrapper<User>;
+  User: ResolverTypeWrapper<UserParent>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   AiChatStreamEvent: AiChatStreamEvent;
-  AuthPayload: AuthPayload;
+  AuthPayload: Omit<AuthPayload, 'user'> & { user: ResolversParentTypes['User'] };
   Boolean: Scalars['Boolean']['output'];
   ChatMessage: ChatMessage;
   ChatMessageInput: ChatMessageInput;
@@ -662,6 +696,7 @@ export type ResolversParentTypes = ResolversObject<{
   Comment: CommentParent;
   CreatePostInput: CreatePostInput;
   Float: Scalars['Float']['output'];
+  FollowInfo: FollowInfo;
   GeneratePostsInput: GeneratePostsInput;
   GenerationBatchReport: GenerationBatchReport;
   GenerationItemResult: GenerationItemResult;
@@ -684,7 +719,7 @@ export type ResolversParentTypes = ResolversObject<{
   String: Scalars['String']['output'];
   Subscription: {};
   UpdatePostInput: UpdatePostInput;
-  User: User;
+  User: UserParent;
 }>;
 
 export type AiChatStreamEventResolvers<
@@ -781,6 +816,15 @@ export type CommentResolvers<
   replies?: Resolver<Array<ResolversTypes['Comment']>, ParentType, ContextType>;
   repliesCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FollowInfoResolvers<
+  ContextType = GraphQLContext,
+  ParentType extends ResolversParentTypes['FollowInfo'] = ResolversParentTypes['FollowInfo'],
+> = ResolversObject<{
+  followerCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  following?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -936,6 +980,12 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationToggleBookmarkArgs, 'postId'>
   >;
+  toggleFollow?: Resolver<
+    ResolversTypes['FollowInfo'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationToggleFollowArgs, 'userId'>
+  >;
   toggleLike?: Resolver<
     ResolversTypes['PostInteractionInfo'],
     ParentType,
@@ -973,7 +1023,7 @@ export type NotificationResolvers<
 }>;
 
 export type NotificationTypeResolvers = EnumResolverSignature<
-  { COMMENT?: any; LIKE?: any; REPLY?: any },
+  { COMMENT?: any; FOLLOW?: any; LIKE?: any; REPLY?: any },
   ResolversTypes['NotificationType']
 >;
 
@@ -1073,6 +1123,18 @@ export type QueryResolvers<
     Partial<QueryMyBookmarksArgs>
   >;
   myBookmarksTotal?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  myFollowers?: Resolver<
+    Array<ResolversTypes['User']>,
+    ParentType,
+    ContextType,
+    Partial<QueryMyFollowersArgs>
+  >;
+  myFollowing?: Resolver<
+    Array<ResolversTypes['User']>,
+    ParentType,
+    ContextType,
+    Partial<QueryMyFollowingArgs>
+  >;
   myInteractionStats?: Resolver<ResolversTypes['InteractionStats'], ParentType, ContextType>;
   notifications?: Resolver<
     Array<ResolversTypes['Notification']>,
@@ -1100,6 +1162,12 @@ export type QueryResolvers<
     Partial<QueryPostsTotalArgs>
   >;
   unreadNotificationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  userProfile?: Resolver<
+    ResolversTypes['User'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryUserProfileArgs, 'id'>
+  >;
 }>;
 
 export type RoleResolvers<
@@ -1157,8 +1225,12 @@ export type UserResolvers<
   avatarUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  followerCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  followingCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isFollowing?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   nickname?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  postCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -1171,6 +1243,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ChatSession?: ChatSessionResolvers<ContextType>;
   ChatSessionStreamEvent?: ChatSessionStreamEventResolvers<ContextType>;
   Comment?: CommentResolvers<ContextType>;
+  FollowInfo?: FollowInfoResolvers<ContextType>;
   GenerationBatchReport?: GenerationBatchReportResolvers<ContextType>;
   GenerationItemResult?: GenerationItemResultResolvers<ContextType>;
   InteractionStats?: InteractionStatsResolvers<ContextType>;

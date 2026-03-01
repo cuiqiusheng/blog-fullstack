@@ -9,7 +9,8 @@
   "nav": {
     "explore": "广场",
     "myPosts": "我的文章",
-    "userSetting": "用户设置",
+    "userSetting": "设置",
+    "profile": "个人主页",
     "ai": "AI 助手",
     "reactDemos": "React Demos",
     "write": "写文章",
@@ -215,7 +216,10 @@
     "cancelReply": "取消",
     "expandReplies": "展开全部 {{count}} 条回复",
     "collapseReplies": "收起回复",
-    "replyPlaceholder": "写下你的回复..."
+    "replyPlaceholder": "写下你的回复...",
+    "follow": "关注",
+    "following": "已关注",
+    "unfollow": "取消关注"
   },
   "bookmarks": {
     "pageTitle": "我的收藏",
@@ -235,6 +239,22 @@
     "comment": "{{name}} 评论了你的文章《{{postTitle}}》",
     "commentNoTitle": "{{name}} 评论了你的文章",
     "reply": "{{name}} 回复了你的评论",
-    "replyWithTitle": "{{name}} 回复了你在《{{postTitle}}》的评论"
+    "replyWithTitle": "{{name}} 回复了你在《{{postTitle}}》的评论",
+    "follow": "{{name}} 关注了你"
+  },
+  "profile": {
+    "editProfile": "编辑资料",
+    "viewMyProfile": "查看我的主页",
+    "viewProfile": "查看主页",
+    "myFollowing": "我的关注",
+    "myFollowers": "我的粉丝",
+    "articles": "TA的文章",
+    "noFollowing": "还没有关注任何人",
+    "noFollowers": "还没有粉丝",
+    "noArticles": "暂无文章",
+    "userNotFound": "用户不存在",
+    "followerCount": "粉丝",
+    "followingCount": "关注",
+    "postCount": "文章"
   }
 }

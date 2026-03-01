@@ -78,7 +78,7 @@ export const postResolvers = {
           ? gqlToServiceSortDirection[args.sortDirection]
           : undefined,
         mine: args.mine ?? undefined,
-        authorId: args.mine ? user.id : undefined,
+        authorId: args.authorId ?? (args.mine ? user.id : undefined),
         limit: args.limit ?? 20,
         offset: args.offset ?? 0,
       });

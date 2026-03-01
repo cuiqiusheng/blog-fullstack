@@ -131,6 +131,12 @@ export type CreatePostInput = {
   topic?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type FollowInfo = {
+  __typename?: 'FollowInfo';
+  followerCount: Scalars['Int']['output'];
+  following: Scalars['Boolean']['output'];
+};
+
 export type GeneratePostsInput = {
   autoPublish?: InputMaybe<Scalars['Boolean']['input']>;
   concurrency?: InputMaybe<Scalars['Int']['input']>;
@@ -200,6 +206,7 @@ export type Mutation = {
   sendChatMessage: SendChatMessagePayload;
   startChatSession: ChatSession;
   toggleBookmark: PostInteractionInfo;
+  toggleFollow: FollowInfo;
   toggleLike: PostInteractionInfo;
   updatePost: Post;
   updateProfile: User;
@@ -284,6 +291,10 @@ export type MutationToggleBookmarkArgs = {
   postId: Scalars['ID']['input'];
 };
 
+export type MutationToggleFollowArgs = {
+  userId: Scalars['ID']['input'];
+};
+
 export type MutationToggleLikeArgs = {
   postId: Scalars['ID']['input'];
 };
@@ -313,6 +324,7 @@ export type Notification = {
 
 export enum NotificationType {
   Comment = 'COMMENT',
+  Follow = 'FOLLOW',
   Like = 'LIKE',
   Reply = 'REPLY',
 }
@@ -378,6 +390,8 @@ export type Query = {
   me?: Maybe<User>;
   myBookmarks: Array<Post>;
   myBookmarksTotal: Scalars['Int']['output'];
+  myFollowers: Array<User>;
+  myFollowing: Array<User>;
   myInteractionStats: InteractionStats;
   notifications: Array<Notification>;
   post?: Maybe<Post>;
@@ -385,6 +399,7 @@ export type Query = {
   posts: Array<Post>;
   postsTotal: Scalars['Int']['output'];
   unreadNotificationCount: Scalars['Int']['output'];
+  userProfile: User;
 };
 
 export type QueryChatSessionArgs = {
@@ -422,6 +437,16 @@ export type QueryMyBookmarksArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type QueryMyFollowersArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type QueryMyFollowingArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type QueryNotificationsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -436,6 +461,7 @@ export type QueryPostNeighborsArgs = {
 };
 
 export type QueryPostsArgs = {
+  authorId?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   mine?: InputMaybe<Scalars['Boolean']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -453,6 +479,10 @@ export type QueryPostsTotalArgs = {
   status?: InputMaybe<PostStatus>;
   subtopic?: InputMaybe<Scalars['String']['input']>;
   topic?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type QueryUserProfileArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type Role = {
@@ -510,8 +540,12 @@ export type User = {
   avatarUrl?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['String']['output'];
   email: Scalars['String']['output'];
+  followerCount: Scalars['Int']['output'];
+  followingCount: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  isFollowing?: Maybe<Scalars['Boolean']['output']>;
   nickname?: Maybe<Scalars['String']['output']>;
+  postCount: Scalars['Int']['output'];
   roles: Array<Role>;
 };
 
@@ -742,6 +776,70 @@ export type ChangePasswordMutationVariables = Exact<{
 }>;
 
 export type ChangePasswordMutation = { __typename?: 'Mutation'; changePassword: boolean };
+
+export type ToggleFollowMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+export type ToggleFollowMutation = {
+  __typename?: 'Mutation';
+  toggleFollow: { __typename?: 'FollowInfo'; following: boolean; followerCount: number };
+};
+
+export type UserProfileQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+export type UserProfileQuery = {
+  __typename?: 'Query';
+  userProfile: {
+    __typename?: 'User';
+    id: string;
+    email: string;
+    nickname?: string | null;
+    avatarUrl?: string | null;
+    createdAt: string;
+    followerCount: number;
+    followingCount: number;
+    isFollowing?: boolean | null;
+    postCount: number;
+  };
+};
+
+export type MyFollowingQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+export type MyFollowingQuery = {
+  __typename?: 'Query';
+  myFollowing: Array<{
+    __typename?: 'User';
+    id: string;
+    email: string;
+    nickname?: string | null;
+    avatarUrl?: string | null;
+    followerCount: number;
+    postCount: number;
+  }>;
+};
+
+export type MyFollowersQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+export type MyFollowersQuery = {
+  __typename?: 'Query';
+  myFollowers: Array<{
+    __typename?: 'User';
+    id: string;
+    email: string;
+    nickname?: string | null;
+    avatarUrl?: string | null;
+    isFollowing?: boolean | null;
+  }>;
+};
 
 export type ToggleLikeMutationVariables = Exact<{
   postId: Scalars['ID']['input'];
@@ -1011,6 +1109,7 @@ export type PostsQueryVariables = Exact<{
   sortBy?: InputMaybe<PostSortField>;
   sortDirection?: InputMaybe<SortDirection>;
   mine?: InputMaybe<Scalars['Boolean']['input']>;
+  authorId?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
 }>;
@@ -1038,6 +1137,7 @@ export type PostsQuery = {
       id: string;
       email: string;
       nickname?: string | null;
+      avatarUrl?: string | null;
       roles: Array<{ __typename?: 'Role'; id: string; name: string }>;
     };
     interactionInfo: {
@@ -1088,6 +1188,7 @@ export type PostQuery = {
       id: string;
       email: string;
       nickname?: string | null;
+      avatarUrl?: string | null;
       roles: Array<{ __typename?: 'Role'; id: string; name: string }>;
     };
     interactionInfo: {
@@ -1929,6 +2030,206 @@ export const ChangePasswordDocument = {
     },
   ],
 } as unknown as DocumentNode<ChangePasswordMutation, ChangePasswordMutationVariables>;
+export const ToggleFollowDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'ToggleFollow' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'toggleFollow' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'following' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'followerCount' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ToggleFollowMutation, ToggleFollowMutationVariables>;
+export const UserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'UserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'userProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'followerCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'followingCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isFollowing' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'postCount' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UserProfileQuery, UserProfileQueryVariables>;
+export const MyFollowingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'MyFollowing' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'myFollowing' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'offset' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'followerCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'postCount' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MyFollowingQuery, MyFollowingQueryVariables>;
+export const MyFollowersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'MyFollowers' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'myFollowers' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'offset' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'offset' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isFollowing' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MyFollowersQuery, MyFollowersQueryVariables>;
 export const ToggleLikeDocument = {
   kind: 'Document',
   definitions: [
@@ -2721,6 +3022,11 @@ export const PostsDocument = {
         },
         {
           kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'authorId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+        },
+        {
+          kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
         },
@@ -2774,6 +3080,11 @@ export const PostsDocument = {
               },
               {
                 kind: 'Argument',
+                name: { kind: 'Name', value: 'authorId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'authorId' } },
+              },
+              {
+                kind: 'Argument',
                 name: { kind: 'Name', value: 'limit' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'limit' } },
               },
@@ -2809,6 +3120,7 @@ export const PostsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'email' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'roles' },
@@ -2974,6 +3286,7 @@ export const PostDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'email' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'nickname' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'roles' },

@@ -1,8 +1,8 @@
-import { Avatar, Button, Popconfirm, Space, Typography } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Button, Popconfirm, Space, Typography } from 'antd';
 import dayjs from 'dayjs';
 import type { ReplyComment } from './commentTypes';
 import { getDisplayName } from './commentTypes';
+import { AuthorInfo } from '@/shared/components/AuthorInfo';
 
 const { Text } = Typography;
 
@@ -35,12 +35,9 @@ export function ReplyItem({
           : {}),
       }}
     >
-      <Avatar size="small" src={reply.author.avatarUrl || undefined} icon={<UserOutlined />} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <Space size={8}>
-          <Text strong style={{ fontSize: 13 }}>
-            {getDisplayName(reply.author)}
-          </Text>
+          <AuthorInfo author={reply.author} showCard avatarSize={22} fontSize={13} />
           <Text type="secondary" style={{ fontSize: 12 }}>
             {dayjs(reply.createdAt).format('YYYY-MM-DD HH:mm')}
           </Text>

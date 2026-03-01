@@ -19,6 +19,12 @@ const UserSettingPage = lazy(() =>
 const BookmarksPage = lazy(() =>
   import('@/pages/bookmarks').then(m => ({ default: m.BookmarksPage })),
 );
+const ProfilePage = lazy(() =>
+  import('@/pages/profile/ProfilePage').then(m => ({ default: m.ProfilePage })),
+);
+const UserProfilePage = lazy(() =>
+  import('@/pages/profile/UserProfilePage').then(m => ({ default: m.UserProfilePage })),
+);
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -128,6 +134,26 @@ export function AppRoutes() {
             <ProtectedRoute>
               <AppLayout>
                 <BookmarksPage />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <ProfilePage />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users/:id"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <UserProfilePage />
               </AppLayout>
             </ProtectedRoute>
           }

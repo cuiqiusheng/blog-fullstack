@@ -10,6 +10,8 @@ export function getNotificationI18nKey(type: NotificationType, postTitle?: strin
       return postTitle ? 'notification.comment' : 'notification.commentNoTitle';
     case NotificationType.Reply:
       return postTitle ? 'notification.replyWithTitle' : 'notification.reply';
+    case NotificationType.Follow:
+      return 'notification.follow';
   }
 }
 

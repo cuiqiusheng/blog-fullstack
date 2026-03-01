@@ -67,7 +67,7 @@ export function buildPostWhere(options: ListPostsOptions): Prisma.PostWhereInput
   if (options.status) {
     andClauses.push({ status: options.status });
   }
-  if (options.mine && options.authorId) {
+  if (options.authorId) {
     andClauses.push({ authorId: options.authorId });
   }
   if (search) {

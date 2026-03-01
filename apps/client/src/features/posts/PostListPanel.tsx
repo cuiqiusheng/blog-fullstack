@@ -14,7 +14,12 @@ import {
   Tag,
   Typography,
 } from 'antd';
-import { LikeOutlined, MessageOutlined } from '@ant-design/icons';
+import {
+  LikeOutlined,
+  MessageOutlined,
+  ClockCircleOutlined,
+  CalendarOutlined,
+} from '@ant-design/icons';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { createExcerpt, estimateReadMinutes } from '@blog-fullstack/content-utils';
@@ -28,7 +33,7 @@ import {
   UpdatePostDocument,
 } from '@/graphql/codegen';
 import { useTranslation } from 'react-i18next';
-import { getDisplayName } from '@/shared/utils/displayName';
+import { AuthorInfo } from '@/shared/components/AuthorInfo';
 import { statusColor } from './postUtils';
 
 const { Text } = Typography;
@@ -437,37 +442,53 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
                   </Space>
                 }
                 description={
-                  <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <Text type="secondary">{createExcerpt(item.content, 160)}</Text>
-                    <Space wrap size={[8, 4]}>
-                      <Tag color={statusColor(item.status)}>
-                        {t(`posts.status.${item.status.toLowerCase()}`)}
-                      </Tag>
-                      {item.topic ? <Tag>{item.topic}</Tag> : null}
-                      {item.subtopic ? <Tag>{item.subtopic}</Tag> : null}
-                      <Text type="secondary">
-                        {t('posts.meta.author')}: {getDisplayName(item.author)}
-                      </Text>
-                      <Text type="secondary">
-                        {t('posts.meta.createdAt')}:{' '}
-                        {dayjs(item.createdAt).format('YYYY-MM-DD HH:mm')}
-                      </Text>
-                      <Text type="secondary">
-                        {t('posts.meta.readTime')}: {estimateReadMinutes(item.content)}{' '}
-                        {t('posts.meta.minuteUnit')}
-                      </Text>
-                      {item.interactionInfo && (
-                        <>
-                          <Text type="secondary">
-                            <LikeOutlined /> {item.interactionInfo.likeCount}
-                          </Text>
-                          <Text type="secondary">
-                            <MessageOutlined /> {item.interactionInfo.commentCount}
-                          </Text>
-                        </>
-                      )}
-                    </Space>
-                  </Space>
+
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: 8,
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <AuthorInfo author={item.author} showCard />
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          <CalendarOutlined style={{ marginRight: 4 }} />
+                          {dayjs(item.createdAt).format('YYYY-MM-DD')}
+                        </Text>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          <ClockCircleOutlined style={{ marginRight: 4 }} />
+                          {estimateReadMinutes(item.content)} {t('posts.meta.minuteUnit')}
+                        </Text>
+                        {item.interactionInfo && (
+                          <>
+                            <Text type="secondary" style={{ fontSize: 12 }}>
+                              <LikeOutlined style={{ marginRight: 3 }} />
+                              {item.interactionInfo.likeCount}
+                            </Text>
+                            <Text type="secondary" style={{ fontSize: 12 }}>
+                              <MessageOutlined style={{ marginRight: 3 }} />
+                              {item.interactionInfo.commentCount}
+                            </Text>
+                          </>
+                        )}
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Tag color={statusColor(item.status)} style={{ marginInlineEnd: 0 }}>
+                          {t(`posts.status.${item.status.toLowerCase()}`)}
+                        </Tag>
+                        {item.topic ? <Tag style={{ marginInlineEnd: 0 }}>{item.topic}</Tag> : null}
+                        {item.subtopic ? (
+                          <Tag style={{ marginInlineEnd: 0 }}>{item.subtopic}</Tag>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
                 }
               />
             </List.Item>

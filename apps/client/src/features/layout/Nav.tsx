@@ -11,11 +11,12 @@ import { NotificationBell } from '@/features/notification';
 
 const NAV_ITEMS: {
   path: string;
-  i18nKey: 'explore' | 'myPosts' | 'bookmarks' | 'userSetting' | 'ai';
+  i18nKey: 'explore' | 'myPosts' | 'bookmarks' | 'profile' | 'userSetting' | 'ai';
 }[] = [
   { path: 'posts', i18nKey: 'myPosts' },
   { path: 'explore', i18nKey: 'explore' },
   { path: 'bookmarks', i18nKey: 'bookmarks' },
+  { path: 'profile', i18nKey: 'profile' },
   { path: 'user-setting', i18nKey: 'userSetting' },
   { path: 'ai', i18nKey: 'ai' },
 ];
