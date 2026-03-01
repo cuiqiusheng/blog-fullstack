@@ -84,7 +84,7 @@ export const authResolvers = {
 
     register: async (
       _: unknown,
-      { email, password }: MutationRegisterArgs,
+      { email, password, nickname }: MutationRegisterArgs,
       context: GraphQLContext,
     ) => {
       const masked = maskEmail(email);
@@ -100,7 +100,11 @@ export const authResolvers = {
 
       const hashedPassword = await hashPassword(password);
       const user = await prisma.user.create({
-        data: { email, password: hashedPassword },
+        data: {
+          email,
+          password: hashedPassword,
+          ...(nickname ? { nickname: nickname.trim() } : {}),
+        },
         include: USER_INCLUDE,
       });
 

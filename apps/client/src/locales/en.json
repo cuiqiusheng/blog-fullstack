@@ -42,7 +42,9 @@
       "confirmPasswordPlaceholder": "Enter password again",
       "confirmPasswordRequired": "Please confirm your password",
       "confirmPasswordMismatch": "Passwords do not match",
-      "submit": "Register"
+      "submit": "Register",
+      "nickname": "Nickname",
+      "nicknamePlaceholder": "Pick a display name (optional)"
     },
     "brandTagline": "Write, Think, Inspire",
     "noAccount": "Don't have an account?",

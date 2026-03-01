@@ -28,8 +28,8 @@ mutation Login($email: String!, $password: String!) {
   }
 }
 
-mutation Register($email: String!, $password: String!) {
-  register(email: $email, password: $password) {
+mutation Register($email: String!, $password: String!, $nickname: String) {
+  register(email: $email, password: $password, nickname: $nickname) {
     token
     user {
       id
