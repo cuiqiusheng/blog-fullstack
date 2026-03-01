@@ -12,6 +12,7 @@ const config: CodegenConfig = {
           Post: '../types.mapper#PostParent',
           Comment: '../types.mapper#CommentParent',
           Notification: '../types.mapper#NotificationParent',
+          User: '../types.mapper#UserParent',
         },
         enumValues: {
           NotificationType: '../../generated/prisma/client#NotificationType',

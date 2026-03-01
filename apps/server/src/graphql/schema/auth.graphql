@@ -5,6 +5,10 @@ type User {
   avatarUrl: String
   createdAt: String!
   roles: [Role!]!
+  followerCount: Int!
+  followingCount: Int!
+  isFollowing: Boolean
+  postCount: Int!
 }
 
 type Role {

@@ -36,3 +36,4 @@ export type {
 } from './article-generation';
 export type { ListPostsOptions, PostNeighbors } from './post';
 export type { SeriesMeta } from './series';
+export { toggleFollow, getFollowInfo, getFollowing, getFollowers, getUserProfile } from './follow';

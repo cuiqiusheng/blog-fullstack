@@ -88,6 +88,7 @@ extend type Query {
     sortBy: PostSortField
     sortDirection: SortDirection
     mine: Boolean
+    authorId: ID
     limit: Int
     offset: Int
   ): [Post!]!

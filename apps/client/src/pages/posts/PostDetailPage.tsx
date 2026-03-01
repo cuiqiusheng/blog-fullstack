@@ -38,7 +38,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useCurrentUser } from '@/shared/hooks';
 import { statusColor } from '@/features/posts/postUtils';
-import { getDisplayName } from '@/shared/utils/displayName';
+import { AuthorInfo } from '@/shared/components/AuthorInfo';
 import { CommentSection } from './CommentSection';
 import './posts.css';
 
@@ -171,9 +171,7 @@ export function PostDetailPage() {
             </Tag>
             {post.topic ? <Tag>{post.topic}</Tag> : null}
             {post.subtopic ? <Tag>{post.subtopic}</Tag> : null}
-            <Text type="secondary">
-              {t('posts.meta.author')}: {getDisplayName(post.author)}
-            </Text>
+            <AuthorInfo author={post.author} showCard />
             <Text type="secondary">
               {t('posts.meta.createdAt')}: {dayjs(post.createdAt).format('YYYY-MM-DD HH:mm')}
             </Text>

@@ -5,6 +5,7 @@ import { chatResolvers } from './chatResolver';
 import { postResolvers } from './postResolver';
 import { interactionResolvers } from './interactionResolver';
 import { notificationResolvers } from './notificationResolver';
+import { followResolvers } from './followResolver';
 
 export const resolvers: Resolvers = {
   Query: {
@@ -14,6 +15,7 @@ export const resolvers: Resolvers = {
     ...postResolvers.Query,
     ...interactionResolvers.Query,
     ...notificationResolvers.Query,
+    ...followResolvers.Query,
   },
   Mutation: {
     ...authResolvers.Mutation,
@@ -22,9 +24,13 @@ export const resolvers: Resolvers = {
     ...postResolvers.Mutation,
     ...interactionResolvers.Mutation,
     ...notificationResolvers.Mutation,
+    ...followResolvers.Mutation,
   },
   Post: {
     ...interactionResolvers.Post,
+  },
+  User: {
+    ...followResolvers.User,
   },
   ChatSession: {
     ...chatResolvers.ChatSession,

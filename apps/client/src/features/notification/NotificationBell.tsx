@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useSubscription } from '@apollo/client/react';
 import { Badge, Button, Empty, List, Popover, Space, Typography } from 'antd';
-import { BellOutlined, LikeOutlined, MessageOutlined, CheckOutlined } from '@ant-design/icons';
+import {
+  BellOutlined,
+  LikeOutlined,
+  MessageOutlined,
+  CheckOutlined,
+  UserAddOutlined,
+} from '@ant-design/icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/zh-cn';
@@ -25,6 +31,7 @@ const NOTIFICATION_ICON: Record<NotificationType, React.ReactNode> = {
   [NotificationType.Like]: <LikeOutlined style={{ color: '#1677ff' }} />,
   [NotificationType.Comment]: <MessageOutlined style={{ color: '#52c41a' }} />,
   [NotificationType.Reply]: <MessageOutlined style={{ color: '#faad14' }} />,
+  [NotificationType.Follow]: <UserAddOutlined style={{ color: '#f43f5e' }} />,
 };
 
 export function NotificationBell() {
@@ -59,6 +66,8 @@ export function NotificationBell() {
   const handleClickItem = async (
     id: string,
     read: boolean,
+    type: NotificationType,
+    actorId: string,
     postId?: string | null,
     commentId?: string | null,
   ) => {
@@ -66,6 +75,10 @@ export function NotificationBell() {
       await markRead({ variables: { id } });
       refetchCount();
       refetchList();
+    }
+    if (type === NotificationType.Follow) {
+      navigate(`/users/${actorId}`);
+      return;
     }
     if (postId) {
       const search = commentId ? `?commentId=${commentId}` : '';
@@ -104,7 +117,16 @@ export function NotificationBell() {
                 padding: '8px 4px',
                 background: item.read ? 'transparent' : 'rgba(22, 119, 255, 0.04)',
               }}
-              onClick={() => handleClickItem(item.id, item.read, item.postId, item.commentId)}
+              onClick={() =>
+                handleClickItem(
+                  item.id,
+                  item.read,
+                  item.type,
+                  item.actor.id,
+                  item.postId,
+                  item.commentId,
+                )
+              }
             >
               <Space align="start" size={8}>
                 {NOTIFICATION_ICON[item.type]}

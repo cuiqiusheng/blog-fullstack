@@ -9,7 +9,8 @@
   "nav": {
     "explore": "Explore",
     "myPosts": "My Posts",
-    "userSetting": "User Setting",
+    "userSetting": "Settings",
+    "profile": "Profile",
     "ai": "AI Assistant",
     "reactDemos": "React Demos",
     "write": "Write",
@@ -215,7 +216,10 @@
     "cancelReply": "Cancel",
     "expandReplies": "Show all {{count}} replies",
     "collapseReplies": "Hide replies",
-    "replyPlaceholder": "Write a reply..."
+    "replyPlaceholder": "Write a reply...",
+    "follow": "Follow",
+    "following": "Following",
+    "unfollow": "Unfollow"
   },
   "bookmarks": {
     "pageTitle": "My Bookmarks",
@@ -235,6 +239,22 @@
     "comment": "{{name}} commented on your post \"{{postTitle}}\"",
     "commentNoTitle": "{{name}} commented on your post",
     "reply": "{{name}} replied to your comment",
-    "replyWithTitle": "{{name}} replied to your comment on \"{{postTitle}}\""
+    "replyWithTitle": "{{name}} replied to your comment on \"{{postTitle}}\"",
+    "follow": "{{name}} followed you"
+  },
+  "profile": {
+    "editProfile": "Edit Profile",
+    "viewMyProfile": "View My Profile",
+    "viewProfile": "View Profile",
+    "myFollowing": "Following",
+    "myFollowers": "Followers",
+    "articles": "Articles",
+    "noFollowing": "Not following anyone yet",
+    "noFollowers": "No followers yet",
+    "noArticles": "No articles yet",
+    "userNotFound": "User not found",
+    "followerCount": "Followers",
+    "followingCount": "Following",
+    "postCount": "Posts"
   }
 }

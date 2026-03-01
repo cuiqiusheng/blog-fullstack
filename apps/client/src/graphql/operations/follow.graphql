@@ -1,0 +1,41 @@
+mutation ToggleFollow($userId: ID!) {
+  toggleFollow(userId: $userId) {
+    following
+    followerCount
+  }
+}
+
+query UserProfile($id: ID!) {
+  userProfile(id: $id) {
+    id
+    email
+    nickname
+    avatarUrl
+    createdAt
+    followerCount
+    followingCount
+    isFollowing
+    postCount
+  }
+}
+
+query MyFollowing($limit: Int, $offset: Int) {
+  myFollowing(limit: $limit, offset: $offset) {
+    id
+    email
+    nickname
+    avatarUrl
+    followerCount
+    postCount
+  }
+}
+
+query MyFollowers($limit: Int, $offset: Int) {
+  myFollowers(limit: $limit, offset: $offset) {
+    id
+    email
+    nickname
+    avatarUrl
+    isFollowing
+  }
+}

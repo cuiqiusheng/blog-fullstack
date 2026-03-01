@@ -1,93 +1,26 @@
-import { useMutation, useQuery } from '@apollo/client/react';
+import { useMutation } from '@apollo/client/react';
 import {
   App,
   Avatar,
   Button,
   Card,
-  Descriptions,
   Form,
   Input,
   Radio,
   Space,
   Spin,
   Switch,
-  Tag,
   Typography,
-  theme,
 } from 'antd';
-import {
-  UserOutlined,
-  FileTextOutlined,
-  CheckCircleOutlined,
-  EditOutlined,
-  MessageOutlined,
-  LikeOutlined,
-  StarOutlined,
-  CommentOutlined,
-} from '@ant-design/icons';
+import { UserOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import {
-  MeDocument,
-  UpdateProfileDocument,
-  ChangePasswordDocument,
-  PostsTotalDocument,
-  ChatSessionsTotalDocument,
-  MyInteractionStatsDocument,
-} from '@/graphql/codegen';
+import { Link } from 'react-router-dom';
+import { MeDocument, UpdateProfileDocument, ChangePasswordDocument } from '@/graphql/codegen';
 import { useCurrentUser } from '@/shared/hooks/useCurrentUser';
 import { useThemeMode } from '@/shared/hooks/themeMode';
 import { setLocale, type Locale } from '@/lib/i18n';
-import type { ReactNode } from 'react';
 
-const { Title } = Typography;
-
-interface StatCardProps {
-  icon: ReactNode;
-  label: string;
-  value: number;
-  color: string;
-}
-
-function StatCard({ icon, label, value, color }: StatCardProps) {
-  const { token } = theme.useToken();
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        padding: '12px 16px',
-        borderRadius: token.borderRadiusLG,
-        background: token.colorBgContainerDisabled,
-        flex: 1,
-        minWidth: 0,
-      }}
-    >
-      <div
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: token.borderRadiusLG,
-          background: color,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 18,
-          color: '#fff',
-          flexShrink: 0,
-        }}
-      >
-        {icon}
-      </div>
-      <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: 20, fontWeight: 600, lineHeight: 1.2 }}>{value}</div>
-        <div style={{ fontSize: 12, color: token.colorTextSecondary, whiteSpace: 'nowrap' }}>
-          {label}
-        </div>
-      </div>
-    </div>
-  );
-}
+const { Title, Text } = Typography;
 
 export function UserSettingPage() {
   const { t, i18n } = useTranslation();
@@ -98,25 +31,6 @@ export function UserSettingPage() {
   const [profileForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
   const avatarUrlValue = Form.useWatch('avatarUrl', profileForm);
-
-  const { data: totalData } = useQuery(PostsTotalDocument, {
-    variables: { mine: true },
-    fetchPolicy: 'cache-and-network',
-  });
-  const { data: publishedData } = useQuery(PostsTotalDocument, {
-    variables: { mine: true, status: 'PUBLISHED' as never },
-    fetchPolicy: 'cache-and-network',
-  });
-  const { data: draftData } = useQuery(PostsTotalDocument, {
-    variables: { mine: true, status: 'DRAFT' as never },
-    fetchPolicy: 'cache-and-network',
-  });
-  const { data: chatTotalData } = useQuery(ChatSessionsTotalDocument, {
-    fetchPolicy: 'cache-and-network',
-  });
-  const { data: interactionStatsData } = useQuery(MyInteractionStatsDocument, {
-    fetchPolicy: 'cache-and-network',
-  });
 
   const [updateProfile, { loading: profileSaving }] = useMutation(UpdateProfileDocument, {
     refetchQueries: [{ query: MeDocument }],
@@ -150,102 +64,32 @@ export function UserSettingPage() {
     });
   };
 
-  const registeredAt = currentUser.createdAt
-    ? new Date(currentUser.createdAt).toLocaleDateString()
-    : '-';
-
-  const stats = interactionStatsData?.myInteractionStats;
-
   return (
     <div style={{ maxWidth: 800, margin: '0 auto' }}>
-      <Title level={3} style={{ marginBottom: 24 }}>
-        {t('userSetting.pageTitle')}
-      </Title>
-
-      {/* Account Info */}
-      <Card style={{ marginBottom: 24 }}>
-        <Title level={5} style={{ marginTop: 0 }}>
-          {t('userSetting.accountInfo')}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 24,
+        }}
+      >
+        <Title level={3} style={{ margin: 0 }}>
+          {t('userSetting.pageTitle')}
         </Title>
-        <Descriptions column={1} size="small">
-          <Descriptions.Item label={t('userSetting.email')}>{currentUser.email}</Descriptions.Item>
-          <Descriptions.Item label={t('userSetting.roles')}>
-            {currentUser.roles.length > 0 ? (
-              <Space size={4}>
-                {currentUser.roles.map(role => (
-                  <Tag key={role.id} color="blue">
-                    {role.name}
-                  </Tag>
-                ))}
-              </Space>
-            ) : (
-              '-'
-            )}
-          </Descriptions.Item>
-          <Descriptions.Item label={t('userSetting.registeredAt')}>
-            {registeredAt}
-          </Descriptions.Item>
-        </Descriptions>
-      </Card>
-
-      {/* Stats */}
-      <Card style={{ marginBottom: 24 }}>
-        <Title level={5} style={{ marginTop: 0 }}>
-          {t('userSetting.stats')}
-        </Title>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <StatCard
-            icon={<FileTextOutlined />}
-            label={t('userSetting.totalPosts')}
-            value={totalData?.postsTotal ?? 0}
-            color="#6366f1"
-          />
-          <StatCard
-            icon={<CheckCircleOutlined />}
-            label={t('userSetting.published')}
-            value={publishedData?.postsTotal ?? 0}
-            color="#34d399"
-          />
-          <StatCard
-            icon={<EditOutlined />}
-            label={t('userSetting.drafts')}
-            value={draftData?.postsTotal ?? 0}
-            color="#fbbf24"
-          />
-          <StatCard
-            icon={<MessageOutlined />}
-            label={t('userSetting.chatTopics')}
-            value={chatTotalData?.chatSessionsTotal ?? 0}
-            color="#8b5cf6"
-          />
-        </div>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
-          <StatCard
-            icon={<LikeOutlined />}
-            label={t('userSetting.totalLikesReceived')}
-            value={stats?.totalLikesReceived ?? 0}
-            color="#ec4899"
-          />
-          <StatCard
-            icon={<StarOutlined />}
-            label={t('userSetting.totalBookmarks')}
-            value={stats?.totalBookmarks ?? 0}
-            color="#f97316"
-          />
-          <StatCard
-            icon={<CommentOutlined />}
-            label={t('userSetting.totalComments')}
-            value={stats?.totalComments ?? 0}
-            color="#06b6d4"
-          />
-        </div>
-      </Card>
+        <Link to="/profile">
+          <Button type="link">{t('profile.viewMyProfile')}</Button>
+        </Link>
+      </div>
 
       {/* Profile */}
       <Card style={{ marginBottom: 24 }}>
         <Title level={5} style={{ marginTop: 0 }}>
           {t('userSetting.profile')}
         </Title>
+        <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+          {t('userSetting.email')}: {currentUser.email}
+        </Text>
         <Form
           form={profileForm}
           layout="vertical"

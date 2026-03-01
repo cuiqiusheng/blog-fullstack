@@ -1,0 +1,14 @@
+type FollowInfo {
+  following: Boolean!
+  followerCount: Int!
+}
+
+extend type Query {
+  userProfile(id: ID!): User!
+  myFollowing(limit: Int, offset: Int): [User!]!
+  myFollowers(limit: Int, offset: Int): [User!]!
+}
+
+extend type Mutation {
+  toggleFollow(userId: ID!): FollowInfo!
+}
