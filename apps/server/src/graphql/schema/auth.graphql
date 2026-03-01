@@ -24,7 +24,7 @@ extend type Query {
 
 extend type Mutation {
   login(email: String!, password: String!): AuthPayload!
-  register(email: String!, password: String!): AuthPayload!
+  register(email: String!, password: String!, nickname: String): AuthPayload!
   updateProfile(nickname: String, avatarUrl: String): User!
   changePassword(currentPassword: String!, newPassword: String!): Boolean!
 }

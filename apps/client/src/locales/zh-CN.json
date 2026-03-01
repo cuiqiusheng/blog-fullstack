@@ -42,7 +42,9 @@
       "confirmPasswordPlaceholder": "再次输入密码",
       "confirmPasswordRequired": "请确认密码",
       "confirmPasswordMismatch": "两次输入的密码不一致",
-      "submit": "注册"
+      "submit": "注册",
+      "nickname": "昵称",
+      "nicknamePlaceholder": "给自己取个名字吧（选填）"
     },
     "brandTagline": "记录思考，分享灵感",
     "noAccount": "没有账号？",

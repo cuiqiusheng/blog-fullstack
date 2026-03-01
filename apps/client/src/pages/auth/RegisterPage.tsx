@@ -29,8 +29,14 @@ export function RegisterPage() {
     },
   });
 
-  const onFinish = (values: { email: string; password: string }) => {
-    registerMutation({ variables: { email: values.email, password: values.password } });
+  const onFinish = (values: { email: string; password: string; nickname?: string }) => {
+    registerMutation({
+      variables: {
+        email: values.email,
+        password: values.password,
+        nickname: values.nickname?.trim() || undefined,
+      },
+    });
   };
 
   return (
@@ -95,6 +101,14 @@ export function RegisterPage() {
                 placeholder={t('auth.register.emailPlaceholder')}
                 size="large"
                 autoComplete="email"
+              />
+            </Form.Item>
+            <Form.Item name="nickname" label={t('auth.register.nickname')}>
+              <Input
+                placeholder={t('auth.register.nicknamePlaceholder')}
+                size="large"
+                maxLength={30}
+                autoComplete="nickname"
               />
             </Form.Item>
             <Form.Item

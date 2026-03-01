@@ -1,6 +1,6 @@
 import { NotificationType } from '../../generated/prisma/client';
 import { GraphQLResolveInfo } from 'graphql';
-import { PostParent, CommentParent, NotificationParent } from './types.mapper';
+import { PostParent, CommentParent, NotificationParent } from '../types.mapper';
 import { GraphQLContext } from '../../types/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -262,6 +262,7 @@ export type MutationMarkNotificationReadArgs = {
 
 export type MutationRegisterArgs = {
   email: Scalars['String']['input'];
+  nickname?: InputMaybe<Scalars['String']['input']>;
   password: Scalars['String']['input'];
 };
 

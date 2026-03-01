@@ -257,6 +257,7 @@ export type MutationMarkNotificationReadArgs = {
 
 export type MutationRegisterArgs = {
   email: Scalars['String']['input'];
+  nickname?: InputMaybe<Scalars['String']['input']>;
   password: Scalars['String']['input'];
 };
 
@@ -699,6 +700,7 @@ export type LoginMutation = {
 export type RegisterMutationVariables = Exact<{
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+  nickname?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 export type RegisterMutation = {
@@ -1748,6 +1750,11 @@ export const RegisterDocument = {
             type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
           },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'nickname' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -1765,6 +1772,11 @@ export const RegisterDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'password' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'password' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'nickname' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'nickname' } },
               },
             ],
             selectionSet: {

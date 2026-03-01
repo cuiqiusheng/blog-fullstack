@@ -9,9 +9,9 @@ const config: CodegenConfig = {
         contextType: '../../types/context#GraphQLContext',
         useIndexSignature: true,
         mappers: {
-          Post: './types.mapper#PostParent',
-          Comment: './types.mapper#CommentParent',
-          Notification: './types.mapper#NotificationParent',
+          Post: '../types.mapper#PostParent',
+          Comment: '../types.mapper#CommentParent',
+          Notification: '../types.mapper#NotificationParent',
         },
         enumValues: {
           NotificationType: '../../generated/prisma/client#NotificationType',
