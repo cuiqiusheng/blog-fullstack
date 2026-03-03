@@ -18,10 +18,15 @@ export function AppLayout({ children }: AppLayoutProps) {
           display: 'flex',
           alignItems: 'center',
           padding: '0 24px',
-          background: isDark ? 'rgba(15, 15, 25, 0.72)' : 'rgba(255, 255, 255, 0.72)',
-          backdropFilter: 'blur(16px) saturate(1.3)',
-          WebkitBackdropFilter: 'blur(16px) saturate(1.3)',
-          borderBottom: '1px solid rgba(99, 102, 241, 0.08)',
+          background: isDark
+            ? 'rgba(15, 20, 18, 0.78)'
+            : 'linear-gradient(135deg, rgba(255,255,255,0.82) 0%, rgba(107,171,144,0.08) 100%)',
+          backdropFilter: 'blur(16px) saturate(1.4)',
+          WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
+          borderBottom: isDark
+            ? '1px solid rgba(107, 171, 144, 0.15)'
+            : '1px solid rgba(107, 171, 144, 0.18)',
+          boxShadow: isDark ? '0 1px 8px rgba(0, 0, 0, 0.3)' : '0 1px 8px rgba(107, 171, 144, 0.1)',
           position: 'sticky',
           top: 0,
           zIndex: 100,

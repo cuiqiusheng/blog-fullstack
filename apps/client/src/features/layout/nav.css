@@ -1,0 +1,27 @@
+.nav-user-trigger {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 50%;
+  transition:
+    box-shadow 0.2s,
+    transform 0.15s;
+}
+
+.nav-user-trigger:hover {
+  box-shadow: 0 0 0 3px rgba(107, 171, 144, 0.28);
+}
+
+.nav-user-trigger:active {
+  transform: scale(0.93);
+}
+
+[data-theme='dark'] .nav-user-trigger:hover {
+  box-shadow: 0 0 0 3px rgba(107, 171, 144, 0.35);
+}
+
+.nav-user-info-item {
+  pointer-events: none;
+}

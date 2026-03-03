@@ -3,7 +3,7 @@ import { Alert, Button, Collapse, Input, Space, Card, App, Spin } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery } from '@apollo/client/react';
-import { Editor } from '@blog-fullstack/editor';
+import { Editor, type ToolbarLabels } from '@blog-fullstack/editor';
 import { MarkdownRenderer } from '@blog-fullstack/markdown-renderer';
 import { uploadImage } from '@/lib/upload';
 import {
@@ -25,6 +25,27 @@ export function PostWritePage() {
   const isEditMode = !!id;
 
   const { currentUser } = useCurrentUser();
+
+  const toolbarLabels: ToolbarLabels = {
+    heading1: t('editor.heading1'),
+    heading2: t('editor.heading2'),
+    heading3: t('editor.heading3'),
+    bold: t('editor.bold'),
+    italic: t('editor.italic'),
+    strikethrough: t('editor.strikethrough'),
+    inlineCode: t('editor.inlineCode'),
+    bulletList: t('editor.bulletList'),
+    orderedList: t('editor.orderedList'),
+    taskList: t('editor.taskList'),
+    blockquote: t('editor.blockquote'),
+    codeBlock: t('editor.codeBlock'),
+    horizontalRule: t('editor.horizontalRule'),
+    insertImage: t('editor.insertImage'),
+    insertLink: t('editor.insertLink'),
+    insertTable: t('editor.insertTable'),
+    undo: t('editor.undo'),
+    redo: t('editor.redo'),
+  };
 
   const { data: postData, loading: postLoading } = useQuery(PostDocument, {
     variables: { id: id ?? '' },
@@ -52,7 +73,11 @@ export function PostWritePage() {
     refetchQueries,
   });
   const [updatePost, { loading: updateLoading }] = useMutation(UpdatePostDocument, {
-    refetchQueries,
+    refetchQueries: [
+      ...refetchQueries,
+      ...(id ? [{ query: PostDocument, variables: { id } }] : []),
+    ],
+    awaitRefetchQueries: true,
   });
 
   const saving = createLoading || updateLoading;
@@ -179,7 +204,9 @@ export function PostWritePage() {
   return (
     <div className="post-write">
       <div className="post-write__header">
-        <Button onClick={() => navigate('/posts')}>{t('posts.detail.backToList')}</Button>
+        <Button onClick={() => navigate(isEditMode ? `/posts/${id}` : '/posts')}>
+          {isEditMode ? t('posts.write.cancelEdit') : t('posts.detail.backToList')}
+        </Button>
         <Space>
           <Button onClick={() => setShowPreview(v => !v)}>{t('posts.write.preview')}</Button>
           {renderActions()}
@@ -225,6 +252,7 @@ export function PostWritePage() {
           onChange={setContent}
           onImageUpload={uploadImage}
           placeholder={t('posts.write.editorPlaceholder')}
+          toolbarLabels={toolbarLabels}
         />
       </div>
 

@@ -18,6 +18,7 @@ export function Editor({
   className,
   autofocus = false,
   onImageUpload,
+  toolbarLabels,
 }: EditorProps) {
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
@@ -65,7 +66,7 @@ export function Editor({
 
   return (
     <div className={wrapperClass}>
-      {editable && <Toolbar editor={editor} onImageUpload={onImageUpload} />}
+      {editable && <Toolbar editor={editor} onImageUpload={onImageUpload} labels={toolbarLabels} />}
       {editor && editable && <LinkBubbleMenu editor={editor} />}
       <div className="editor-content-area">
         {editor && editable && <DragHandle editor={editor} />}
