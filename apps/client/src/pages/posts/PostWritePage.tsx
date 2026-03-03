@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { Editor } from '@blog-fullstack/editor';
 import { MarkdownRenderer } from '@blog-fullstack/markdown-renderer';
+import { uploadImage } from '@/lib/upload';
 import {
   CreatePostDocument,
   UpdatePostDocument,
@@ -109,11 +110,14 @@ export function PostWritePage() {
       if (isEditMode) {
         await updatePost({ variables: { id: id!, input: buildUpdateInput() } });
         message.success(t('posts.write.updated'));
+        navigate(`/posts/${id}`);
       } else {
-        await createPost({ variables: { input: buildCreateInput(PostStatus.Draft) } });
+        const { data: created } = await createPost({
+          variables: { input: buildCreateInput(PostStatus.Draft) },
+        });
         message.success(t('posts.write.draftSaved'));
+        navigate(`/posts/${created?.createPost.id}`);
       }
-      navigate('/posts');
     } catch {
       message.error(t('posts.write.saveFailed'));
     }
@@ -127,11 +131,14 @@ export function PostWritePage() {
           variables: { id: id!, input: buildUpdateInput(PostStatus.Published) },
         });
         message.success(t('posts.write.published'));
+        navigate(`/posts/${id}`);
       } else {
-        await createPost({ variables: { input: buildCreateInput(PostStatus.Published) } });
+        const { data: published } = await createPost({
+          variables: { input: buildCreateInput(PostStatus.Published) },
+        });
         message.success(t('posts.write.published'));
+        navigate(`/posts/${published?.createPost.id}`);
       }
-      navigate('/posts');
     } catch {
       message.error(t('posts.write.saveFailed'));
     }
@@ -142,7 +149,7 @@ export function PostWritePage() {
     try {
       await updatePost({ variables: { id: id!, input: buildUpdateInput() } });
       message.success(t('posts.write.updated'));
-      navigate('/posts');
+      navigate(`/posts/${id}`);
     } catch {
       message.error(t('posts.write.saveFailed'));
     }
@@ -216,6 +223,7 @@ export function PostWritePage() {
         <Editor
           content={content}
           onChange={setContent}
+          onImageUpload={uploadImage}
           placeholder={t('posts.write.editorPlaceholder')}
         />
       </div>
@@ -226,7 +234,7 @@ export function PostWritePage() {
           title={title || t('posts.write.titlePlaceholder')}
           size="small"
         >
-          <MarkdownRenderer content={content} />
+          <MarkdownRenderer content={content} className="post-markdown" />
         </Card>
       )}
     </div>

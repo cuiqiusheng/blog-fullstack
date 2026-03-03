@@ -81,9 +81,17 @@ export const slashCommandItems: SlashCommandItem[] = [
     description: 'Insert image from URL',
     icon: '🖼',
     command: ({ editor, range }) => {
-      const url = window.prompt('Image URL');
-      if (url) {
-        editor.chain().focus().deleteRange(range).setImage({ src: url }).run();
+      editor.chain().focus().deleteRange(range).run();
+      const trigger = (
+        editor.storage as { imageUploadStorage?: { triggerUploadModal?: (() => void) | null } }
+      ).imageUploadStorage?.triggerUploadModal;
+      if (trigger) {
+        trigger();
+      } else {
+        const url = window.prompt('Image URL');
+        if (url) {
+          editor.chain().focus().setImage({ src: url }).run();
+        }
       }
     },
   },

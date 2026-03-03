@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import {
   App,
@@ -11,14 +12,16 @@ import {
   Spin,
   Switch,
   Typography,
+  Upload,
 } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, CameraOutlined, LinkOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { MeDocument, UpdateProfileDocument, ChangePasswordDocument } from '@/graphql/codegen';
 import { useCurrentUser } from '@/shared/hooks/useCurrentUser';
 import { useThemeMode } from '@/shared/hooks/themeMode';
 import { setLocale, type Locale } from '@/lib/i18n';
+import { uploadImage } from '@/lib/upload';
 
 const { Title, Text } = Typography;
 
@@ -31,6 +34,8 @@ export function UserSettingPage() {
   const [profileForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
   const avatarUrlValue = Form.useWatch('avatarUrl', profileForm);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
 
   const [updateProfile, { loading: profileSaving }] = useMutation(UpdateProfileDocument, {
     refetchQueries: [{ query: MeDocument }],
@@ -100,16 +105,94 @@ export function UserSettingPage() {
           onFinish={handleProfileSave}
           style={{ maxWidth: 480 }}
         >
-          <Form.Item
-            name="avatarUrl"
-            label={
-              <Space>
-                {t('userSetting.avatarUrl')}
-                <Avatar size={32} src={avatarUrlValue || undefined} icon={<UserOutlined />} />
+          <Form.Item label={t('userSetting.avatarUrl')}>
+            <Space direction="vertical" size={12} style={{ width: '100%' }}>
+              <Space align="center" size={16}>
+                <Upload
+                  showUploadList={false}
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  beforeUpload={async file => {
+                    setAvatarUploading(true);
+                    try {
+                      const url = await uploadImage(file);
+                      profileForm.setFieldValue('avatarUrl', url);
+                      await updateProfile({
+                        variables: {
+                          nickname: profileForm.getFieldValue('nickname'),
+                          avatarUrl: url,
+                        },
+                      });
+                    } catch (err) {
+                      message.error(
+                        err instanceof Error ? err.message : t('userSetting.avatarUploadFailed'),
+                      );
+                    } finally {
+                      setAvatarUploading(false);
+                    }
+                    return false;
+                  }}
+                >
+                  <div
+                    style={{
+                      position: 'relative',
+                      cursor: 'pointer',
+                      display: 'inline-block',
+                    }}
+                  >
+                    <Avatar size={64} src={avatarUrlValue || undefined} icon={<UserOutlined />} />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        borderRadius: '50%',
+                        background: 'rgba(0,0,0,0.4)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        opacity: avatarUploading ? 1 : 0,
+                        transition: 'opacity 0.2s',
+                      }}
+                      onMouseEnter={e => {
+                        (e.currentTarget as HTMLDivElement).style.opacity = '1';
+                      }}
+                      onMouseLeave={e => {
+                        if (!avatarUploading)
+                          (e.currentTarget as HTMLDivElement).style.opacity = '0';
+                      }}
+                    >
+                      {avatarUploading ? (
+                        <Spin size="small" />
+                      ) : (
+                        <CameraOutlined style={{ color: '#fff', fontSize: 20 }} />
+                      )}
+                    </div>
+                  </div>
+                </Upload>
+                <div>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    {t('userSetting.avatarHint')}
+                  </Text>
+                  <br />
+                  <Button
+                    type="link"
+                    size="small"
+                    icon={<LinkOutlined />}
+                    style={{ paddingLeft: 0 }}
+                    onClick={() => setShowUrlInput(v => !v)}
+                  >
+                    {showUrlInput ? t('userSetting.hideUrlInput') : t('userSetting.useUrlInput')}
+                  </Button>
+                </div>
               </Space>
-            }
-          >
-            <Input placeholder={t('userSetting.avatarUrlPlaceholder')} />
+              {showUrlInput && (
+                <Form.Item name="avatarUrl" noStyle>
+                  <Input placeholder={t('userSetting.avatarUrlPlaceholder')} />
+                </Form.Item>
+              )}
+              <Form.Item name="avatarUrl" hidden>
+                <Input />
+              </Form.Item>
+            </Space>
           </Form.Item>
           <Form.Item name="nickname" label={t('userSetting.nickname')}>
             <Input placeholder={t('userSetting.nicknamePlaceholder')} maxLength={32} />

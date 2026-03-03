@@ -435,3 +435,223 @@
   cursor: grabbing;
   background: #e6e6e6;
 }
+
+/* ── Image upload modal ── */
+
+.img-upload-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.img-upload-modal {
+  width: 480px;
+  max-width: 92vw;
+  border-radius: 12px;
+  background: var(--ant-color-bg-container, #fff);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.img-upload-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+}
+
+.img-upload-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ant-color-text, #262626);
+}
+
+.img-upload-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ant-color-text-secondary, #8c8c8c);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.img-upload-close:hover {
+  background: var(--ant-color-bg-layout, #f5f5f5);
+  color: var(--ant-color-text, #262626);
+}
+
+.img-upload-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+}
+
+.img-upload-tab {
+  padding: 8px 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--ant-color-text-secondary, #8c8c8c);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.img-upload-tab:hover {
+  color: var(--ant-color-text, #262626);
+}
+
+.img-upload-tab.is-active {
+  color: var(--ant-color-primary, #1677ff);
+  border-bottom-color: var(--ant-color-primary, #1677ff);
+}
+
+.img-upload-body {
+  padding: 16px 20px 20px;
+}
+
+.img-upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  border: 2px dashed var(--ant-color-border, #d9d9d9);
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.img-upload-dropzone:hover {
+  border-color: var(--ant-color-primary, #1677ff);
+  background: rgba(22, 119, 255, 0.02);
+}
+
+.img-upload-dropzone.is-uploading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.img-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--ant-color-text-secondary, #8c8c8c);
+  font-size: 14px;
+}
+
+.img-upload-icon {
+  font-size: 32px;
+}
+
+.img-upload-hint {
+  font-size: 12px;
+  color: var(--ant-color-text-secondary, #bfbfbf);
+}
+
+.img-upload-preview {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.img-upload-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--ant-color-primary, #1677ff);
+  font-size: 14px;
+}
+
+.img-upload-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--ant-color-border, #d9d9d9);
+  border-top-color: var(--ant-color-primary, #1677ff);
+  border-radius: 50%;
+  animation: img-upload-spin 0.7s linear infinite;
+}
+
+@keyframes img-upload-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.img-upload-url-form {
+  display: flex;
+  gap: 8px;
+}
+
+.img-upload-url-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--ant-color-border, #d9d9d9);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ant-color-text, #262626);
+  background: var(--ant-color-bg-container, #fff);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.img-upload-url-input:focus {
+  border-color: var(--ant-color-primary, #1677ff);
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+}
+
+.img-upload-url-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  background: var(--ant-color-primary, #1677ff);
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.img-upload-url-btn:hover {
+  opacity: 0.85;
+}
+
+.img-upload-url-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.img-upload-error {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #fff2f0;
+  color: #ff4d4f;
+  font-size: 13px;
+}

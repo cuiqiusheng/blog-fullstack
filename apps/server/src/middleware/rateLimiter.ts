@@ -2,7 +2,7 @@ import rateLimit from 'express-rate-limit';
 
 export const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 300,
+  max: 600,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: {
@@ -11,9 +11,20 @@ export const globalLimiter = rateLimit({
   },
 });
 
+export const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: {
+    error: 'Too many upload requests, please try again later.',
+    statusCode: 429,
+  },
+});
+
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 20,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: {

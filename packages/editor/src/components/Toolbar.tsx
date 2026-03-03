@@ -1,8 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import type { Editor } from '@tiptap/react';
+import { ImageUploadModal } from './ImageUploadModal';
 
 interface ToolbarProps {
   editor: Editor | null;
+  onImageUpload?: (file: File) => Promise<string>;
 }
 
 interface ToolbarButtonProps {
@@ -31,14 +33,27 @@ function ToolbarDivider() {
   return <span className="editor-toolbar-divider" />;
 }
 
-export function Toolbar({ editor }: ToolbarProps) {
+export function Toolbar({ editor, onImageUpload }: ToolbarProps) {
+  const [showUploadModal, setShowUploadModal] = useState(false);
+
   const addImage = useCallback(() => {
     if (!editor) return;
-    const url = window.prompt('Image URL');
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+    if (onImageUpload) {
+      setShowUploadModal(true);
+    } else {
+      const url = window.prompt('Image URL');
+      if (url) {
+        editor.chain().focus().setImage({ src: url }).run();
+      }
     }
-  }, [editor]);
+  }, [editor, onImageUpload]);
+
+  const handleInsertImage = useCallback(
+    (url: string) => {
+      editor?.chain().focus().setImage({ src: url }).run();
+    },
+    [editor],
+  );
 
   const addLink = useCallback(() => {
     if (!editor) return;
@@ -195,6 +210,15 @@ export function Toolbar({ editor }: ToolbarProps) {
       >
         ↪
       </ToolbarButton>
+
+      {onImageUpload && (
+        <ImageUploadModal
+          open={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onImageUpload={onImageUpload}
+          onInsertImage={handleInsertImage}
+        />
+      )}
     </div>
   );
 }

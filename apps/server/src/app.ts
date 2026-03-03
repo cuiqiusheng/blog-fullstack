@@ -13,9 +13,10 @@ import { typeDefs } from './graphql/schema';
 import { resolvers } from './graphql/resolvers';
 import { useServer } from 'graphql-ws/use/ws';
 import helmet from 'helmet';
-import { authLimiter, globalLimiter } from './middleware/rateLimiter';
+import { authLimiter, globalLimiter, uploadLimiter } from './middleware/rateLimiter';
 import { logger } from './utils/logger';
 import { createDataLoaders } from './graphql/dataloader';
+import { generateUploadToken } from './service/upload/index.js';
 
 dotenv.config();
 
@@ -47,6 +48,29 @@ app.get('/health', (_, res) => {
     uptime: process.uptime(),
     version: process.env.npm_package_version,
   });
+});
+
+app.post('/upload/token', uploadLimiter, async (req: Request, res: Response) => {
+  try {
+    const auth = await createAuthContext(req);
+    if (!auth.isAuthenticated) {
+      res.status(401).json({ error: 'Authentication required' });
+      return;
+    }
+
+    const { fileName } = req.body as { fileName?: string };
+    if (!fileName || typeof fileName !== 'string') {
+      res.status(400).json({ error: 'fileName is required' });
+      return;
+    }
+
+    const result = generateUploadToken(fileName);
+    res.json(result);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to generate upload token';
+    logger.error({ err }, 'Upload token generation failed');
+    res.status(400).json({ error: message });
+  }
 });
 
 export async function startServer() {

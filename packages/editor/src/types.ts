@@ -11,4 +11,6 @@ export interface EditorProps {
   className?: string;
   /** Whether to focus the editor on mount */
   autofocus?: boolean;
+  /** Upload a local image file and return the resulting URL. When provided, enables file upload UI in toolbar and slash commands, as well as paste/drop support. */
+  onImageUpload?: (file: File) => Promise<string>;
 }
