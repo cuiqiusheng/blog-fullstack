@@ -1,3 +1,24 @@
+export interface ToolbarLabels {
+  heading1?: string;
+  heading2?: string;
+  heading3?: string;
+  bold?: string;
+  italic?: string;
+  strikethrough?: string;
+  inlineCode?: string;
+  bulletList?: string;
+  orderedList?: string;
+  taskList?: string;
+  blockquote?: string;
+  codeBlock?: string;
+  horizontalRule?: string;
+  insertImage?: string;
+  insertLink?: string;
+  insertTable?: string;
+  undo?: string;
+  redo?: string;
+}
+
 export interface EditorProps {
   /** Markdown string to initialize or update the editor content */
   content?: string;
@@ -13,4 +34,6 @@ export interface EditorProps {
   autofocus?: boolean;
   /** Upload a local image file and return the resulting URL. When provided, enables file upload UI in toolbar and slash commands, as well as paste/drop support. */
   onImageUpload?: (file: File) => Promise<string>;
+  /** Localized labels for toolbar button titles */
+  toolbarLabels?: ToolbarLabels;
 }
