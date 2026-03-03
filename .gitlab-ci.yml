@@ -50,10 +50,12 @@ deploy:
 
     # ── 构建并部署后端 ────────────────────────────────────────────────
     # 1. 复制 .env 到 deploy/（构建时 docker-compose.yml 需要）
-    # 2. 在 deploy/ 下构建镜像并启动服务
-    # 3. 同步 compose 文件到 /opt/blog/，方便后续手动操作
-    #    （手动改 .env 后只需 cd /opt/blog && docker compose up -d --force-recreate）
+    # 2. 清理可能由其他 Compose 项目创建的同名容器（避免 name conflict）
+    # 3. 在 deploy/ 下构建镜像并启动服务
+    # 4. 同步 compose 文件到 /opt/blog/，方便后续手动操作
+    #    （手动操作时需保持项目名一致：cd /opt/blog && docker compose -p deploy up -d --force-recreate）
     - cp /opt/blog/.env deploy/.env
+    - docker rm -f blog-db blog-server 2>/dev/null || true
     - cd deploy
     - docker compose up -d --build
     - cp docker-compose.yml /opt/blog/docker-compose.yml
