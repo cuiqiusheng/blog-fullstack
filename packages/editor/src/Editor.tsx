@@ -1,11 +1,13 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import type { Editor as TiptapEditor } from '@tiptap/core';
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState, useEffect } from 'react';
 import { createExtensions } from './extensions';
 import { Toolbar } from './components/Toolbar';
 import { LinkBubbleMenu } from './components/LinkBubbleMenu';
 import { DragHandle } from './components/DragHandle';
+import { ImageUploadModal } from './components/ImageUploadModal';
 import type { EditorProps } from './types';
+import type { ImageUploadStorage } from './extensions/imageUploadStorage';
 import './styles/editor.css';
 
 export function Editor({
@@ -15,9 +17,12 @@ export function Editor({
   placeholder,
   className,
   autofocus = false,
+  onImageUpload,
 }: EditorProps) {
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+
+  const [slashUploadOpen, setSlashUploadOpen] = useState(false);
 
   const handleUpdate = useCallback(({ editor: e }: { editor: TiptapEditor }) => {
     const md = (
@@ -29,12 +34,30 @@ export function Editor({
   }, []);
 
   const editor = useEditor({
-    extensions: createExtensions({ placeholder }),
+    extensions: createExtensions({ placeholder, onImageUpload }),
     content,
     editable,
     autofocus,
     onUpdate: handleUpdate,
   });
+
+  useEffect(() => {
+    if (!editor) return;
+    const storage = editor.storage as { imageUploadStorage?: ImageUploadStorage };
+    if (storage.imageUploadStorage) {
+      storage.imageUploadStorage.onImageUpload = onImageUpload ?? null;
+      storage.imageUploadStorage.triggerUploadModal = onImageUpload
+        ? () => setSlashUploadOpen(true)
+        : null;
+    }
+  }, [editor, onImageUpload]);
+
+  const handleSlashInsertImage = useCallback(
+    (url: string) => {
+      editor?.chain().focus().setImage({ src: url }).run();
+    },
+    [editor],
+  );
 
   const wrapperClass = ['editor-wrapper', !editable && 'is-readonly', className]
     .filter(Boolean)
@@ -42,12 +65,21 @@ export function Editor({
 
   return (
     <div className={wrapperClass}>
-      {editable && <Toolbar editor={editor} />}
+      {editable && <Toolbar editor={editor} onImageUpload={onImageUpload} />}
       {editor && editable && <LinkBubbleMenu editor={editor} />}
       <div className="editor-content-area">
         {editor && editable && <DragHandle editor={editor} />}
         <EditorContent editor={editor} className="editor-content" />
       </div>
+
+      {onImageUpload && (
+        <ImageUploadModal
+          open={slashUploadOpen}
+          onClose={() => setSlashUploadOpen(false)}
+          onImageUpload={onImageUpload}
+          onInsertImage={handleSlashInsertImage}
+        />
+      )}
     </div>
   );
 }
