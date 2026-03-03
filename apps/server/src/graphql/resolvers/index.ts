@@ -27,6 +27,7 @@ export const resolvers: Resolvers = {
     ...followResolvers.Mutation,
   },
   Post: {
+    ...postResolvers.Post,
     ...interactionResolvers.Post,
   },
   User: {

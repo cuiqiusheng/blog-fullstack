@@ -1,6 +1,12 @@
 import { NotificationType } from '../../generated/prisma/client';
 import { GraphQLResolveInfo } from 'graphql';
-import { PostParent, CommentParent, NotificationParent, UserParent } from '../types.mapper';
+import {
+  PostParent,
+  PostNeighborsParent,
+  CommentParent,
+  NotificationParent,
+  UserParent,
+} from '../types.mapper';
 import { GraphQLContext } from '../../types/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -334,6 +340,7 @@ export type Post = {
   author: User;
   content: Scalars['String']['output'];
   createdAt: Scalars['String']['output'];
+  excerpt?: Maybe<Scalars['String']['output']>;
   generationBatchId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   interactionInfo: PostInteractionInfo;
@@ -664,12 +671,7 @@ export type ResolversTypes = ResolversObject<{
   NotificationType: NotificationType;
   Post: ResolverTypeWrapper<PostParent>;
   PostInteractionInfo: ResolverTypeWrapper<PostInteractionInfo>;
-  PostNeighbors: ResolverTypeWrapper<
-    Omit<PostNeighbors, 'next' | 'prev'> & {
-      next?: Maybe<ResolversTypes['Post']>;
-      prev?: Maybe<ResolversTypes['Post']>;
-    }
-  >;
+  PostNeighbors: ResolverTypeWrapper<PostNeighborsParent>;
   PostSortField: PostSortField;
   PostStatus: PostStatus;
   Query: ResolverTypeWrapper<{}>;
@@ -708,10 +710,7 @@ export type ResolversParentTypes = ResolversObject<{
   Notification: NotificationParent;
   Post: PostParent;
   PostInteractionInfo: PostInteractionInfo;
-  PostNeighbors: Omit<PostNeighbors, 'next' | 'prev'> & {
-    next?: Maybe<ResolversParentTypes['Post']>;
-    prev?: Maybe<ResolversParentTypes['Post']>;
-  };
+  PostNeighbors: PostNeighborsParent;
   Query: {};
   Role: Role;
   SendChatMessagePayload: SendChatMessagePayload;
@@ -1034,6 +1033,7 @@ export type PostResolvers<
   author?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  excerpt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   generationBatchId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   interactionInfo?: Resolver<ResolversTypes['PostInteractionInfo'], ParentType, ContextType>;

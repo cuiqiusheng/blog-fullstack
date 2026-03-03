@@ -24,7 +24,7 @@ query Posts(
   ) {
     id
     title
-    content
+    excerpt
     topic
     subtopic
     seriesKey

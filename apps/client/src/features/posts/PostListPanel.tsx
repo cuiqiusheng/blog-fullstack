@@ -22,7 +22,7 @@ import {
 } from '@ant-design/icons';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { createExcerpt, estimateReadMinutes } from '@blog-fullstack/content-utils';
+import { estimateReadMinutesFromWordCount } from '@blog-fullstack/content-utils';
 import {
   DeletePostDocument,
   PostsDocument,
@@ -443,7 +443,7 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
                 }
                 description={
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <Text type="secondary">{createExcerpt(item.content, 160)}</Text>
+                    <Text type="secondary">{item.excerpt}</Text>
 
                     <div
                       style={{
@@ -462,7 +462,8 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
                         </Text>
                         <Text type="secondary" style={{ fontSize: 12 }}>
                           <ClockCircleOutlined style={{ marginRight: 4 }} />
-                          {estimateReadMinutes(item.content)} {t('posts.meta.minuteUnit')}
+                          {estimateReadMinutesFromWordCount(item.wordCount ?? 0)}{' '}
+                          {t('posts.meta.minuteUnit')}
                         </Text>
                         {item.interactionInfo && (
                           <>
