@@ -10,6 +10,7 @@ const config: CodegenConfig = {
         useIndexSignature: true,
         mappers: {
           Post: '../types.mapper#PostParent',
+          PostNeighbors: '../types.mapper#PostNeighborsParent',
           Comment: '../types.mapper#CommentParent',
           Notification: '../types.mapper#NotificationParent',
           User: '../types.mapper#UserParent',

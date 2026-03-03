@@ -4,7 +4,6 @@ import { toGqlPost } from './postMapper';
 import {
   toggleLike,
   toggleBookmark,
-  getPostInteractionInfo,
   getComments,
   getCommentsTotal,
   getCommentReplies,
@@ -74,8 +73,7 @@ export const interactionResolvers = {
   },
   Post: {
     interactionInfo: async (parent: { id: string }, _: unknown, context: GraphQLContext) => {
-      const userId = context.user?.id ?? null;
-      return getPostInteractionInfo(parent.id, userId);
+      return context.loaders.interactionInfo.load(parent.id);
     },
   },
 };

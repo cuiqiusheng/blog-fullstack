@@ -92,7 +92,7 @@ query MyBookmarks($limit: Int, $offset: Int) {
   myBookmarks(limit: $limit, offset: $offset) {
     id
     title
-    content
+    excerpt
     topic
     subtopic
     status

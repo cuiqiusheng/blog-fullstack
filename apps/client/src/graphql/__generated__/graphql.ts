@@ -334,6 +334,7 @@ export type Post = {
   author: User;
   content: Scalars['String']['output'];
   createdAt: Scalars['String']['output'];
+  excerpt?: Maybe<Scalars['String']['output']>;
   generationBatchId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   interactionInfo: PostInteractionInfo;
@@ -987,7 +988,7 @@ export type MyBookmarksQuery = {
     __typename?: 'Post';
     id: string;
     title: string;
-    content: string;
+    excerpt?: string | null;
     topic?: string | null;
     subtopic?: string | null;
     status: PostStatus;
@@ -1120,7 +1121,7 @@ export type PostsQuery = {
     __typename?: 'Post';
     id: string;
     title: string;
-    content: string;
+    excerpt?: string | null;
     topic?: string | null;
     subtopic?: string | null;
     seriesKey?: string | null;
@@ -2704,7 +2705,7 @@ export const MyBookmarksDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'title' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'excerpt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'topic' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'subtopic' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'status' } },
@@ -3099,7 +3100,7 @@ export const PostsDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'title' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'excerpt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'topic' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'subtopic' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'seriesKey' } },

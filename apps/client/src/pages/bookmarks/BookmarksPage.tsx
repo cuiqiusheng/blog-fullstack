@@ -4,7 +4,7 @@ import { App, Button, Card, Empty, List, Pagination, Space, Tag, Typography } fr
 import { StarFilled, LikeOutlined, MessageOutlined } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { createExcerpt } from '@blog-fullstack/content-utils';
+
 import {
   MyBookmarksDocument,
   MyBookmarksTotalDocument,
@@ -78,7 +78,7 @@ export function BookmarksPage() {
               }
               description={
                 <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                  <Text type="secondary">{createExcerpt(item.content, 160)}</Text>
+                  <Text type="secondary">{item.excerpt}</Text>
                   <Space wrap size={[8, 4]}>
                     {item.topic ? <Tag>{item.topic}</Tag> : null}
                     {item.subtopic ? <Tag>{item.subtopic}</Tag> : null}

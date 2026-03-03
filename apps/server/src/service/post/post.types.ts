@@ -1,5 +1,4 @@
 import type { PostStatus } from '@/generated/prisma/client';
-import type { PostWithAuthor } from './postSelect';
 
 export type PostSortField = 'createdAt' | 'updatedAt' | 'subtopic';
 export type SortDirection = 'asc' | 'desc';
@@ -17,7 +16,14 @@ export interface ListPostsOptions {
   offset?: number;
 }
 
+export interface PostNeighborSummary {
+  id: string;
+  title: string;
+  seriesKey: string | null;
+  seriesOrder: number | null;
+}
+
 export interface PostNeighbors {
-  prev: PostWithAuthor | null;
-  next: PostWithAuthor | null;
+  prev: PostNeighborSummary | null;
+  next: PostNeighborSummary | null;
 }

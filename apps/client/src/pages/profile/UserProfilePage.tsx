@@ -11,7 +11,7 @@ import {
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { createExcerpt } from '@blog-fullstack/content-utils';
+
 import { UserProfileDocument, PostsDocument, ToggleFollowDocument } from '@/graphql/codegen';
 import { useCurrentUser } from '@/shared/hooks/useCurrentUser';
 import { getDisplayName } from '@/shared/utils/displayName';
@@ -190,7 +190,7 @@ export function UserProfilePage() {
                   title={<Link to={`/posts/${item.id}`}>{item.title}</Link>}
                   description={
                     <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                      <Text type="secondary">{createExcerpt(item.content, 120)}</Text>
+                      <Text type="secondary">{item.excerpt}</Text>
                       <Space wrap size={[8, 4]}>
                         {item.topic ? <Tag>{item.topic}</Tag> : null}
                         {item.subtopic ? <Tag>{item.subtopic}</Tag> : null}

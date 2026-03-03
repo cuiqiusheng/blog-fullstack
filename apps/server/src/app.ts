@@ -15,6 +15,7 @@ import { useServer } from 'graphql-ws/use/ws';
 import helmet from 'helmet';
 import { authLimiter, globalLimiter } from './middleware/rateLimiter';
 import { logger } from './utils/logger';
+import { createDataLoaders } from './graphql/dataloader';
 
 dotenv.config();
 
@@ -81,7 +82,8 @@ export async function startServer() {
       context: async (ctx: { connectionParams?: Record<string, unknown> }) => {
         const rawAuthorization = ctx.connectionParams?.authorization;
         const authorization = typeof rawAuthorization === 'string' ? rawAuthorization : undefined;
-        return createAuthContextFromAuthorizationHeader(authorization);
+        const auth = await createAuthContextFromAuthorizationHeader(authorization);
+        return { ...auth, loaders: createDataLoaders(auth.user?.id ?? null) };
       },
     },
     wsServer,
@@ -125,7 +127,7 @@ export async function startServer() {
       httpGraphQLRequest,
       context: async (): Promise<GraphQLContext> => {
         const auth = await createAuthContext(req);
-        return { ...auth, req };
+        return { ...auth, req, loaders: createDataLoaders(auth.user?.id ?? null) };
       },
     });
 

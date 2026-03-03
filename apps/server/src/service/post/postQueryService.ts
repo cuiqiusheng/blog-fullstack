@@ -165,9 +165,20 @@ export async function getPostNeighbors(id: string): Promise<PostNeighbors> {
     select: { id: true },
   });
 
+  const neighborSelect = {
+    id: true,
+    title: true,
+    seriesKey: true,
+    seriesOrder: true,
+  } as const;
+
   const [prev, next] = await Promise.all([
-    prevRow ? getPostById(prevRow.id) : Promise.resolve(null),
-    nextRow ? getPostById(nextRow.id) : Promise.resolve(null),
+    prevRow
+      ? prisma.post.findUnique({ where: { id: prevRow.id }, select: neighborSelect })
+      : Promise.resolve(null),
+    nextRow
+      ? prisma.post.findUnique({ where: { id: nextRow.id }, select: neighborSelect })
+      : Promise.resolve(null),
   ]);
 
   return { prev, next };

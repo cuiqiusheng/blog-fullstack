@@ -30,6 +30,12 @@ import type { GraphQLContext } from '@/types/context';
 import { requireAuth } from '@/utils/permissions';
 import { gqlToPrismaStatus, toGqlPost } from './postMapper';
 
+function createExcerpt(content: string, maxLength = 200): string {
+  const normalized = content.replace(/\s+/g, ' ').trim();
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, maxLength).trim()}...`;
+}
+
 function normalizePlans(plans: GeneratePostsInput['plans']): TopicGenerationPlan[] {
   return plans.map(plan => ({
     topic: plan.topic,
@@ -60,11 +66,7 @@ export const postResolvers = {
     },
     postNeighbors: async (_: unknown, args: QueryPostNeighborsArgs, context: GraphQLContext) => {
       requireAuth(context);
-      const neighbors = await getPostNeighbors(args.id);
-      return {
-        prev: neighbors.prev ? toGqlPost(neighbors.prev) : null,
-        next: neighbors.next ? toGqlPost(neighbors.next) : null,
-      };
+      return getPostNeighbors(args.id);
     },
     posts: async (_: unknown, args: QueryPostsArgs, context: GraphQLContext) => {
       const user = requireAuth(context);
@@ -141,5 +143,8 @@ export const postResolvers = {
       const user = requireAuth(context);
       return deletePost(args.id, user.id);
     },
+  },
+  Post: {
+    excerpt: (parent: { content: string }) => createExcerpt(parent.content, 200),
   },
 };
