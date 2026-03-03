@@ -32,6 +32,9 @@
 #   5. 在项目中创建 .gitlab-ci.yml 并推送触发首次流水线
 #   6. （可选）用 certbot 配置 HTTPS：certbot --nginx -d your-domain.com
 #
+#  【手动重启docker服务】
+#    docker compose -p deploy up -d --force-recreate
+#
 # ============================================================================
 
 set -euo pipefail
