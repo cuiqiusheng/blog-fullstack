@@ -6,6 +6,14 @@ import {
 import {
   generateText as openaiGenerateText,
   generateTextStream as openaiGenerateTextStream,
+  chatCompletionStream as openaiChatCompletionStream,
+} from './openaiCompatible';
+
+export type {
+  ChatMessage,
+  ToolCall,
+  ToolDefinition,
+  ChatCompletionStreamOptions,
 } from './openaiCompatible';
 
 export interface LlmGenerateOptions {
@@ -21,6 +29,8 @@ export interface LlmStreamChunk {
   model?: string;
   createdAt?: string;
 }
+
+export type { StreamChunk } from './openaiCompatible';
 
 type Provider = 'ollama' | 'openai-compatible' | 'none';
 
@@ -88,3 +98,5 @@ export async function* generateTextStream(
       );
   }
 }
+
+export { openaiChatCompletionStream as chatCompletionStream };
