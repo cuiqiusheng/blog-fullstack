@@ -11,21 +11,22 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { clearToken } from '@/lib/auth';
 import { setLocale, type Locale } from '@/lib/i18n';
+import { useAuth } from '@/shared/hooks/useAuth';
+import { useAuthGuard } from '@/shared/hooks/useAuthGuard';
 import { useCurrentUser } from '@/shared/hooks/useCurrentUser';
 import { getDisplayName } from '@/shared/utils/displayName';
 import { NotificationBell } from '@/features/notification';
 import './nav.css';
 
-const NAV_ITEMS: {
-  path: string;
-  i18nKey: 'explore' | 'myPosts' | 'bookmarks' | 'profile' | 'userSetting' | 'ai';
-}[] = [
-  { path: 'posts', i18nKey: 'myPosts' },
-  { path: 'explore', i18nKey: 'explore' },
-  { path: 'bookmarks', i18nKey: 'bookmarks' },
-  { path: 'profile', i18nKey: 'profile' },
-  { path: 'user-setting', i18nKey: 'userSetting' },
-  { path: 'ai', i18nKey: 'ai' },
+type NavItemKey = 'explore' | 'myPosts' | 'bookmarks' | 'profile' | 'userSetting' | 'ai';
+
+const ALL_NAV_ITEMS: { path: string; i18nKey: NavItemKey; authRequired: boolean }[] = [
+  { path: 'posts', i18nKey: 'myPosts', authRequired: true },
+  { path: 'explore', i18nKey: 'explore', authRequired: false },
+  { path: 'bookmarks', i18nKey: 'bookmarks', authRequired: true },
+  { path: 'profile', i18nKey: 'profile', authRequired: true },
+  { path: 'user-setting', i18nKey: 'userSetting', authRequired: true },
+  { path: 'ai', i18nKey: 'ai', authRequired: true },
 ];
 
 export function Nav() {
@@ -34,12 +35,19 @@ export function Nav() {
   const navigate = useNavigate();
   const { modal } = App.useApp();
   const apolloClient = useApolloClient();
+  const { isAuthenticated } = useAuth();
+  const { guard } = useAuthGuard();
   const { currentUser } = useCurrentUser();
-  const current = pathname.split('/').filter(Boolean)[0] ?? 'posts';
+  const current = pathname.split('/').filter(Boolean)[0] ?? 'explore';
 
-  const navItems = NAV_ITEMS.map(({ path, i18nKey }) => ({
+  const navItems = ALL_NAV_ITEMS.map(({ path, i18nKey, authRequired }) => ({
     key: path,
-    label: <Link to={`/${path}`}>{t(`nav.${i18nKey}`)}</Link>,
+    label:
+      authRequired && !isAuthenticated ? (
+        <a onClick={() => guard(() => navigate(`/${path}`))}>{t(`nav.${i18nKey}`)}</a>
+      ) : (
+        <Link to={`/${path}`}>{t(`nav.${i18nKey}`)}</Link>
+      ),
   }));
 
   const handleLogout = () => {
@@ -129,7 +137,11 @@ export function Nav() {
       />
 
       <Space size={4} align="center" style={{ flexShrink: 0 }}>
-        <Button type="primary" onClick={() => navigate('/posts/new')} style={{ borderRadius: 20 }}>
+        <Button
+          type="primary"
+          onClick={() => guard(() => navigate('/posts/new'))}
+          style={{ borderRadius: 20 }}
+        >
           {t('nav.write')}
         </Button>
 
@@ -154,20 +166,31 @@ export function Nav() {
           style={iconBtnStyle}
           title="GitHub"
         />
-        <NotificationBell />
 
-        <span style={dividerStyle} />
-
-        <Dropdown menu={{ items: userMenuItems }} trigger={['click']} placement="bottomRight">
-          <span className="nav-user-trigger" title={displayName}>
-            <Avatar
-              size={32}
-              src={currentUser?.avatarUrl || undefined}
-              icon={<UserOutlined />}
-              style={{ border: '2px solid rgba(107, 171, 144, 0.3)' }}
-            />
-          </span>
-        </Dropdown>
+        {isAuthenticated ? (
+          <>
+            <NotificationBell />
+            <span style={dividerStyle} />
+            <Dropdown menu={{ items: userMenuItems }} trigger={['click']} placement="bottomRight">
+              <span className="nav-user-trigger" title={displayName}>
+                <Avatar
+                  size={32}
+                  src={currentUser?.avatarUrl || undefined}
+                  icon={<UserOutlined />}
+                  style={{ border: '2px solid rgba(107, 171, 144, 0.3)' }}
+                />
+              </span>
+            </Dropdown>
+          </>
+        ) : (
+          <>
+            <span style={dividerStyle} />
+            <Button type="primary" onClick={() => navigate('/login')}>
+              {t('nav.login')}
+            </Button>
+            <Button onClick={() => navigate('/register')}>{t('nav.register')}</Button>
+          </>
+        )}
       </Space>
     </div>
   );

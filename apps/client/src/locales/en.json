@@ -34,7 +34,9 @@
     "ai": "AI Assistant",
     "reactDemos": "React Demos",
     "write": "Write",
-    "bookmarks": "Bookmarks"
+    "bookmarks": "Bookmarks",
+    "login": "Log in",
+    "register": "Register"
   },
   "auth": {
     "login": {
@@ -67,6 +69,12 @@
       "nickname": "Nickname",
       "nicknamePlaceholder": "Pick a display name (optional)"
     },
+    "loginRequired": "Login Required",
+    "loginRequiredDesc": "You need to sign in to use this feature. Go to login?",
+    "goLogin": "Log in",
+    "goRegister": "Register",
+    "loginToComment": "Sign in to comment",
+    "loginToInteract": "Sign in to like, bookmark, and comment",
     "brandTagline": "Write, Think, Inspire",
     "noAccount": "Don't have an account?",
     "goToRegister": "Register",

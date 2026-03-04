@@ -14,6 +14,7 @@ import dayjs from 'dayjs';
 
 import { UserProfileDocument, PostsDocument, ToggleFollowDocument } from '@/graphql/codegen';
 import { useCurrentUser } from '@/shared/hooks/useCurrentUser';
+import { useAuthGuard } from '@/shared/hooks/useAuthGuard';
 import { getDisplayName } from '@/shared/utils/displayName';
 import type { PostsQuery } from '@/graphql/codegen';
 import type { ReactNode } from 'react';
@@ -75,6 +76,7 @@ export function UserProfilePage() {
   const { t } = useTranslation();
   const { token } = theme.useToken();
   const { currentUser } = useCurrentUser();
+  const { guard, isAuthenticated } = useAuthGuard();
 
   const { data: profileData, loading: profileLoading } = useQuery(UserProfileDocument, {
     variables: { id: id! },
@@ -97,7 +99,7 @@ export function UserProfilePage() {
     refetchQueries: [{ query: UserProfileDocument, variables: { id: id! } }],
   });
 
-  if (id && currentUser?.id === id) {
+  if (id && isAuthenticated && currentUser?.id === id) {
     return <Navigate to="/profile" replace />;
   }
 
@@ -118,7 +120,9 @@ export function UserProfilePage() {
   const displayName = getDisplayName(profile);
 
   const handleToggleFollow = () => {
-    toggleFollow({ variables: { userId: profile.id } });
+    guard(() => {
+      toggleFollow({ variables: { userId: profile.id } });
+    });
   };
 
   return (

@@ -36,7 +36,7 @@ import {
   ToggleBookmarkDocument,
 } from '@/graphql/codegen';
 import { useTranslation } from 'react-i18next';
-import { useCurrentUser } from '@/shared/hooks';
+import { useCurrentUser, useAuthGuard } from '@/shared/hooks';
 import { statusColor } from '@/features/posts/postUtils';
 import { AuthorInfo } from '@/shared/components/AuthorInfo';
 import { CommentSection } from './CommentSection';
@@ -51,6 +51,7 @@ export function PostDetailPage() {
   const navigate = useNavigate();
   const { message } = App.useApp();
   const { currentUser } = useCurrentUser();
+  const { guard } = useAuthGuard();
 
   const { data, loading, error } = useQuery(PostDocument, {
     variables: { id: id ?? '' },
@@ -92,7 +93,8 @@ export function PostDetailPage() {
   const post = data.post;
   const interaction = post.interactionInfo;
   const from = new URLSearchParams(location.search).get('from');
-  const backTarget = from && from.startsWith('/') ? from : '/posts';
+  const defaultBack = currentUser ? '/posts' : '/explore';
+  const backTarget = from && from.startsWith('/') ? from : defaultBack;
   const isAuthor = currentUser?.id === post.author.id;
 
   const handlePublish = async () => {
@@ -116,17 +118,21 @@ export function PostDetailPage() {
     }
   };
 
-  const handleToggleLike = async () => {
-    await toggleLike({
-      variables: { postId: id },
-      refetchQueries: [{ query: PostDocument, variables: { id } }],
+  const handleToggleLike = () => {
+    guard(async () => {
+      await toggleLike({
+        variables: { postId: id },
+        refetchQueries: [{ query: PostDocument, variables: { id } }],
+      });
     });
   };
 
-  const handleToggleBookmark = async () => {
-    await toggleBookmark({
-      variables: { postId: id },
-      refetchQueries: [{ query: PostDocument, variables: { id } }],
+  const handleToggleBookmark = () => {
+    guard(async () => {
+      await toggleBookmark({
+        variables: { postId: id },
+        refetchQueries: [{ query: PostDocument, variables: { id } }],
+      });
     });
   };
 

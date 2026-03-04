@@ -56,20 +56,22 @@ const gqlToServiceSortDirection: Record<GqlSortDirection, 'asc' | 'desc'> = {
 
 export const postResolvers = {
   Query: {
-    post: async (_: unknown, args: QueryPostArgs, context: GraphQLContext) => {
-      requireAuth(context);
+    post: async (_: unknown, args: QueryPostArgs) => {
       const row = await getPostById(args.id);
       if (!row) {
         return null;
       }
       return toGqlPost(row);
     },
-    postNeighbors: async (_: unknown, args: QueryPostNeighborsArgs, context: GraphQLContext) => {
-      requireAuth(context);
+    postNeighbors: async (_: unknown, args: QueryPostNeighborsArgs) => {
       return getPostNeighbors(args.id);
     },
     posts: async (_: unknown, args: QueryPostsArgs, context: GraphQLContext) => {
-      const user = requireAuth(context);
+      let authorId = args.authorId ?? undefined;
+      if (args.mine) {
+        const user = requireAuth(context);
+        authorId = user.id;
+      }
       const rows = await listPosts({
         topic: args.topic ?? undefined,
         subtopic: args.subtopic ?? undefined,
@@ -80,21 +82,25 @@ export const postResolvers = {
           ? gqlToServiceSortDirection[args.sortDirection]
           : undefined,
         mine: args.mine ?? undefined,
-        authorId: args.authorId ?? (args.mine ? user.id : undefined),
+        authorId,
         limit: args.limit ?? 20,
         offset: args.offset ?? 0,
       });
       return rows.map(toGqlPost);
     },
     postsTotal: async (_: unknown, args: QueryPostsTotalArgs, context: GraphQLContext) => {
-      const user = requireAuth(context);
+      let authorId: string | undefined;
+      if (args.mine) {
+        const user = requireAuth(context);
+        authorId = user.id;
+      }
       return countPosts({
         topic: args.topic ?? undefined,
         subtopic: args.subtopic ?? undefined,
         status: args.status ? gqlToPrismaStatus[args.status] : undefined,
         search: args.search ?? undefined,
         mine: args.mine ?? undefined,
-        authorId: args.mine ? user.id : undefined,
+        authorId,
       });
     },
     generationBatch: async (
