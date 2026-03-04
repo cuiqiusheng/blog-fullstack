@@ -30,3 +30,23 @@
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
     monospace;
 }
+
+/* Mobile layout */
+.ai-chat-mobile {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 64px - 24px);
+  gap: 8px;
+}
+
+.ai-chat-mobile__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-chat-mobile__title {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}

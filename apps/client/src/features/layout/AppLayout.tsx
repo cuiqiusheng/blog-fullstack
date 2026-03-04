@@ -1,6 +1,7 @@
 import { Layout } from 'antd';
 import { Nav } from './Nav';
 import { useThemeMode } from '@/shared/hooks/themeMode';
+import { useMobile } from '@/shared/hooks';
 
 const { Header, Content } = Layout;
 
@@ -10,6 +11,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { isDark } = useThemeMode();
+  const isMobile = useMobile();
 
   return (
     <Layout style={{ minHeight: '100vh', background: 'transparent' }}>
@@ -17,7 +19,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         style={{
           display: 'flex',
           alignItems: 'center',
-          padding: '0 24px',
+          padding: isMobile ? '0 12px' : '0 24px',
           background: isDark
             ? 'rgba(15, 20, 18, 0.78)'
             : 'linear-gradient(135deg, rgba(255,255,255,0.82) 0%, rgba(107,171,144,0.08) 100%)',
@@ -34,7 +36,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       >
         <Nav />
       </Header>
-      <Content style={{ padding: 24 }}>{children}</Content>
+      <Content style={{ padding: isMobile ? 12 : 24 }}>{children}</Content>
     </Layout>
   );
 }

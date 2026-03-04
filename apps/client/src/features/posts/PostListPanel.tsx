@@ -4,21 +4,25 @@ import {
   App,
   Button,
   Card,
+  Dropdown,
   Empty,
   Input,
   List,
   Pagination,
-  Popconfirm,
   Select,
   Space,
   Tag,
   Typography,
 } from 'antd';
 import {
+  CalendarOutlined,
+  ClockCircleOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  EllipsisOutlined,
   LikeOutlined,
   MessageOutlined,
-  ClockCircleOutlined,
-  CalendarOutlined,
+  SendOutlined,
 } from '@ant-design/icons';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -35,6 +39,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { AuthorInfo } from '@/shared/components/AuthorInfo';
 import { statusColor } from './postUtils';
+import './postListPanel.css';
 
 const { Text } = Typography;
 
@@ -66,7 +71,7 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const { message } = App.useApp();
+  const { message, modal } = App.useApp();
   const [searchParams, setSearchParams] = useSearchParams();
   const paramPrefix = mode === 'mine' ? 'mine' : 'all';
   const pageKey = `${paramPrefix}Page`;
@@ -383,115 +388,113 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
       </Space>
 
       <List
+        className="post-list-panel"
         loading={loading}
         dataSource={data?.posts ?? []}
         locale={{ emptyText: <Empty description={t('posts.empty')} /> }}
         renderItem={item => {
-          const actions =
+          const actionMenuItems =
             mode === 'mine'
               ? [
-                  <Button
-                    key="edit"
-                    type="link"
-                    size="small"
-                    onClick={() => navigate(`/posts/${item.id}/edit`)}
-                  >
-                    {t('posts.actions.edit')}
-                  </Button>,
+                  {
+                    key: 'edit',
+                    label: t('posts.actions.edit'),
+                    icon: <EditOutlined />,
+                    onClick: () => navigate(`/posts/${item.id}/edit`),
+                  },
                   ...(item.status === PostStatus.Draft
                     ? [
-                        <Button
-                          key="publish"
-                          type="link"
-                          size="small"
-                          onClick={() => handlePublish(item.id)}
-                        >
-                          {t('posts.actions.publish')}
-                        </Button>,
+                        {
+                          key: 'publish',
+                          label: t('posts.actions.publish'),
+                          icon: <SendOutlined />,
+                          onClick: () => handlePublish(item.id),
+                        },
                       ]
                     : []),
-                  <Popconfirm
-                    key="delete"
-                    title={t('posts.actions.deleteConfirm')}
-                    onConfirm={() => handleDelete(item.id)}
-                    okText={t('common.ok')}
-                    cancelText={t('common.cancel')}
-                  >
-                    <Button type="link" size="small" danger>
-                      {t('posts.actions.delete')}
-                    </Button>
-                  </Popconfirm>,
+                  { type: 'divider' as const },
+                  {
+                    key: 'delete',
+                    label: t('posts.actions.delete'),
+                    icon: <DeleteOutlined />,
+                    danger: true,
+                    onClick: () => {
+                      modal.confirm({
+                        title: t('posts.actions.deleteConfirm'),
+                        okText: t('common.ok'),
+                        cancelText: t('common.cancel'),
+                        okButtonProps: { danger: true },
+                        onOk: () => handleDelete(item.id),
+                      });
+                    },
+                  },
                 ]
               : undefined;
 
           return (
-            <List.Item actions={actions}>
-              <List.Item.Meta
-                title={
-                  <Space size={8} wrap>
-                    {item.seriesOrder != null ? (
+            <List.Item>
+              <div className="post-list-item">
+                <div className="post-list-item__header">
+                  <div className="post-list-item__title">
+                    {item.seriesOrder != null && (
                       <Tag color="blue">
                         {t('posts.meta.seriesOrder', { order: item.seriesOrder })}
                       </Tag>
-                    ) : null}
+                    )}
                     <Link
                       to={`/posts/${item.id}?from=${encodeURIComponent(`${location.pathname}${location.search}`)}`}
                     >
                       {item.title}
                     </Link>
-                  </Space>
-                }
-                description={
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <Text type="secondary">{item.excerpt}</Text>
-
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        flexWrap: 'wrap',
-                        gap: 8,
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <AuthorInfo author={item.author} showCard />
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          <CalendarOutlined style={{ marginRight: 4 }} />
-                          {dayjs(item.createdAt).format('YYYY-MM-DD')}
-                        </Text>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          <ClockCircleOutlined style={{ marginRight: 4 }} />
-                          {estimateReadMinutesFromWordCount(item.wordCount ?? 0)}{' '}
-                          {t('posts.meta.minuteUnit')}
-                        </Text>
-                        {item.interactionInfo && (
-                          <>
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                              <LikeOutlined style={{ marginRight: 3 }} />
-                              {item.interactionInfo.likeCount}
-                            </Text>
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                              <MessageOutlined style={{ marginRight: 3 }} />
-                              {item.interactionInfo.commentCount}
-                            </Text>
-                          </>
-                        )}
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Tag color={statusColor(item.status)} style={{ marginInlineEnd: 0 }}>
-                          {t(`posts.status.${item.status.toLowerCase()}`)}
-                        </Tag>
-                        {item.topic ? <Tag style={{ marginInlineEnd: 0 }}>{item.topic}</Tag> : null}
-                        {item.subtopic ? (
-                          <Tag style={{ marginInlineEnd: 0 }}>{item.subtopic}</Tag>
-                        ) : null}
-                      </div>
-                    </div>
                   </div>
-                }
-              />
+                  {actionMenuItems && (
+                    <Dropdown
+                      menu={{ items: actionMenuItems }}
+                      trigger={['click']}
+                      placement="bottomRight"
+                    >
+                      <Button type="text" icon={<EllipsisOutlined />} size="small" />
+                    </Dropdown>
+                  )}
+                </div>
+
+                <div className="post-list-item__excerpt">
+                  <Text type="secondary">{item.excerpt}</Text>
+                </div>
+
+                <div className="post-list-item__tags">
+                  <Tag color={statusColor(item.status)}>
+                    {t(`posts.status.${item.status.toLowerCase()}`)}
+                  </Tag>
+                  {item.topic && <Tag>{item.topic}</Tag>}
+                  {item.subtopic && <Tag>{item.subtopic}</Tag>}
+                </div>
+
+                <div className="post-list-item__meta">
+                  <AuthorInfo author={item.author} showCard />
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    <CalendarOutlined style={{ marginRight: 4 }} />
+                    {dayjs(item.createdAt).format('YYYY-MM-DD')}
+                  </Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    <ClockCircleOutlined style={{ marginRight: 4 }} />
+                    {estimateReadMinutesFromWordCount(item.wordCount ?? 0)}{' '}
+                    {t('posts.meta.minuteUnit')}
+                  </Text>
+                  {item.interactionInfo && (
+                    <>
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        <LikeOutlined style={{ marginRight: 3 }} />
+                        {item.interactionInfo.likeCount}
+                      </Text>
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        <MessageOutlined style={{ marginRight: 3 }} />
+                        {item.interactionInfo.commentCount}
+                      </Text>
+                    </>
+                  )}
+                </div>
+              </div>
             </List.Item>
           );
         }}

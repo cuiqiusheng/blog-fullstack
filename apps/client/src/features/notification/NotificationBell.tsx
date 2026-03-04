@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useMutation, useQuery, useSubscription } from '@apollo/client/react';
-import { Badge, Button, Empty, List, Popover, Space, Typography } from 'antd';
+import { Badge, Button, Drawer, Empty, List, Popover, Space, Typography } from 'antd';
 import {
   BellOutlined,
   LikeOutlined,
@@ -20,6 +21,7 @@ import {
   NotificationReceivedDocument,
   NotificationType,
 } from '@/graphql/codegen';
+import { useMobile } from '@/shared/hooks';
 import { getDisplayName } from '@/shared/utils/displayName';
 import { getNotificationI18nKey, truncateContent } from './notificationUtils';
 
@@ -37,6 +39,8 @@ const NOTIFICATION_ICON: Record<NotificationType, React.ReactNode> = {
 export function NotificationBell() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const isMobile = useMobile();
+  const [open, setOpen] = useState(false);
 
   const { data: countData, refetch: refetchCount } = useQuery(UnreadNotificationCountDocument, {
     fetchPolicy: 'cache-and-network',
@@ -76,6 +80,7 @@ export function NotificationBell() {
       refetchCount();
       refetchList();
     }
+    setOpen(false);
     if (type === NotificationType.Follow) {
       navigate(`/users/${actorId}`);
       return;
@@ -94,80 +99,113 @@ export function NotificationBell() {
 
   const locale = i18n.language === 'zh-CN' ? 'zh-cn' : 'en';
 
-  const content = (
-    <div style={{ width: 320, maxHeight: 400, overflow: 'auto' }}>
-      {unreadCount > 0 && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 4px 8px' }}>
-          <Button type="link" size="small" icon={<CheckOutlined />} onClick={handleMarkAllRead}>
-            {t('notification.markAllRead')}
-          </Button>
-        </div>
-      )}
-      <List
-        loading={loading}
-        dataSource={notifications}
-        locale={{ emptyText: <Empty description={t('notification.empty')} /> }}
-        renderItem={item => {
-          const actorName = getDisplayName(item.actor);
-          const preview = truncateContent(item.commentContent);
-          return (
-            <List.Item
-              style={{
-                cursor: 'pointer',
-                padding: '8px 4px',
-                background: item.read ? 'transparent' : 'rgba(22, 119, 255, 0.04)',
-              }}
-              onClick={() =>
-                handleClickItem(
-                  item.id,
-                  item.read,
-                  item.type,
-                  item.actor.id,
-                  item.postId,
-                  item.commentId,
-                )
-              }
-            >
-              <Space align="start" size={8}>
-                {NOTIFICATION_ICON[item.type]}
-                <div style={{ minWidth: 0 }}>
-                  <Text style={{ fontWeight: item.read ? 400 : 500 }}>
-                    {t(getNotificationI18nKey(item.type, item.postTitle), {
-                      name: actorName,
-                      postTitle: item.postTitle ?? '',
-                    })}
-                  </Text>
-                  {preview && (
-                    <div style={{ marginTop: 2 }}>
-                      <Text type="secondary" style={{ fontSize: 12 }}>
-                        {preview}
-                      </Text>
-                    </div>
-                  )}
-                  <div style={{ marginTop: 2 }}>
-                    <Text type="secondary" style={{ fontSize: 12 }}>
-                      {dayjs(item.createdAt).locale(locale).fromNow()}
-                    </Text>
-                  </div>
-                </div>
-              </Space>
-            </List.Item>
-          );
-        }}
-      />
+  const markAllReadButton = unreadCount > 0 && (
+    <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 4px 8px' }}>
+      <Button type="link" size="small" icon={<CheckOutlined />} onClick={handleMarkAllRead}>
+        {t('notification.markAllRead')}
+      </Button>
     </div>
   );
 
+  const notificationList = (
+    <List
+      loading={loading}
+      dataSource={notifications}
+      locale={{ emptyText: <Empty description={t('notification.empty')} /> }}
+      renderItem={item => {
+        const actorName = getDisplayName(item.actor);
+        const preview = truncateContent(item.commentContent);
+        return (
+          <List.Item
+            style={{
+              cursor: 'pointer',
+              padding: '8px 4px',
+              background: item.read ? 'transparent' : 'rgba(22, 119, 255, 0.04)',
+            }}
+            onClick={() =>
+              handleClickItem(
+                item.id,
+                item.read,
+                item.type,
+                item.actor.id,
+                item.postId,
+                item.commentId,
+              )
+            }
+          >
+            <Space align="start" size={8}>
+              {NOTIFICATION_ICON[item.type]}
+              <div style={{ minWidth: 0 }}>
+                <Text style={{ fontWeight: item.read ? 400 : 500 }}>
+                  {t(getNotificationI18nKey(item.type, item.postTitle), {
+                    name: actorName,
+                    postTitle: item.postTitle ?? '',
+                  })}
+                </Text>
+                {preview && (
+                  <div style={{ marginTop: 2 }}>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      {preview}
+                    </Text>
+                  </div>
+                )}
+                <div style={{ marginTop: 2 }}>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    {dayjs(item.createdAt).locale(locale).fromNow()}
+                  </Text>
+                </div>
+              </div>
+            </Space>
+          </List.Item>
+        );
+      }}
+    />
+  );
+
+  const bellButton = (
+    <Badge count={unreadCount} size="small" offset={[-4, 4]}>
+      <Button
+        type="text"
+        icon={<BellOutlined />}
+        onClick={isMobile ? () => setOpen(true) : undefined}
+        style={{ marginRight: 4 }}
+      />
+    </Badge>
+  );
+
+  if (isMobile) {
+    return (
+      <>
+        {bellButton}
+        <Drawer
+          open={open}
+          onClose={() => setOpen(false)}
+          placement="bottom"
+          height="70vh"
+          title={t('notification.title')}
+        >
+          {markAllReadButton}
+          {notificationList}
+        </Drawer>
+      </>
+    );
+  }
+
   return (
     <Popover
-      content={content}
+      open={open}
+      onOpenChange={setOpen}
+      content={
+        <div style={{ width: 320, maxHeight: 400, overflow: 'auto' }}>
+          {markAllReadButton}
+          {notificationList}
+        </div>
+      }
       title={t('notification.title')}
       trigger="click"
       placement="bottomRight"
     >
-      <Badge count={unreadCount} size="small" offset={[-4, 4]}>
-        <Button type="text" icon={<BellOutlined />} style={{ marginRight: 4 }} />
-      </Badge>
+      {bellButton}
     </Popover>
   );
 }
