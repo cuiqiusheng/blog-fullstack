@@ -15,6 +15,8 @@ interface TopicSidebarProps {
   items: TopicSidebarItem[];
   activeId: string | null;
   actionPendingId: string | null;
+  /** Show outer border and border-radius. Default `true`. Set `false` when rendered inside a Drawer. */
+  bordered?: boolean;
   emptyText: string;
   historyTitle: string;
   newText: string;
@@ -36,6 +38,7 @@ export function TopicSidebar(props: TopicSidebarProps) {
     items,
     activeId,
     actionPendingId,
+    bordered = true,
     emptyText,
     historyTitle,
     newText,
@@ -52,13 +55,12 @@ export function TopicSidebar(props: TopicSidebarProps) {
   return (
     <div
       style={{
-        width: 300,
-        border: '1px solid #f0f0f0',
-        borderRadius: 8,
+        ...(bordered && { border: '1px solid #f0f0f0', borderRadius: 8 }),
         padding: 12,
         display: 'flex',
         flexDirection: 'column',
         gap: 12,
+        height: '100%',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -25,3 +25,13 @@
 .nav-user-info-item {
   pointer-events: none;
 }
+
+.nav-drawer-extra {
+  padding: 12px 16px;
+  margin-top: 8px;
+  border-top: 1px solid rgba(107, 171, 144, 0.15);
+}
+
+[data-theme='dark'] .nav-drawer-extra {
+  border-top-color: rgba(107, 171, 144, 0.25);
+}

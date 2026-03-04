@@ -18,6 +18,8 @@ interface ChatThreadProps {
   viewportRef: React.RefObject<HTMLDivElement | null>;
   userLabel: string;
   assistantLabel: string;
+  /** Wider message bubbles for narrow screens. */
+  compactBubble?: boolean;
 }
 
 export function ChatThread(props: ChatThreadProps) {
@@ -34,6 +36,7 @@ export function ChatThread(props: ChatThreadProps) {
     viewportRef,
     userLabel,
     assistantLabel,
+    compactBubble = false,
   } = props;
 
   const subtitleText = model ? `${subtitle} ${model}` : subtitle;
@@ -82,7 +85,7 @@ export function ChatThread(props: ChatThreadProps) {
               >
                 <div
                   style={{
-                    maxWidth: '80%',
+                    maxWidth: compactBubble ? '92%' : '80%',
                     borderRadius: 12,
                     padding: '8px 12px',
                     background:
