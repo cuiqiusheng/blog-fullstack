@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { App, Button, Card, Empty, Input, List, Typography } from 'antd';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { LoginOutlined } from '@ant-design/icons';
 import {
   CommentsDocument,
   CommentsTotalDocument,
@@ -10,7 +11,7 @@ import {
   PostDocument,
 } from '@/graphql/codegen';
 import { useTranslation } from 'react-i18next';
-import { useCurrentUser } from '@/shared/hooks';
+import { useCurrentUser, useAuth, useAuthGuard } from '@/shared/hooks';
 import { COMMENTS_PAGE_SIZE } from './commentTypes';
 import { CommentItem } from './CommentItem';
 
@@ -24,7 +25,10 @@ interface CommentSectionProps {
 export function CommentSection({ postId }: CommentSectionProps) {
   const { t } = useTranslation();
   const { message } = App.useApp();
+  const { isAuthenticated } = useAuth();
   const { currentUser } = useCurrentUser();
+  const { guard } = useAuthGuard();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const highlightCommentId = searchParams.get('commentId');
   const [commentText, setCommentText] = useState('');
@@ -120,9 +124,17 @@ export function CommentSection({ postId }: CommentSectionProps) {
   };
 
   const handleSetReplyingTo = (commentId: string | null, authorName?: string) => {
-    setReplyingTo(commentId);
-    setReplyText('');
-    setReplyHint(authorName ? t('interaction.replyTo', { name: authorName }) : '');
+    if (commentId === null) {
+      setReplyingTo(null);
+      setReplyText('');
+      setReplyHint('');
+      return;
+    }
+    guard(() => {
+      setReplyingTo(commentId);
+      setReplyText('');
+      setReplyHint(authorName ? t('interaction.replyTo', { name: authorName }) : '');
+    });
   };
 
   return (
@@ -131,25 +143,49 @@ export function CommentSection({ postId }: CommentSectionProps) {
         {t('interaction.comment')} ({commentsTotalData?.commentsTotal ?? 0})
       </Title>
 
-      <div style={{ marginBottom: 16 }}>
-        <TextArea
-          rows={3}
-          value={commentText}
-          onChange={e => setCommentText(e.target.value)}
-          placeholder={t('interaction.commentPlaceholder')}
-          maxLength={2000}
-        />
-        <div style={{ marginTop: 8, display: 'flex', justifyContent: 'flex-end' }}>
+      {isAuthenticated ? (
+        <div style={{ marginBottom: 16 }}>
+          <TextArea
+            rows={3}
+            value={commentText}
+            onChange={e => setCommentText(e.target.value)}
+            placeholder={t('interaction.commentPlaceholder')}
+            maxLength={2000}
+          />
+          <div style={{ marginTop: 8, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              type="primary"
+              onClick={handleSubmitComment}
+              loading={submittingComment}
+              disabled={!commentText.trim()}
+            >
+              {t('interaction.submitComment')}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div
+          style={{
+            marginBottom: 16,
+            padding: '12px 16px',
+            borderRadius: 8,
+            background: 'rgba(107, 171, 144, 0.06)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Typography.Text type="secondary">{t('auth.loginToComment')}</Typography.Text>
           <Button
             type="primary"
-            onClick={handleSubmitComment}
-            loading={submittingComment}
-            disabled={!commentText.trim()}
+            icon={<LoginOutlined />}
+            onClick={() => navigate('/login')}
+            size="small"
           >
-            {t('interaction.submitComment')}
+            {t('auth.goLogin')}
           </Button>
         </div>
-      </div>
+      )}
 
       <List
         loading={commentsLoading}

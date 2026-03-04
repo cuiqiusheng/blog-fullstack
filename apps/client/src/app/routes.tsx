@@ -44,7 +44,7 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 
 function RootRedirect() {
   const { isAuthenticated } = useAuth();
-  return <Navigate to={isAuthenticated ? '/posts' : '/login'} replace />;
+  return <Navigate to={isAuthenticated ? '/posts' : '/explore'} replace />;
 }
 
 function PageFallback() {
@@ -91,11 +91,9 @@ export function AppRoutes() {
         <Route
           path="/explore"
           element={
-            <ProtectedRoute>
-              <AppLayout>
-                <HomePage />
-              </AppLayout>
-            </ProtectedRoute>
+            <AppLayout>
+              <HomePage />
+            </AppLayout>
           }
         />
         <Route
@@ -121,11 +119,9 @@ export function AppRoutes() {
         <Route
           path="/posts/:id"
           element={
-            <ProtectedRoute>
-              <AppLayout>
-                <PostDetailPage />
-              </AppLayout>
-            </ProtectedRoute>
+            <AppLayout>
+              <PostDetailPage />
+            </AppLayout>
           }
         />
         <Route
@@ -151,11 +147,9 @@ export function AppRoutes() {
         <Route
           path="/users/:id"
           element={
-            <ProtectedRoute>
-              <AppLayout>
-                <UserProfilePage />
-              </AppLayout>
-            </ProtectedRoute>
+            <AppLayout>
+              <UserProfilePage />
+            </AppLayout>
           }
         />
         <Route

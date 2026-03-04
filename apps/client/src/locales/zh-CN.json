@@ -34,7 +34,9 @@
     "ai": "AI 助手",
     "reactDemos": "React Demos",
     "write": "写文章",
-    "bookmarks": "我的收藏"
+    "bookmarks": "我的收藏",
+    "login": "登录",
+    "register": "注册"
   },
   "auth": {
     "login": {
@@ -67,6 +69,12 @@
       "nickname": "昵称",
       "nicknamePlaceholder": "给自己取个名字吧（选填）"
     },
+    "loginRequired": "需要登录",
+    "loginRequiredDesc": "此操作需要登录后才能使用，立即前往登录？",
+    "goLogin": "去登录",
+    "goRegister": "去注册",
+    "loginToComment": "登录后参与评论",
+    "loginToInteract": "登录后即可点赞、收藏和评论",
     "brandTagline": "记录思考，分享灵感",
     "noAccount": "没有账号？",
     "goToRegister": "去注册",

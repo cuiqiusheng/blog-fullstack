@@ -12,8 +12,7 @@ import { requireAuth } from '@/utils/permissions';
 
 export const followResolvers = {
   Query: {
-    userProfile: async (_: unknown, args: QueryUserProfileArgs, context: GraphQLContext) => {
-      requireAuth(context);
+    userProfile: async (_: unknown, args: QueryUserProfileArgs) => {
       return getUserProfile(args.id);
     },
     myFollowing: async (_: unknown, args: QueryMyFollowingArgs, context: GraphQLContext) => {
