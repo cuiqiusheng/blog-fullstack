@@ -66,6 +66,8 @@ export function AiChatPageV2() {
         flexDirection: 'column',
         gap: isMobile ? 8 : 16,
         minWidth: 0,
+        minHeight: 0,
+        overflow: 'hidden',
       }}
     >
       <ChatThread
