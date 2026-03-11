@@ -37,6 +37,7 @@
   flex-direction: column;
   height: calc(100dvh - 64px - 24px);
   gap: 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .ai-chat-mobile__toolbar {

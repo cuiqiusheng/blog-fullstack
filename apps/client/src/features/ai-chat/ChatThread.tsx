@@ -49,7 +49,8 @@ export function ChatThread(props: ChatThreadProps) {
         flexDirection: 'column',
         gap: 16,
         minWidth: 0,
-        maxHeight: 'calc(100% - 152px)',
+        minHeight: 0,
+        overflow: 'hidden',
       }}
     >
       <Text type="secondary">{title ? `${title} · ${subtitleText}` : subtitleText}</Text>

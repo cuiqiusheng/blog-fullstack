@@ -24,7 +24,7 @@ export function ChatComposer(props: ChatComposerProps) {
 
   if (compact) {
     return (
-      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexShrink: 0 }}>
         <Input.TextArea
           value={value}
           autoSize={{ minRows: 1, maxRows: 6 }}
@@ -38,7 +38,7 @@ export function ChatComposer(props: ChatComposerProps) {
           icon={<SendOutlined />}
           loading={loading}
           onClick={onSend}
-          style={{ flexShrink: 0 }}
+          style={{ flexShrink: 0, minWidth: 44, minHeight: 44 }}
         />
       </div>
     );
