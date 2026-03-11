@@ -40,6 +40,14 @@ deploy:
     # VITE_GRAPHQL_URI=/graphql：
     #   生产环境前端和后端共用同一域名，Nginx 代理 /graphql 到后端，
     #   不需要开发时的 /api 前缀重写。
+    # 若出现 "Killed"（OOM）：ECS 内存不足。按优先级可采取：
+    #   1) 确保已启用 2GB swap：在 ECS 上执行 scripts/setup-ecs.sh（推荐）
+    #   2) 若实例 ≥3GB 内存，可改为 --max-old-space-size=1536 或 2048
+    #   3) 在 Docker 中构建以隔离内存（宿主机 4GB 时给容器 2.5G 常可避免宿主机 OOM）：
+    #      - docker run --rm -v "$(pwd)":/app -w /app --memory=2.5g -e NODE_OPTIONS=--max-old-space-size=1536 -e VITE_GRAPHQL_URI=/graphql -e CI=true node:20-alpine sh -c "corepack enable pnpm && pnpm install --frozen-lockfile && pnpm --filter @blog-fullstack/client build"
+    #      - 然后下面 rsync 步骤不变（产物在 apps/client/dist）
+    #   4) 升级 ECS 实例（建议构建机至少 2GB 内存，推荐 4GB）
+    #   5) 实验性：改用 Rolldown 构建（client 的 vite 改为 npm:rolldown-vite@latest），内存与速度更优
     - NODE_OPTIONS=--max-old-space-size=1024 VITE_GRAPHQL_URI=/graphql pnpm --filter @blog-fullstack/client build
 
     # ── 部署前端 ──────────────────────────────────────────────────────
