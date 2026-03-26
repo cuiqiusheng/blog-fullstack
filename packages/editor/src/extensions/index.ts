@@ -13,6 +13,7 @@ import TaskItem from '@tiptap/extension-task-item';
 import { Markdown } from 'tiptap-markdown';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { CodeBlockLowlightExtension } from './codeBlockLowlight';
+import { CodeBlockTabIndentExtension } from './codeBlockTabIndent';
 import { SlashCommandExtension, slashCommandItems } from './slashCommand';
 import { createSlashSuggestion } from './slashSuggestion';
 import { ImageUploadStorage } from './imageUploadStorage';
@@ -34,6 +35,7 @@ export function createExtensions(options: ExtensionOptions): Extensions {
       codeBlock: false,
     }),
     CodeBlockLowlightExtension,
+    CodeBlockTabIndentExtension,
     Placeholder.configure({
       placeholder: options.placeholder ?? 'Start writing...',
     }),

@@ -1,3 +1,16 @@
+/** Labels for the floating menu when the cursor is inside a table */
+export interface TableBubbleLabels {
+  /** 表格上下文工具条标题（光标在表格内时显示） */
+  tableContextToolbar?: string;
+  addRowBefore?: string;
+  addRowAfter?: string;
+  addColumnBefore?: string;
+  addColumnAfter?: string;
+  deleteRow?: string;
+  deleteColumn?: string;
+  deleteTable?: string;
+}
+
 export interface ToolbarLabels {
   heading1?: string;
   heading2?: string;
@@ -36,4 +49,6 @@ export interface EditorProps {
   onImageUpload?: (file: File) => Promise<string>;
   /** Localized labels for toolbar button titles */
   toolbarLabels?: ToolbarLabels;
+  /** Localized titles for table row/column actions (bubble menu) */
+  tableBubbleLabels?: TableBubbleLabels;
 }

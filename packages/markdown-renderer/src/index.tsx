@@ -4,6 +4,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import rehypeSlug from 'rehype-slug';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
+import './styles.css';
 
 /**
  * Lazily load the MermaidBlock component to avoid importing the Mermaid library on initial load, preventing slow page loads.
@@ -37,13 +38,24 @@ function CodeBlock(props: JSX.IntrinsicElements['code']) {
   );
 }
 
-export function MarkdownRenderer({ content, className }: MarkdownRendererProps) {
+function TableBlock(props: JSX.IntrinsicElements['table']) {
+  const { children, ...rest } = props;
   return (
-    <div className={className}>
+    <div className="markdown-renderer__table-wrap">
+      <table {...rest}>{children}</table>
+    </div>
+  );
+}
+
+export function MarkdownRenderer({ content, className }: MarkdownRendererProps) {
+  const wrapperClassName = ['markdown-renderer', className].filter(Boolean).join(' ');
+
+  return (
+    <div className={wrapperClassName}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkBreaks]}
         rehypePlugins={[rehypeSlug, rehypeSanitize]}
-        components={{ code: CodeBlock }}
+        components={{ code: CodeBlock, table: TableBlock }}
       >
         {content}
       </ReactMarkdown>
