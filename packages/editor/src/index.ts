@@ -1,2 +1,2 @@
 export { Editor } from './Editor';
-export type { EditorProps, ToolbarLabels } from './types';
+export type { EditorProps, ToolbarLabels, TableBubbleLabels } from './types';

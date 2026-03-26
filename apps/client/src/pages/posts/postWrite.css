@@ -56,11 +56,21 @@
   overflow: clip;
 }
 
-.post-write__editor .editor-toolbar {
+/* Make both the main toolbar and the table context toolbar sticky, so the table toolbar does not scroll out of view in long articles */
+.post-write__editor .editor-chrome-sticky {
   position: sticky;
   top: 121px;
   z-index: 10;
   background: var(--ant-color-bg-layout, #fafafa);
+}
+
+[data-theme='dark'] .post-write__editor .editor-chrome-sticky {
+  background: var(--ant-color-bg-container, #141414);
+}
+
+/* When the table toolbar is present, it assumes responsibility for the separator from the main content, avoiding duplicated separators */
+.post-write__editor .editor-chrome-sticky:has(.editor-table-context-toolbar) .editor-toolbar {
+  border-bottom: none;
 }
 
 .post-write__preview {

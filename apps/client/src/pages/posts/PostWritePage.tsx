@@ -3,7 +3,7 @@ import { Alert, Button, Collapse, Input, Space, Card, App, Spin } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery } from '@apollo/client/react';
-import { Editor, type ToolbarLabels } from '@blog-fullstack/editor';
+import { Editor, type TableBubbleLabels, type ToolbarLabels } from '@blog-fullstack/editor';
 import { MarkdownRenderer } from '@blog-fullstack/markdown-renderer';
 import { uploadImage } from '@/lib/upload';
 import {
@@ -45,6 +45,17 @@ export function PostWritePage() {
     insertTable: t('editor.insertTable'),
     undo: t('editor.undo'),
     redo: t('editor.redo'),
+  };
+
+  const tableBubbleLabels: TableBubbleLabels = {
+    tableContextToolbar: t('editor.tableContextToolbar'),
+    addRowBefore: t('editor.tableAddRowBefore'),
+    addRowAfter: t('editor.tableAddRowAfter'),
+    addColumnBefore: t('editor.tableAddColumnBefore'),
+    addColumnAfter: t('editor.tableAddColumnAfter'),
+    deleteRow: t('editor.tableDeleteRow'),
+    deleteColumn: t('editor.tableDeleteColumn'),
+    deleteTable: t('editor.tableDeleteTable'),
   };
 
   const { data: postData, loading: postLoading } = useQuery(PostDocument, {
@@ -253,6 +264,7 @@ export function PostWritePage() {
           onImageUpload={uploadImage}
           placeholder={t('posts.write.editorPlaceholder')}
           toolbarLabels={toolbarLabels}
+          tableBubbleLabels={tableBubbleLabels}
         />
       </div>
 

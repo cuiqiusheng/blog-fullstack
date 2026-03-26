@@ -4,6 +4,7 @@ import { useRef, useCallback, useState, useEffect } from 'react';
 import { createExtensions } from './extensions';
 import { Toolbar } from './components/Toolbar';
 import { LinkBubbleMenu } from './components/LinkBubbleMenu';
+import { TableBubbleMenu } from './components/TableBubbleMenu';
 import { DragHandle } from './components/DragHandle';
 import { ImageUploadModal } from './components/ImageUploadModal';
 import type { EditorProps } from './types';
@@ -19,6 +20,7 @@ export function Editor({
   autofocus = false,
   onImageUpload,
   toolbarLabels,
+  tableBubbleLabels,
 }: EditorProps) {
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
@@ -66,7 +68,12 @@ export function Editor({
 
   return (
     <div className={wrapperClass}>
-      {editable && <Toolbar editor={editor} onImageUpload={onImageUpload} labels={toolbarLabels} />}
+      {editable && (
+        <div className="editor-chrome-sticky">
+          <Toolbar editor={editor} onImageUpload={onImageUpload} labels={toolbarLabels} />
+          {editor && <TableBubbleMenu editor={editor} labels={tableBubbleLabels} />}
+        </div>
+      )}
       {editor && editable && <LinkBubbleMenu editor={editor} />}
       <div className="editor-content-area">
         {editor && editable && <DragHandle editor={editor} />}
