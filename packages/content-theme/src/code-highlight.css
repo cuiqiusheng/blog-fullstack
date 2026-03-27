@@ -1,0 +1,127 @@
+.content-theme-host {
+  --content-hljs-bg: #f6f8fa;
+  --content-hljs-fg: #24292e;
+  --content-hljs-keyword: #d73a49;
+  --content-hljs-title: #6f42c1;
+  --content-hljs-constant: #005cc5;
+  --content-hljs-string: #032f62;
+  --content-hljs-symbol: #e36209;
+  --content-hljs-comment: #6a737d;
+  --content-hljs-name: #22863a;
+  --content-hljs-subst: #24292e;
+  --content-hljs-section: #005cc5;
+  --content-hljs-bullet: #735c0f;
+  --content-hljs-addition: #1a7f37;
+  --content-hljs-addition-bg: #dafbe1;
+  --content-hljs-deletion: #cf222e;
+  --content-hljs-deletion-bg: #ffebe9;
+}
+
+[data-theme='dark'] .content-theme-host {
+  --content-hljs-bg: #0d1117;
+  --content-hljs-fg: #c9d1d9;
+  --content-hljs-keyword: #ff7b72;
+  --content-hljs-title: #d2a8ff;
+  --content-hljs-constant: #79c0ff;
+  --content-hljs-string: #a5d6ff;
+  --content-hljs-symbol: #ffa657;
+  --content-hljs-comment: #8b949e;
+  --content-hljs-name: #7ee787;
+  --content-hljs-subst: #c9d1d9;
+  --content-hljs-section: #1f6feb;
+  --content-hljs-bullet: #f2cc60;
+  --content-hljs-addition: #aff5b4;
+  --content-hljs-addition-bg: #033a16;
+  --content-hljs-deletion: #ffdcd7;
+  --content-hljs-deletion-bg: #67060c;
+}
+
+.content-theme-host .hljs {
+  color: var(--content-hljs-fg);
+  background: var(--content-hljs-bg);
+}
+
+.content-theme-host .hljs-doctag,
+.content-theme-host .hljs-keyword,
+.content-theme-host .hljs-meta .hljs-keyword,
+.content-theme-host .hljs-template-tag,
+.content-theme-host .hljs-template-variable,
+.content-theme-host .hljs-type,
+.content-theme-host .hljs-variable.language_ {
+  color: var(--content-hljs-keyword);
+}
+
+.content-theme-host .hljs-title,
+.content-theme-host .hljs-title.class_,
+.content-theme-host .hljs-title.class_.inherited__,
+.content-theme-host .hljs-title.function_ {
+  color: var(--content-hljs-title);
+}
+
+.content-theme-host .hljs-attr,
+.content-theme-host .hljs-attribute,
+.content-theme-host .hljs-literal,
+.content-theme-host .hljs-meta,
+.content-theme-host .hljs-number,
+.content-theme-host .hljs-operator,
+.content-theme-host .hljs-variable,
+.content-theme-host .hljs-selector-attr,
+.content-theme-host .hljs-selector-class,
+.content-theme-host .hljs-selector-id {
+  color: var(--content-hljs-constant);
+}
+
+.content-theme-host .hljs-regexp,
+.content-theme-host .hljs-string,
+.content-theme-host .hljs-meta .hljs-string {
+  color: var(--content-hljs-string);
+}
+
+.content-theme-host .hljs-built_in,
+.content-theme-host .hljs-symbol {
+  color: var(--content-hljs-symbol);
+}
+
+.content-theme-host .hljs-comment,
+.content-theme-host .hljs-code,
+.content-theme-host .hljs-formula {
+  color: var(--content-hljs-comment);
+}
+
+.content-theme-host .hljs-name,
+.content-theme-host .hljs-quote,
+.content-theme-host .hljs-selector-tag,
+.content-theme-host .hljs-selector-pseudo {
+  color: var(--content-hljs-name);
+}
+
+.content-theme-host .hljs-subst {
+  color: var(--content-hljs-subst);
+}
+
+.content-theme-host .hljs-section {
+  color: var(--content-hljs-section);
+  font-weight: 600;
+}
+
+.content-theme-host .hljs-bullet {
+  color: var(--content-hljs-bullet);
+}
+
+.content-theme-host .hljs-addition {
+  color: var(--content-hljs-addition);
+  background-color: var(--content-hljs-addition-bg);
+}
+
+.content-theme-host .hljs-deletion {
+  color: var(--content-hljs-deletion);
+  background-color: var(--content-hljs-deletion-bg);
+}
+
+.content-theme-host .hljs-emphasis {
+  font-style: italic;
+}
+
+.content-theme-host .hljs-strong {
+  font-weight: 700;
+}

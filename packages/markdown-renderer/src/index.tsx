@@ -1,5 +1,7 @@
+import '@blog-fullstack/content-theme/code-highlight.css';
 import { type JSX, lazy, Suspense } from 'react';
 import ReactMarkdown from 'react-markdown';
+import rehypeHighlight from 'rehype-highlight';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeSlug from 'rehype-slug';
 import remarkBreaks from 'remark-breaks';
@@ -48,13 +50,25 @@ function TableBlock(props: JSX.IntrinsicElements['table']) {
 }
 
 export function MarkdownRenderer({ content, className }: MarkdownRendererProps) {
-  const wrapperClassName = ['markdown-renderer', className].filter(Boolean).join(' ');
+  const wrapperClassName = ['markdown-renderer', 'content-theme-host', className]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div className={wrapperClassName}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkBreaks]}
-        rehypePlugins={[rehypeSlug, rehypeSanitize]}
+        rehypePlugins={[
+          rehypeSlug,
+          rehypeSanitize,
+          [
+            rehypeHighlight,
+            {
+              /** 不交给 lowlight 解析，仍由下方 CodeBlock 走 Mermaid 渲染 */
+              plainText: ['mermaid'],
+            },
+          ],
+        ]}
         components={{ code: CodeBlock, table: TableBlock }}
       >
         {content}

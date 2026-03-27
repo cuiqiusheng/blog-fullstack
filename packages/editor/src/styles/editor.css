@@ -18,6 +18,26 @@
   transition: border-color 0.2s;
 }
 
+/* Override shared highlight variables: editor code blocks have a fixed dark background. */
+.editor-wrapper.content-theme-host {
+  --content-hljs-bg: transparent;
+  --content-hljs-fg: #e6edf3;
+  --content-hljs-keyword: #ff7b72;
+  --content-hljs-title: #d2a8ff;
+  --content-hljs-constant: #79c0ff;
+  --content-hljs-string: #a5d6ff;
+  --content-hljs-symbol: #ffa657;
+  --content-hljs-comment: #8b949e;
+  --content-hljs-name: #7ee787;
+  --content-hljs-subst: #c9d1d9;
+  --content-hljs-section: #1f6feb;
+  --content-hljs-bullet: #f2cc60;
+  --content-hljs-addition: #aff5b4;
+  --content-hljs-addition-bg: #033a16;
+  --content-hljs-deletion: #ffdcd7;
+  --content-hljs-deletion-bg: #67060c;
+}
+
 .editor-wrapper:focus-within {
   border-color: var(--ant-color-primary, #1677ff);
   box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
@@ -28,7 +48,7 @@
   box-shadow: none;
 }
 
-/* ── Sticky chrome（主工具栏 + 可选表格条；top 由页面如 post-write 覆盖） ── */
+/* ── Sticky chrome (main toolbar + optional table bar; the top value can be overridden by pages such as post-write) ── */
 
 .editor-chrome-sticky {
   position: sticky;

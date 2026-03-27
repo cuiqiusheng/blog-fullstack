@@ -1,3 +1,4 @@
+import '@blog-fullstack/content-theme/code-highlight.css';
 import { useEditor, EditorContent } from '@tiptap/react';
 import type { Editor as TiptapEditor } from '@tiptap/core';
 import { useRef, useCallback, useState, useEffect } from 'react';
@@ -62,7 +63,12 @@ export function Editor({
     [editor],
   );
 
-  const wrapperClass = ['editor-wrapper', !editable && 'is-readonly', className]
+  const wrapperClass = [
+    'editor-wrapper',
+    'content-theme-host',
+    !editable && 'is-readonly',
+    className,
+  ]
     .filter(Boolean)
     .join(' ');
 

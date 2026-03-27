@@ -1,0 +1,10 @@
+{
+  "name": "@blog-fullstack/content-theme",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/code-highlight.css",
+  "exports": {
+    "./code-highlight.css": "./src/code-highlight.css"
+  }
+}

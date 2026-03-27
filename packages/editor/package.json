@@ -6,6 +6,7 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "dependencies": {
+    "@blog-fullstack/content-theme": "workspace:*",
     "@tiptap/core": "^2.12.0",
     "@tiptap/extension-code-block-lowlight": "^2.12.0",
     "@tiptap/extension-image": "^2.12.0",
