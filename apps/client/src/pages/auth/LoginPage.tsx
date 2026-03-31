@@ -1,6 +1,7 @@
+import { useLayoutEffect, useState } from 'react';
 import { useMutation } from '@apollo/client/react';
 import { Form, Input, Button, Card, Alert, Typography, Dropdown } from 'antd';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LoginDocument, type LoginMutation } from '@/graphql/codegen';
 import { setToken } from '@/lib/auth';
@@ -19,6 +20,17 @@ export function LoginPage() {
   const { t, i18n } = useTranslation();
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [sessionExpiredNotice, setSessionExpiredNotice] = useState(
+    () => (location.state as { reason?: string } | null | undefined)?.reason === 'session_expired',
+  );
+
+  useLayoutEffect(() => {
+    const state = location.state as { reason?: string } | null | undefined;
+    if (state?.reason === 'session_expired') {
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.pathname, location.state, navigate]);
   const [login, { loading, error }] = useMutation(LoginDocument, {
     onCompleted: (data: LoginMutation) => {
       if (data?.login?.token) {
@@ -79,6 +91,16 @@ export function LoginPage() {
           <Text type="secondary" style={{ display: 'block', marginBottom: 24 }}>
             {t('auth.login.subtitle')}
           </Text>
+          {sessionExpiredNotice && (
+            <Alert
+              type="warning"
+              message={t('auth.sessionExpired')}
+              showIcon
+              closable
+              onClose={() => setSessionExpiredNotice(false)}
+              style={{ marginBottom: 16 }}
+            />
+          )}
           {error && (
             <Alert type="error" message={error.message} showIcon style={{ marginBottom: 16 }} />
           )}

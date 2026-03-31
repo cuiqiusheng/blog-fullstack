@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import { startServer } from './app';
 import { startArticleGenerationScheduler } from './service';
 import { logger } from './utils/logger';

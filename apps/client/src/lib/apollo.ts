@@ -4,6 +4,7 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { createClient } from 'graphql-ws';
 import { getToken } from './auth';
+import { createSessionErrorLink } from './apolloErrorLink';
 
 const graphqlUri = import.meta.env.VITE_GRAPHQL_URI ?? '/api/graphql';
 
@@ -31,6 +32,7 @@ const authLink = new SetContextLink(prevContext => {
 });
 
 const httpLink = new HttpLink({ uri: graphqlUri });
+// `connectionParams` runs on connect/reconnect; after logout or session invalidation the token is empty.
 const wsLink = new GraphQLWsLink(
   createClient({
     url: resolveWsUri(graphqlUri),
@@ -41,16 +43,23 @@ const wsLink = new GraphQLWsLink(
   }),
 );
 
+const httpChain = authLink.concat(httpLink);
+
 const splitLink = ApolloLink.split(
   ({ query }) => {
     const definition = getMainDefinition(query);
     return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
   },
   wsLink,
-  authLink.concat(httpLink),
+  httpChain,
 );
 
+const apolloClientRef: { current: ApolloClient | null } = { current: null };
+const sessionErrorLink = createSessionErrorLink(() => apolloClientRef.current!);
+
 export const apolloClient = new ApolloClient({
-  link: splitLink,
+  link: sessionErrorLink.concat(splitLink),
   cache: new InMemoryCache(),
 });
+
+apolloClientRef.current = apolloClient;

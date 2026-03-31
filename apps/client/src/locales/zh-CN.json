@@ -87,7 +87,8 @@
     "noAccount": "没有账号？",
     "goToRegister": "去注册",
     "hasAccount": "已有账号？",
-    "goToLogin": "去登录"
+    "goToLogin": "去登录",
+    "sessionExpired": "登录已过期，请重新登录。"
   },
   "explore": {
     "title": "广场"

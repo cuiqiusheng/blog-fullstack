@@ -3,6 +3,7 @@ import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
 import { useTranslation } from 'react-i18next';
 import { AppRoutes } from './routes';
+import { SessionInvalidatedNavigation } from './SessionInvalidatedNavigation';
 import { getAppTheme } from './theme';
 import { ThemeModeProvider, useThemeMode } from '@/shared/hooks/themeMode';
 
@@ -19,6 +20,7 @@ function AppInner() {
   return (
     <ConfigProvider theme={getAppTheme(isDark)} locale={locale}>
       <AntdApp>
+        <SessionInvalidatedNavigation />
         <AppRoutes />
       </AntdApp>
     </ConfigProvider>
