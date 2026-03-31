@@ -1,9 +1,12 @@
 import { useQuery } from '@apollo/client/react';
 import { MeDocument } from '@/graphql/codegen';
+import { useAuth } from './useAuth';
 
 export function useCurrentUser() {
+  const { isAuthenticated } = useAuth();
   const { data, loading } = useQuery(MeDocument, {
-    fetchPolicy: 'cache-first',
+    skip: !isAuthenticated,
+    fetchPolicy: 'cache-and-network',
   });
 
   return {

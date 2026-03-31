@@ -87,7 +87,8 @@
     "noAccount": "Don't have an account?",
     "goToRegister": "Register",
     "hasAccount": "Already have an account?",
-    "goToLogin": "Log in"
+    "goToLogin": "Log in",
+    "sessionExpired": "Your session expired. Please sign in again."
   },
   "explore": {
     "title": "Explore"
