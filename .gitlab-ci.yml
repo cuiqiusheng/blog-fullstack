@@ -54,7 +54,9 @@ deploy:
     # rsync 只传输变更的文件，比 cp 更高效。
     #   -a : archive（递归 + 保留权限/时间戳）
     #   --delete : 删除目标目录中源没有的文件，保持完全一致
-    - rsync -av --delete apps/client/dist/ /var/www/blog/
+    #   --exclude .well-known/ : 保留 Nginx/Certbot 的 ACME 校验目录；该目录常为 root
+    #   所有且不在前端构建产物中，若被 --delete 尝试清除会因权限失败导致 rsync 退出码 23
+    - rsync -av --delete --exclude='.well-known/' apps/client/dist/ /var/www/blog/
 
     # ── 数据库备份 + 迁移 + 后端部署 ─────────────────────────────────────
     # 1. 复制 .env 到 deploy/，并导出环境变量（供 Prisma migrate 使用）
