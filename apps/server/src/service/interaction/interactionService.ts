@@ -1,6 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { prisma } from '../../lib/prisma';
-import { NotificationType } from '@/generated/prisma/client';
+import { NotificationType, PostVisibility } from '@/generated/prisma/client';
+import { assertPostVisibleToViewer, canViewerReadPost } from '../post/postVisibility';
 import { postAuthorInclude } from '../post/postSelect';
 import { createNotification } from '../notification';
 
@@ -58,6 +59,7 @@ export async function getPostInteractionInfo(postId: string, userId: string | nu
 }
 
 export async function toggleLike(userId: string, postId: string) {
+  await assertPostVisibleToViewer(postId, userId);
   const existing = await prisma.postLike.findUnique({
     where: { userId_postId: { userId, postId } },
   });
@@ -83,6 +85,7 @@ export async function toggleLike(userId: string, postId: string) {
 }
 
 export async function toggleBookmark(userId: string, postId: string) {
+  await assertPostVisibleToViewer(postId, userId);
   const existing = await prisma.postBookmark.findUnique({
     where: { userId_postId: { userId, postId } },
   });
@@ -94,7 +97,15 @@ export async function toggleBookmark(userId: string, postId: string) {
   return getPostInteractionInfo(postId, userId);
 }
 
-export async function getComments(postId: string, limit = 20, offset = 0) {
+export async function getComments(
+  postId: string,
+  limit = 20,
+  offset = 0,
+  viewerUserId: string | null = null,
+) {
+  if (!(await canViewerReadPost(postId, viewerUserId))) {
+    return [];
+  }
   const rows = await prisma.postComment.findMany({
     where: { postId, parentId: null },
     orderBy: { createdAt: 'desc' },
@@ -117,11 +128,26 @@ export async function getComments(postId: string, limit = 20, offset = 0) {
   }));
 }
 
-export async function getCommentsTotal(postId: string) {
+export async function getCommentsTotal(postId: string, viewerUserId: string | null = null) {
+  if (!(await canViewerReadPost(postId, viewerUserId))) {
+    return 0;
+  }
   return prisma.postComment.count({ where: { postId, parentId: null } });
 }
 
-export async function getCommentReplies(commentId: string, limit = 20, offset = 0) {
+export async function getCommentReplies(
+  commentId: string,
+  limit = 20,
+  offset = 0,
+  viewerUserId: string | null = null,
+) {
+  const parentMeta = await prisma.postComment.findUnique({
+    where: { id: commentId },
+    select: { postId: true },
+  });
+  if (!parentMeta || !(await canViewerReadPost(parentMeta.postId, viewerUserId))) {
+    return [];
+  }
   const rows = await prisma.postComment.findMany({
     where: { parentId: commentId },
     orderBy: { createdAt: 'asc' },
@@ -142,6 +168,7 @@ export async function createComment(
   content: string,
   parentId?: string | null,
 ) {
+  await assertPostVisibleToViewer(postId, userId);
   let resolvedParentId = parentId ?? null;
 
   if (resolvedParentId) {
@@ -211,6 +238,7 @@ export async function deleteComment(commentId: string, userId: string) {
   if (!comment) {
     throw new GraphQLError('Comment not found', { extensions: { code: 'NOT_FOUND' } });
   }
+  await assertPostVisibleToViewer(comment.postId, userId);
   if (comment.userId !== userId) {
     throw new GraphQLError('Not authorized', { extensions: { code: 'FORBIDDEN' } });
   }
@@ -218,9 +246,19 @@ export async function deleteComment(commentId: string, userId: string) {
   return true;
 }
 
+const bookmarkPostReadableWhere = (bookmarkOwnerId: string) => ({
+  OR: [
+    { visibility: PostVisibility.PUBLIC },
+    { AND: [{ visibility: PostVisibility.PRIVATE }, { authorId: bookmarkOwnerId }] },
+  ],
+});
+
 export async function getMyBookmarks(userId: string, limit = 20, offset = 0) {
   const rows = await prisma.postBookmark.findMany({
-    where: { userId },
+    where: {
+      userId,
+      post: bookmarkPostReadableWhere(userId),
+    },
     orderBy: { createdAt: 'desc' },
     take: limit,
     skip: offset,
@@ -230,7 +268,9 @@ export async function getMyBookmarks(userId: string, limit = 20, offset = 0) {
 }
 
 export async function getMyBookmarksTotal(userId: string) {
-  return prisma.postBookmark.count({ where: { userId } });
+  return prisma.postBookmark.count({
+    where: { userId, post: bookmarkPostReadableWhere(userId) },
+  });
 }
 
 export async function getUserInteractionStats(userId: string) {

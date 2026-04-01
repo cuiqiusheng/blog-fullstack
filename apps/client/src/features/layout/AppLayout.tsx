@@ -2,8 +2,9 @@ import { Layout } from 'antd';
 import { Nav } from './Nav';
 import { useThemeMode } from '@/shared/hooks/themeMode';
 import { useMobile } from '@/shared/hooks';
+import './appLayout.css';
 
-const { Header, Content } = Layout;
+const { Header, Content, Footer } = Layout;
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -37,6 +38,16 @@ export function AppLayout({ children }: AppLayoutProps) {
         <Nav />
       </Header>
       <Content style={{ padding: isMobile ? 12 : 24 }}>{children}</Content>
+      <Footer className="app-footer">
+        <a
+          className="app-footer__beian"
+          href="https://beian.mps.gov.cn/#/query/webSearch?code=11010502059621"
+          rel="noreferrer"
+          target="_blank"
+        >
+          京公网安备11010502059621号
+        </a>
+      </Footer>
     </Layout>
   );
 }

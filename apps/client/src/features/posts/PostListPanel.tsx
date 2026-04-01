@@ -33,6 +33,7 @@ import {
   PostsTotalDocument,
   PostStatus,
   PostSortField,
+  PostVisibility,
   SortDirection,
   UpdatePostDocument,
 } from '@/graphql/codegen';
@@ -440,6 +441,9 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
                       <Tag color="blue">
                         {t('posts.meta.seriesOrder', { order: item.seriesOrder })}
                       </Tag>
+                    )}
+                    {item.visibility === PostVisibility.Private && (
+                      <Tag color="gold">{t('posts.privateBadge')}</Tag>
                     )}
                     <Link
                       to={`/posts/${item.id}?from=${encodeURIComponent(`${location.pathname}${location.search}`)}`}

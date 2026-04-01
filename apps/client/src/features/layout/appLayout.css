@@ -1,0 +1,29 @@
+.app-footer {
+  padding: 10px 16px 14px;
+  text-align: center;
+  background: transparent;
+}
+
+.app-footer__beian {
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(27, 43, 34, 0.5);
+  text-decoration: none;
+  letter-spacing: 0.1px;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.app-footer__beian:hover {
+  color: rgba(27, 43, 34, 0.72);
+}
+
+[data-theme='dark'] .app-footer__beian {
+  color: rgba(216, 232, 223, 0.5);
+}
+
+[data-theme='dark'] .app-footer__beian:hover {
+  color: rgba(216, 232, 223, 0.72);
+}

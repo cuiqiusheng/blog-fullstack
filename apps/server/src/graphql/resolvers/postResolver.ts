@@ -26,6 +26,7 @@ import {
   type QueryPostsArgs,
   type QueryPostsTotalArgs,
 } from '../__generated__/types';
+import { PostVisibility as PrismaPostVisibility } from '@/generated/prisma/client';
 import type { GraphQLContext } from '@/types/context';
 import { requireAuth } from '@/utils/permissions';
 import { gqlToPrismaStatus, toGqlPost } from './postMapper';
@@ -56,15 +57,23 @@ const gqlToServiceSortDirection: Record<GqlSortDirection, 'asc' | 'desc'> = {
 
 export const postResolvers = {
   Query: {
-    post: async (_: unknown, args: QueryPostArgs) => {
+    post: async (_: unknown, args: QueryPostArgs, context: GraphQLContext) => {
       const row = await getPostById(args.id);
       if (!row) {
         return null;
       }
+      const viewerId = context.user?.id ?? null;
+      if (row.visibility === PrismaPostVisibility.PRIVATE && row.authorId !== viewerId) {
+        return null;
+      }
       return toGqlPost(row);
     },
-    postNeighbors: async (_: unknown, args: QueryPostNeighborsArgs) => {
-      return getPostNeighbors(args.id);
+    postNeighbors: async (_: unknown, args: QueryPostNeighborsArgs, context: GraphQLContext) => {
+      const { prev, next } = await getPostNeighbors(args.id, context.user?.id ?? null);
+      return {
+        prev: prev ? toGqlPost(prev) : null,
+        next: next ? toGqlPost(next) : null,
+      };
     },
     posts: async (_: unknown, args: QueryPostsArgs, context: GraphQLContext) => {
       let authorId = args.authorId ?? undefined;
@@ -83,6 +92,7 @@ export const postResolvers = {
           : undefined,
         mine: args.mine ?? undefined,
         authorId,
+        viewerUserId: context.user?.id ?? null,
         limit: args.limit ?? 20,
         offset: args.offset ?? 0,
       });
@@ -101,6 +111,7 @@ export const postResolvers = {
         search: args.search ?? undefined,
         mine: args.mine ?? undefined,
         authorId,
+        viewerUserId: context.user?.id ?? null,
       });
     },
     generationBatch: async (

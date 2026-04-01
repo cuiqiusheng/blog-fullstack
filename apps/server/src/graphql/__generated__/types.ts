@@ -140,6 +140,7 @@ export type CreatePostInput = {
   subtopic?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
   topic?: InputMaybe<Scalars['String']['input']>;
+  visibility?: InputMaybe<PostVisibility>;
 };
 
 export type FollowInfo = {
@@ -353,6 +354,7 @@ export type Post = {
   title: Scalars['String']['output'];
   topic?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['String']['output'];
+  visibility: PostVisibility;
   wordCount?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -381,6 +383,11 @@ export enum PostStatus {
   Archived = 'ARCHIVED',
   Draft = 'DRAFT',
   Published = 'PUBLISHED',
+}
+
+export enum PostVisibility {
+  Private = 'PRIVATE',
+  Public = 'PUBLIC',
 }
 
 export type Query = {
@@ -540,6 +547,7 @@ export type UpdatePostInput = {
   subtopic?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   topic?: InputMaybe<Scalars['String']['input']>;
+  visibility?: InputMaybe<PostVisibility>;
 };
 
 export type User = {
@@ -674,6 +682,7 @@ export type ResolversTypes = ResolversObject<{
   PostNeighbors: ResolverTypeWrapper<PostNeighborsParent>;
   PostSortField: PostSortField;
   PostStatus: PostStatus;
+  PostVisibility: PostVisibility;
   Query: ResolverTypeWrapper<{}>;
   Role: ResolverTypeWrapper<Role>;
   SendChatMessagePayload: ResolverTypeWrapper<SendChatMessagePayload>;
@@ -1046,6 +1055,7 @@ export type PostResolvers<
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   topic?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  visibility?: Resolver<ResolversTypes['PostVisibility'], ParentType, ContextType>;
   wordCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

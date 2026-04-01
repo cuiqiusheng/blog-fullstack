@@ -4,6 +4,11 @@ enum PostStatus {
   ARCHIVED
 }
 
+enum PostVisibility {
+  PUBLIC
+  PRIVATE
+}
+
 enum PostSortField {
   CREATED_AT
   UPDATED_AT
@@ -25,6 +30,7 @@ type Post {
   seriesKey: String
   seriesOrder: Int
   status: PostStatus!
+  visibility: PostVisibility!
   publishedAt: String
   source: String
   wordCount: Int
@@ -109,6 +115,7 @@ input CreatePostInput {
   topic: String
   subtopic: String
   status: PostStatus
+  visibility: PostVisibility
 }
 
 input UpdatePostInput {
@@ -117,6 +124,7 @@ input UpdatePostInput {
   topic: String
   subtopic: String
   status: PostStatus
+  visibility: PostVisibility
 }
 
 extend type Mutation {

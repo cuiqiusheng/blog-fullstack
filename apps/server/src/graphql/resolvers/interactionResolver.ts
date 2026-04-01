@@ -26,14 +26,19 @@ import type {
 
 export const interactionResolvers = {
   Query: {
-    comments: async (_: unknown, args: QueryCommentsArgs) => {
-      return getComments(args.postId, args.limit ?? 20, args.offset ?? 0);
+    comments: async (_: unknown, args: QueryCommentsArgs, context: GraphQLContext) => {
+      return getComments(args.postId, args.limit ?? 20, args.offset ?? 0, context.user?.id ?? null);
     },
-    commentsTotal: async (_: unknown, args: QueryCommentsTotalArgs) => {
-      return getCommentsTotal(args.postId);
+    commentsTotal: async (_: unknown, args: QueryCommentsTotalArgs, context: GraphQLContext) => {
+      return getCommentsTotal(args.postId, context.user?.id ?? null);
     },
-    commentReplies: async (_: unknown, args: QueryCommentRepliesArgs) => {
-      return getCommentReplies(args.commentId, args.limit ?? 20, args.offset ?? 0);
+    commentReplies: async (_: unknown, args: QueryCommentRepliesArgs, context: GraphQLContext) => {
+      return getCommentReplies(
+        args.commentId,
+        args.limit ?? 20,
+        args.offset ?? 0,
+        context.user?.id ?? null,
+      );
     },
     myBookmarks: async (_: unknown, args: QueryMyBookmarksArgs, context: GraphQLContext) => {
       const user = requireAuth(context);

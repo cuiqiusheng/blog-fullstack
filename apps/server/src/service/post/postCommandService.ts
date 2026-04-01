@@ -1,4 +1,4 @@
-import { PostStatus } from '@/generated/prisma/client';
+import { PostStatus, PostVisibility } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 import { postAuthorInclude } from './postSelect';
 import {
@@ -15,6 +15,8 @@ function countWords(text: string): number {
 export async function createPost(authorId: string, input: CreatePostInput) {
   const validated = validateCreatePostInput(input);
   const status = validated.status === 'PUBLISHED' ? PostStatus.PUBLISHED : PostStatus.DRAFT;
+  const visibility =
+    validated.visibility === 'PRIVATE' ? PostVisibility.PRIVATE : PostVisibility.PUBLIC;
   const wordCount = countWords(validated.content);
 
   return prisma.post.create({
@@ -24,6 +26,7 @@ export async function createPost(authorId: string, input: CreatePostInput) {
       topic: validated.topic,
       subtopic: validated.subtopic,
       status,
+      visibility,
       wordCount,
       publishedAt: status === PostStatus.PUBLISHED ? new Date() : null,
       authorId,
@@ -61,6 +64,15 @@ export async function updatePost(id: string, authorId: string, input: UpdatePost
     if (isPublishing && !existing.publishedAt) {
       data.publishedAt = new Date();
     }
+  }
+
+  if (validated.visibility !== undefined) {
+    const nextVis =
+      validated.visibility === 'PRIVATE' ? PostVisibility.PRIVATE : PostVisibility.PUBLIC;
+    if (existing.visibility === PostVisibility.PUBLIC && nextVis === PostVisibility.PRIVATE) {
+      throw new Error('Cannot change a public post to private');
+    }
+    data.visibility = nextVis;
   }
 
   return prisma.post.update({

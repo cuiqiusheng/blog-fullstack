@@ -31,6 +31,7 @@ import {
   PostsDocument,
   PostsTotalDocument,
   PostStatus,
+  PostVisibility,
   UpdatePostDocument,
   ToggleLikeDocument,
   ToggleBookmarkDocument,
@@ -100,7 +101,15 @@ export function PostDetailPage() {
   const handlePublish = async () => {
     try {
       await publishPost({
-        variables: { id, input: { status: PostStatus.Published } },
+        variables: {
+          id,
+          input: {
+            status: PostStatus.Published,
+            ...(post.visibility === PostVisibility.Private
+              ? { visibility: PostVisibility.Private }
+              : {}),
+          },
+        },
       });
       message.success(t('posts.detail.publishSuccess'));
     } catch {
@@ -175,6 +184,9 @@ export function PostDetailPage() {
             <Tag color={statusColor(post.status)}>
               {t(`posts.status.${post.status.toLowerCase()}`)}
             </Tag>
+            {post.visibility === PostVisibility.Private ? (
+              <Tag color="gold">{t('posts.privateBadge')}</Tag>
+            ) : null}
             {post.topic ? <Tag>{post.topic}</Tag> : null}
             {post.subtopic ? <Tag>{post.subtopic}</Tag> : null}
             <AuthorInfo author={post.author} showCard />
