@@ -20,6 +20,11 @@ enum PostStatus {
   ARCHIVED
 }
 
+enum PostVisibility {
+  PUBLIC
+  PRIVATE
+}
+
 enum ChatMessageRole {
   SYSTEM
   USER
@@ -102,7 +107,8 @@ model Post {
   subtopic          String?
   seriesKey         String?
   seriesOrder       Int?
-  status            PostStatus @default(DRAFT)
+  status            PostStatus     @default(DRAFT)
+  visibility        PostVisibility @default(PUBLIC)
   publishedAt       DateTime?
   source            String?
   wordCount         Int?
@@ -121,6 +127,7 @@ model Post {
   comments   PostComment[]
 
   @@index([topic, subtopic, status])
+  @@index([visibility])
   @@index([seriesKey, seriesOrder])
   @@index([generationBatchId])
   @@map("posts")

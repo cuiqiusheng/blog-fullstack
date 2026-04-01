@@ -4,7 +4,8 @@
     "logout": "Logout",
     "logoutConfirmTitle": "Are you sure you want to log out?",
     "ok": "OK",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "requestFailed": "Something went wrong. Please try again."
   },
   "editor": {
     "heading1": "Heading 1",
@@ -138,6 +139,7 @@
       "published": "Published",
       "archived": "Archived"
     },
+    "privateBadge": "Private",
     "meta": {
       "author": "Author",
       "createdAt": "Created",
@@ -189,7 +191,16 @@
       "saveFailed": "Save failed, please try again",
       "notFound": "Post not found",
       "notAuthor": "Not authorized to edit this post",
-      "editorPlaceholder": "Start writing, type / for commands..."
+      "editorPlaceholder": "Start writing, type / for commands...",
+      "privatePublishTooltip": "Private posts are visible only to you and do not appear on the public feed.",
+      "publishPrivate": "Publish as private",
+      "saveAsPrivate": "Save as private",
+      "saveAsPrivateTooltip": "Update content and keep it visible only to you.",
+      "makePublic": "Make public",
+      "makePublicConfirmTitle": "Make this post public?",
+      "makePublicConfirmContent": "Everyone will be able to see it on the public feed. You cannot make it private again.",
+      "makePublicOk": "Make public",
+      "madePublicSuccess": "Post is now public"
     }
   },
   "userSetting": {

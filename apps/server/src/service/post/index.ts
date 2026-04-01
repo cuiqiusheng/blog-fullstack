@@ -5,6 +5,7 @@ export {
   getPostNeighbors,
   buildPostWhere,
 } from './postQueryService';
+export { assertPostVisibleToViewer, canViewerReadPost } from './postVisibility';
 export { postAuthorInclude } from './postSelect';
 export type { PostWithAuthor } from './postSelect';
 export type { ListPostsOptions, PostNeighbors, PostSortField, SortDirection } from './post.types';

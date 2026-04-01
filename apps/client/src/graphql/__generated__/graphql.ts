@@ -129,6 +129,7 @@ export type CreatePostInput = {
   subtopic?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
   topic?: InputMaybe<Scalars['String']['input']>;
+  visibility?: InputMaybe<PostVisibility>;
 };
 
 export type FollowInfo = {
@@ -347,6 +348,7 @@ export type Post = {
   title: Scalars['String']['output'];
   topic?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['String']['output'];
+  visibility: PostVisibility;
   wordCount?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -375,6 +377,11 @@ export enum PostStatus {
   Archived = 'ARCHIVED',
   Draft = 'DRAFT',
   Published = 'PUBLISHED',
+}
+
+export enum PostVisibility {
+  Private = 'PRIVATE',
+  Public = 'PUBLIC',
 }
 
 export type Query = {
@@ -534,6 +541,7 @@ export type UpdatePostInput = {
   subtopic?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   topic?: InputMaybe<Scalars['String']['input']>;
+  visibility?: InputMaybe<PostVisibility>;
 };
 
 export type User = {
@@ -1127,6 +1135,7 @@ export type PostsQuery = {
     seriesKey?: string | null;
     seriesOrder?: number | null;
     status: PostStatus;
+    visibility: PostVisibility;
     publishedAt?: string | null;
     source?: string | null;
     wordCount?: number | null;
@@ -1178,6 +1187,7 @@ export type PostQuery = {
     seriesKey?: string | null;
     seriesOrder?: number | null;
     status: PostStatus;
+    visibility: PostVisibility;
     publishedAt?: string | null;
     source?: string | null;
     wordCount?: number | null;
@@ -1239,6 +1249,7 @@ export type CreatePostMutation = {
     id: string;
     title: string;
     status: PostStatus;
+    visibility: PostVisibility;
     createdAt: string;
   };
 };
@@ -1255,6 +1266,7 @@ export type UpdatePostMutation = {
     id: string;
     title: string;
     status: PostStatus;
+    visibility: PostVisibility;
     updatedAt: string;
   };
 };
@@ -3106,6 +3118,7 @@ export const PostsDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'seriesKey' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'seriesOrder' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'visibility' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'publishedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'source' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'wordCount' } },
@@ -3272,6 +3285,7 @@ export const PostDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'seriesKey' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'seriesOrder' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'visibility' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'publishedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'source' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'wordCount' } },
@@ -3427,6 +3441,7 @@ export const CreatePostDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'title' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'visibility' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
               ],
             },
@@ -3485,6 +3500,7 @@ export const UpdatePostDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'title' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'visibility' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
               ],
             },

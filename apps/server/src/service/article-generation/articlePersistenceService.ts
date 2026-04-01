@@ -1,4 +1,4 @@
-import { PostStatus } from '@/generated/prisma/client';
+import { PostStatus, PostVisibility } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 import { parseSeriesMetaFromSubtopic } from '../series/seriesMeta';
 import type { RuntimeOptions } from './articleGenerationRuntime';
@@ -77,6 +77,7 @@ export async function persistGeneratedArticle(
         seriesKey: seriesMeta?.seriesKey ?? null,
         seriesOrder: seriesMeta?.seriesOrder ?? null,
         status: params.runtime.autoPublish ? PostStatus.PUBLISHED : PostStatus.DRAFT,
+        visibility: PostVisibility.PUBLIC,
         publishedAt: params.runtime.autoPublish ? now : null,
         source: params.runtime.source,
         wordCount: params.wordCount,

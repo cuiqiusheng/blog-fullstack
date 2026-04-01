@@ -4,7 +4,8 @@
     "logout": "退出",
     "logoutConfirmTitle": "确定要退出登录吗？",
     "ok": "确定",
-    "cancel": "取消"
+    "cancel": "取消",
+    "requestFailed": "请求失败，请稍后重试。"
   },
   "editor": {
     "heading1": "一级标题",
@@ -138,6 +139,7 @@
       "published": "已发布",
       "archived": "已归档"
     },
+    "privateBadge": "私密",
     "meta": {
       "author": "作者",
       "createdAt": "创建时间",
@@ -189,7 +191,16 @@
       "saveFailed": "保存失败，请重试",
       "notFound": "文章不存在",
       "notAuthor": "无权编辑此文章",
-      "editorPlaceholder": "开始写作，输入 / 唤起命令菜单..."
+      "editorPlaceholder": "开始写作，输入 / 唤起命令菜单...",
+      "privatePublishTooltip": "私密文章仅自己可见，不会在广场展示。",
+      "publishPrivate": "发布为私密",
+      "saveAsPrivate": "保存为私密",
+      "saveAsPrivateTooltip": "更新内容并保持仅自己可见。",
+      "makePublic": "转为公开发布",
+      "makePublicConfirmTitle": "将文章转为公开？",
+      "makePublicConfirmContent": "公开后所有用户都可以在广场看到这篇文章，且无法再改回私密。",
+      "makePublicOk": "确认公开",
+      "madePublicSuccess": "文章已公开"
     }
   },
   "userSetting": {

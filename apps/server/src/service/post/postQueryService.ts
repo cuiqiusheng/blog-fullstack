@@ -1,4 +1,4 @@
-import { type Prisma } from '@/generated/prisma/client';
+import { PostVisibility as PrismaPostVisibility, type Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 import type { ListPostsOptions, PostNeighbors } from './post.types';
 import { normalizeOptionalText } from '../shared/textNormalization';
@@ -81,7 +81,28 @@ export function buildPostWhere(options: ListPostsOptions): Prisma.PostWhereInput
     });
   }
 
+  const viewer = options.viewerUserId ?? null;
+  const authorId = options.authorId;
+  const includePrivateForAuthor = authorId != null && viewer != null && authorId === viewer;
+  if (!includePrivateForAuthor) {
+    andClauses.push({ visibility: PrismaPostVisibility.PUBLIC });
+  }
+
   return andClauses.length > 0 ? { AND: andClauses } : {};
+}
+
+function neighborReadableWhere(viewerId: string | null | undefined): Prisma.PostWhereInput {
+  if (viewerId) {
+    return {
+      OR: [
+        { visibility: PrismaPostVisibility.PUBLIC },
+        {
+          AND: [{ visibility: PrismaPostVisibility.PRIVATE }, { authorId: viewerId }],
+        },
+      ],
+    };
+  }
+  return { visibility: PrismaPostVisibility.PUBLIC };
 }
 
 function buildOrderBy(options: ListPostsOptions): Prisma.PostOrderByWithRelationInput[] {
@@ -129,7 +150,10 @@ export async function getPostById(id: string) {
   });
 }
 
-export async function getPostNeighbors(id: string): Promise<PostNeighbors> {
+export async function getPostNeighbors(
+  id: string,
+  viewerUserId?: string | null,
+): Promise<PostNeighbors> {
   const current = await prisma.post.findUnique({
     where: { id },
     select: {
@@ -143,41 +167,46 @@ export async function getPostNeighbors(id: string): Promise<PostNeighbors> {
     return { prev: null, next: null };
   }
 
+  const readable = neighborReadableWhere(viewerUserId ?? null);
+
   // Stable tie-breakers: when seriesOrder is the same, compare createdAt; if still equal, compare id.
   const prevRow = await prisma.post.findFirst({
-    where: buildPrevNeighborWhere({
-      id: current.id,
-      seriesKey: current.seriesKey,
-      seriesOrder: current.seriesOrder,
-      createdAt: current.createdAt,
-    }),
+    where: {
+      AND: [
+        readable,
+        buildPrevNeighborWhere({
+          id: current.id,
+          seriesKey: current.seriesKey,
+          seriesOrder: current.seriesOrder,
+          createdAt: current.createdAt,
+        }),
+      ],
+    },
     orderBy: [{ seriesOrder: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
     select: { id: true },
   });
   const nextRow = await prisma.post.findFirst({
-    where: buildNextNeighborWhere({
-      id: current.id,
-      seriesKey: current.seriesKey,
-      seriesOrder: current.seriesOrder,
-      createdAt: current.createdAt,
-    }),
+    where: {
+      AND: [
+        readable,
+        buildNextNeighborWhere({
+          id: current.id,
+          seriesKey: current.seriesKey,
+          seriesOrder: current.seriesOrder,
+          createdAt: current.createdAt,
+        }),
+      ],
+    },
     orderBy: [{ seriesOrder: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
     select: { id: true },
   });
 
-  const neighborSelect = {
-    id: true,
-    title: true,
-    seriesKey: true,
-    seriesOrder: true,
-  } as const;
-
   const [prev, next] = await Promise.all([
     prevRow
-      ? prisma.post.findUnique({ where: { id: prevRow.id }, select: neighborSelect })
+      ? prisma.post.findUnique({ where: { id: prevRow.id }, include: postAuthorInclude })
       : Promise.resolve(null),
     nextRow
-      ? prisma.post.findUnique({ where: { id: nextRow.id }, select: neighborSelect })
+      ? prisma.post.findUnique({ where: { id: nextRow.id }, include: postAuthorInclude })
       : Promise.resolve(null),
   ]);
 

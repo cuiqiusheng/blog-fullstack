@@ -1,5 +1,11 @@
-import { PostStatus as PrismaPostStatus } from '@/generated/prisma/client';
-import { PostStatus as GqlPostStatus } from '../__generated__/types';
+import {
+  PostStatus as PrismaPostStatus,
+  PostVisibility as PrismaPostVisibility,
+} from '@/generated/prisma/client';
+import {
+  PostStatus as GqlPostStatus,
+  PostVisibility as GqlPostVisibility,
+} from '../__generated__/types';
 import type { PostWithAuthor } from '@/service/post';
 
 export const gqlToPrismaStatus: Record<GqlPostStatus, PrismaPostStatus> = {
@@ -14,10 +20,21 @@ export const prismaToGqlStatus: Record<PrismaPostStatus, GqlPostStatus> = {
   [PrismaPostStatus.ARCHIVED]: GqlPostStatus.Archived,
 };
 
+export const prismaToGqlVisibility: Record<PrismaPostVisibility, GqlPostVisibility> = {
+  [PrismaPostVisibility.PUBLIC]: GqlPostVisibility.Public,
+  [PrismaPostVisibility.PRIVATE]: GqlPostVisibility.Private,
+};
+
+export const gqlToPrismaVisibility: Record<GqlPostVisibility, PrismaPostVisibility> = {
+  [GqlPostVisibility.Public]: PrismaPostVisibility.PUBLIC,
+  [GqlPostVisibility.Private]: PrismaPostVisibility.PRIVATE,
+};
+
 export function toGqlPost(row: PostWithAuthor) {
   return {
     ...row,
     status: prismaToGqlStatus[row.status],
+    visibility: prismaToGqlVisibility[row.visibility],
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     publishedAt: row.publishedAt?.toISOString() ?? null,

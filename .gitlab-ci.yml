@@ -32,6 +32,7 @@ default:
 
 deploy:
   stage: deploy
+  resource_group: blog-prod-deploy
   script:
     # 安装依赖（--frozen-lockfile 确保使用锁文件中的精确版本，不自动升级）
     - pnpm install --frozen-lockfile
@@ -47,7 +48,6 @@ deploy:
     #      - docker run --rm -v "$(pwd)":/app -w /app --memory=2.5g -e NODE_OPTIONS=--max-old-space-size=1536 -e VITE_GRAPHQL_URI=/graphql -e CI=true node:20-alpine sh -c "corepack enable pnpm && pnpm install --frozen-lockfile && pnpm --filter @blog-fullstack/client build"
     #      - 然后下面 rsync 步骤不变（产物在 apps/client/dist）
     #   4) 升级 ECS 实例（建议构建机至少 2GB 内存，推荐 4GB）
-    #   5) 实验性：改用 Rolldown 构建（client 的 vite 改为 npm:rolldown-vite@latest），内存与速度更优
     - NODE_OPTIONS=--max-old-space-size=1024 VITE_GRAPHQL_URI=/graphql pnpm --filter @blog-fullstack/client build
 
     # ── 部署前端 ──────────────────────────────────────────────────────
@@ -56,17 +56,45 @@ deploy:
     #   --delete : 删除目标目录中源没有的文件，保持完全一致
     - rsync -av --delete apps/client/dist/ /var/www/blog/
 
-    # ── 构建并部署后端 ────────────────────────────────────────────────
-    # 1. 复制 .env 到 deploy/（构建时 docker-compose.yml 需要）
-    # 2. 清理可能由其他 Compose 项目创建的同名容器（避免 name conflict）
-    # 3. 在 deploy/ 下构建镜像并启动服务
-    # 4. 同步 compose 文件到 /opt/blog/，方便后续手动操作
-    #    （手动操作时需保持项目名一致：cd /opt/blog && docker compose -p deploy up -d --force-recreate）
+    # ── 数据库备份 + 迁移 + 后端部署 ─────────────────────────────────────
+    # 1. 复制 .env 到 deploy/，并导出环境变量（供 Prisma migrate 使用）
+    # 2. 迁移前先做 PostgreSQL 逻辑备份（本地保留 + 可选上传七牛）
+    # 3. 执行生产迁移（prisma migrate deploy）
+    # 4. 在 deploy/ 下构建镜像并启动服务
+    # 5. 同步 compose 文件到 /opt/blog/
     - cp /opt/blog/.env deploy/.env
-    - docker rm -f blog-db blog-server 2>/dev/null || true
+    - set -a && . /opt/blog/.env && set +a
+    - mkdir -p /opt/blog/backups
+    - |
+      TS=$(date +%F_%H%M%S)
+      BACKUP_FILE="/opt/blog/backups/blog_${TS}.sql.gz"
+      docker exec blog-db pg_dump -U blog -d blog --no-owner --no-privileges | gzip > "$BACKUP_FILE"
+      test -s "$BACKUP_FILE"
+      echo "Database backup created: $BACKUP_FILE"
+      # 若安装了 qshell 且配置了七牛变量，则自动异地备份（可选）
+      if command -v qshell >/dev/null 2>&1 && [ -n "${QINIU_BACKUP_BUCKET:-}" ]; then
+        REMOTE_KEY="${QINIU_BACKUP_PREFIX:-prod/postgres}/blog_${TS}.sql.gz"
+        qshell rput "$QINIU_BACKUP_BUCKET" "$REMOTE_KEY" "$BACKUP_FILE"
+        echo "Uploaded backup to qiniu: ${QINIU_BACKUP_BUCKET}/${REMOTE_KEY}"
+      else
+        echo "Skip qiniu upload (qshell or QINIU_BACKUP_BUCKET not configured)"
+      fi
+      # 本地仅保留最近 14 天备份
+      find /opt/blog/backups -name "blog_*.sql.gz" -type f -mtime +14 -delete
+    - pnpm --filter @blog-fullstack/server prisma:migrate deploy
     - cd deploy
-    - docker compose up -d --build
+    - docker compose up -d --build --remove-orphans
     - cp docker-compose.yml /opt/blog/docker-compose.yml
+    - |
+      for i in $(seq 1 20); do
+        if curl -fsS http://127.0.0.1:4000/health >/dev/null; then
+          echo "Health check passed"
+          exit 0
+        fi
+        sleep 3
+      done
+      echo "Health check failed"
+      exit 1
 
   after_script:
     # 清理复制过来的 .env（避免敏感信息残留在构建目录中）

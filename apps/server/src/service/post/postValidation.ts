@@ -6,8 +6,10 @@ const MAX_TOPIC_LENGTH = 100;
 const MAX_SUBTOPIC_LENGTH = 100;
 
 const ALLOWED_CREATE_STATUSES = new Set(['DRAFT', 'PUBLISHED'] as const);
+const ALLOWED_VISIBILITY = new Set(['PUBLIC', 'PRIVATE'] as const);
 
 type AllowedCreateStatus = 'DRAFT' | 'PUBLISHED';
+type AllowedVisibility = 'PUBLIC' | 'PRIVATE';
 
 export interface CreatePostInput {
   title: string;
@@ -15,6 +17,7 @@ export interface CreatePostInput {
   topic?: string | null;
   subtopic?: string | null;
   status?: string | null;
+  visibility?: string | null;
 }
 
 export interface UpdatePostInput {
@@ -23,6 +26,7 @@ export interface UpdatePostInput {
   topic?: string | null;
   subtopic?: string | null;
   status?: string | null;
+  visibility?: string | null;
 }
 
 export interface ValidatedCreatePostInput {
@@ -31,6 +35,7 @@ export interface ValidatedCreatePostInput {
   topic?: string;
   subtopic?: string;
   status?: AllowedCreateStatus;
+  visibility?: AllowedVisibility;
 }
 
 export interface ValidatedUpdatePostInput {
@@ -39,6 +44,7 @@ export interface ValidatedUpdatePostInput {
   topic?: string | null;
   subtopic?: string | null;
   status?: AllowedCreateStatus;
+  visibility?: AllowedVisibility;
 }
 
 function validateTitle(title: string): string {
@@ -83,6 +89,14 @@ function validateStatus(status: string | null | undefined): AllowedCreateStatus 
   return status as AllowedCreateStatus;
 }
 
+function validateVisibility(visibility: string | null | undefined): AllowedVisibility | undefined {
+  if (visibility == null) return undefined;
+  if (!ALLOWED_VISIBILITY.has(visibility as AllowedVisibility)) {
+    throw new Error(`Invalid visibility: ${visibility}. Allowed values: PUBLIC, PRIVATE`);
+  }
+  return visibility as AllowedVisibility;
+}
+
 export function validateCreatePostInput(input: CreatePostInput): ValidatedCreatePostInput {
   const result: ValidatedCreatePostInput = {
     title: validateTitle(input.title),
@@ -97,6 +111,9 @@ export function validateCreatePostInput(input: CreatePostInput): ValidatedCreate
 
   const status = validateStatus(input.status);
   if (status) result.status = status;
+
+  const visibility = validateVisibility(input.visibility);
+  if (visibility) result.visibility = visibility;
 
   return result;
 }
@@ -133,6 +150,9 @@ export function validateUpdatePostInput(input: UpdatePostInput): ValidatedUpdate
 
   const status = validateStatus(input.status);
   if (status) result.status = status;
+
+  const visibility = validateVisibility(input.visibility);
+  if (visibility) result.visibility = visibility;
 
   return result;
 }

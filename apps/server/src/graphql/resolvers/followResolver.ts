@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { PostStatus } from '@/generated/prisma/client';
+import { PostStatus, PostVisibility } from '@/generated/prisma/client';
 import { toggleFollow, getFollowing, getFollowers, getUserProfile } from '@/service';
 import type {
   MutationToggleFollowArgs,
@@ -49,9 +49,19 @@ export const followResolvers = {
       });
       return Boolean(row);
     },
-    postCount: async (parent: { id: string }) => {
+    postCount: async (parent: { id: string }, _: unknown, context: GraphQLContext) => {
+      if (context.user?.id === parent.id) {
+        return prisma.post.count({
+          where: { authorId: parent.id },
+        });
+      }
+
       return prisma.post.count({
-        where: { authorId: parent.id, status: PostStatus.PUBLISHED },
+        where: {
+          authorId: parent.id,
+          status: PostStatus.PUBLISHED,
+          visibility: PostVisibility.PUBLIC,
+        },
       });
     },
   },

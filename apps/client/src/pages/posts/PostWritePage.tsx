@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Alert, Button, Collapse, Input, Space, Card, App, Spin } from 'antd';
+import { useRef, useState } from 'react';
+import { Alert, Button, Collapse, Input, Space, Card, App, Spin, Tooltip } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery } from '@apollo/client/react';
@@ -13,14 +13,17 @@ import {
   PostsDocument,
   PostsTotalDocument,
   PostStatus,
+  PostVisibility,
 } from '@/graphql/codegen';
 import { useCurrentUser } from '@/shared/hooks';
 import './postWrite.css';
 
+const PREVIEW_LONG_PRESS_MS = 500;
+
 export function PostWritePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { message } = App.useApp();
+  const { message, modal } = App.useApp();
   const { id } = useParams<{ id: string }>();
   const isEditMode = !!id;
 
@@ -68,7 +71,17 @@ export function PostWritePage() {
   const [topic, setTopic] = useState('');
   const [subtopic, setSubtopic] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+  const [privatePublishUnlocked, setPrivatePublishUnlocked] = useState(false);
   const [initializedFor, setInitializedFor] = useState<string | null>(null);
+  const previewLongPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipNextPreviewToggleRef = useRef(false);
+
+  const clearPreviewLongPress = () => {
+    if (previewLongPressTimerRef.current != null) {
+      clearTimeout(previewLongPressTimerRef.current);
+      previewLongPressTimerRef.current = null;
+    }
+  };
 
   if (isEditMode && postData?.post && initializedFor !== id) {
     setInitializedFor(id!);
@@ -124,12 +137,13 @@ export function PostWritePage() {
     return true;
   };
 
-  const buildCreateInput = (status: PostStatus) => ({
+  const buildCreateInput = (status: PostStatus, visibility?: PostVisibility) => ({
     title: title.trim(),
     content,
     ...(topic.trim() && { topic: topic.trim() }),
     ...(subtopic.trim() && { subtopic: subtopic.trim() }),
     status,
+    ...(visibility && { visibility }),
   });
 
   const buildUpdateInput = (status?: PostStatus) => ({
@@ -161,10 +175,17 @@ export function PostWritePage() {
 
   const handlePublish = async () => {
     if (!validate()) return;
+    const keepPrivate = existingPost?.visibility === PostVisibility.Private;
     try {
       if (isEditMode) {
         await updatePost({
-          variables: { id: id!, input: buildUpdateInput(PostStatus.Published) },
+          variables: {
+            id: id!,
+            input: {
+              ...buildUpdateInput(PostStatus.Published),
+              ...(keepPrivate ? { visibility: PostVisibility.Private } : {}),
+            },
+          },
         });
         message.success(t('posts.write.published'));
         navigate(`/posts/${id}`);
@@ -180,6 +201,58 @@ export function PostWritePage() {
     }
   };
 
+  const handlePublishPrivate = async () => {
+    if (!validate()) return;
+    try {
+      const { data: published } = await createPost({
+        variables: {
+          input: buildCreateInput(PostStatus.Published, PostVisibility.Private),
+        },
+      });
+      message.success(t('posts.write.published'));
+      navigate(`/posts/${published?.createPost.id}`);
+    } catch {
+      message.error(t('posts.write.saveFailed'));
+    }
+  };
+
+  const handleUpdatePublishedPrivate = async () => {
+    if (!validate()) return;
+    try {
+      await updatePost({ variables: { id: id!, input: buildUpdateInput() } });
+      message.success(t('posts.write.updated'));
+      navigate(`/posts/${id}`);
+    } catch {
+      message.error(t('posts.write.saveFailed'));
+    }
+  };
+
+  const handleMakePublic = async () => {
+    if (!validate()) return;
+    try {
+      await updatePost({
+        variables: {
+          id: id!,
+          input: { ...buildUpdateInput(), visibility: PostVisibility.Public },
+        },
+      });
+      message.success(t('posts.write.madePublicSuccess'));
+      navigate(`/posts/${id}`);
+    } catch {
+      message.error(t('posts.write.saveFailed'));
+    }
+  };
+
+  const openMakePublicConfirm = () => {
+    modal.confirm({
+      title: t('posts.write.makePublicConfirmTitle'),
+      content: t('posts.write.makePublicConfirmContent'),
+      okText: t('posts.write.makePublicOk'),
+      cancelText: t('common.cancel'),
+      onOk: () => handleMakePublic(),
+    });
+  };
+
   const handleUpdate = async () => {
     if (!validate()) return;
     try {
@@ -193,6 +266,20 @@ export function PostWritePage() {
 
   const renderActions = () => {
     if (isEditMode && existingStatus === PostStatus.Published) {
+      if (existingPost?.visibility === PostVisibility.Private) {
+        return (
+          <>
+            <Tooltip title={t('posts.write.saveAsPrivateTooltip')}>
+              <Button onClick={handleUpdatePublishedPrivate} loading={saving}>
+                {t('posts.write.saveAsPrivate')}
+              </Button>
+            </Tooltip>
+            <Button type="primary" onClick={openMakePublicConfirm} loading={saving}>
+              {t('posts.write.makePublic')}
+            </Button>
+          </>
+        );
+      }
       return (
         <Button type="primary" onClick={handleUpdate} loading={saving}>
           {t('posts.write.update')}
@@ -208,6 +295,13 @@ export function PostWritePage() {
         <Button type="primary" onClick={handlePublish} loading={saving}>
           {t('posts.write.publish')}
         </Button>
+        {!isEditMode && privatePublishUnlocked && (
+          <Tooltip title={t('posts.write.privatePublishTooltip')}>
+            <Button onClick={handlePublishPrivate} loading={saving}>
+              {t('posts.write.publishPrivate')}
+            </Button>
+          </Tooltip>
+        )}
       </>
     );
   };
@@ -219,7 +313,32 @@ export function PostWritePage() {
           {isEditMode ? t('posts.write.cancelEdit') : t('posts.detail.backToList')}
         </Button>
         <Space>
-          <Button onClick={() => setShowPreview(v => !v)}>{t('posts.write.preview')}</Button>
+          <Button
+            onClick={e => {
+              if (skipNextPreviewToggleRef.current) {
+                skipNextPreviewToggleRef.current = false;
+                return;
+              }
+              if (e.shiftKey) {
+                e.preventDefault();
+                setPrivatePublishUnlocked(true);
+                return;
+              }
+              setShowPreview(v => !v);
+            }}
+            onTouchStart={() => {
+              clearPreviewLongPress();
+              previewLongPressTimerRef.current = setTimeout(() => {
+                previewLongPressTimerRef.current = null;
+                setPrivatePublishUnlocked(true);
+                skipNextPreviewToggleRef.current = true;
+              }, PREVIEW_LONG_PRESS_MS);
+            }}
+            onTouchEnd={clearPreviewLongPress}
+            onTouchCancel={clearPreviewLongPress}
+          >
+            {t('posts.write.preview')}
+          </Button>
           {renderActions()}
         </Space>
       </div>
