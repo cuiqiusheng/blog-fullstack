@@ -61,7 +61,7 @@ deploy:
     # ── 数据库备份 + 迁移 + 后端部署 ─────────────────────────────────────
     # 1. 复制 .env 到 deploy/，并导出环境变量（供 Prisma migrate 使用）
     # 2. 迁移前先做 PostgreSQL 逻辑备份（本地保留 + 可选上传七牛）
-    # 3. 执行生产迁移（prisma migrate deploy）
+    # 3. 执行生产迁移（prisma migrate deploy；宿主机连 127.0.0.1，见下）
     # 4. 在 deploy/ 下构建镜像并启动服务
     # 5. 同步 compose 文件到 /opt/blog/
     - cp /opt/blog/.env deploy/.env
@@ -83,7 +83,11 @@ deploy:
       fi
       # 本地仅保留最近 14 天备份
       find /opt/blog/backups -name "blog_*.sql.gz" -type f -mtime +14 -delete
-    - pnpm --filter @blog-fullstack/server prisma:migrate deploy
+    # .env 中 DATABASE_URL 使用 blog-db，供容器内 server 连接；宿主机无法解析该名。
+    # compose 已将 DB 映射到 127.0.0.1:5432，迁移在 Runner 宿主机执行故需改写主机名。
+    - |
+      MIGRATE_DATABASE_URL=$(printf '%s' "$DATABASE_URL" | sed 's/@blog-db:/@127.0.0.1:/')
+      DATABASE_URL="$MIGRATE_DATABASE_URL" pnpm --filter @blog-fullstack/server prisma:migrate:deploy
     - cd deploy
     - docker compose up -d --build --remove-orphans
     - cp docker-compose.yml /opt/blog/docker-compose.yml
