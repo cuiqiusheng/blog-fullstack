@@ -22,8 +22,28 @@
   line-height: 1.5;
 }
 
-.post-list-item__title a {
+/* Title link: mostly brand primary with a touch of dark for contrast on light / translucent cards */
+.post-list-item__title-link {
+  color: #529673;
+  color: color-mix(in srgb, var(--ant-color-primary) 90%, #2d4a3c 14%);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
   word-break: break-word;
+  text-rendering: optimizeLegibility;
+}
+
+.post-list-item__title-link:hover {
+  color: var(--ant-color-primary);
+}
+
+html[data-theme='dark'] .post-list-item__title-link {
+  color: #8fd4b8;
+  color: color-mix(in srgb, var(--ant-color-primary) 92%, #f1f5f9 8%);
+}
+
+html[data-theme='dark'] .post-list-item__title-link:hover {
+  color: var(--ant-color-link-hover);
 }
 
 .post-list-item__excerpt {
@@ -31,7 +51,15 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  line-height: 1.6;
+  line-height: 1.65;
+}
+
+/* Excerpt: closer to body text than Typography secondary for readability on low-DPI screens */
+.post-list-item__excerpt-text {
+  font-size: 15px;
+  color: var(--ant-color-text);
+  opacity: 0.78;
+  text-rendering: optimizeLegibility;
 }
 
 .post-list-item__tags {

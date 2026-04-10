@@ -446,6 +446,7 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
                       <Tag color="gold">{t('posts.privateBadge')}</Tag>
                     )}
                     <Link
+                      className="post-list-item__title-link"
                       to={`/posts/${item.id}?from=${encodeURIComponent(`${location.pathname}${location.search}`)}`}
                     >
                       {item.title}
@@ -463,7 +464,7 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
                 </div>
 
                 <div className="post-list-item__excerpt">
-                  <Text type="secondary">{item.excerpt}</Text>
+                  <Text className="post-list-item__excerpt-text">{item.excerpt}</Text>
                 </div>
 
                 <div className="post-list-item__tags">
