@@ -87,6 +87,78 @@ function parseToolCallsFromContent(content: string): ToolCall[] | undefined {
   return toolCalls.length > 0 ? toolCalls : undefined;
 }
 
+function extractLeakedWebSearchQuery(normalized: string): string | undefined {
+  const unescape = (s: string) => s.replace(/\\"/g, '"').replace(/\\\\/g, '\\').trim();
+
+  const strict = normalized.match(/"query"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+  if (strict?.[1]?.trim()) return unescape(strict[1]);
+
+  const spacedKey = normalized.match(/"[\s]*query[\s]*"[\s]*:\s*"((?:[^"\\]|\\.)*)"/i);
+  if (spacedKey?.[1]?.trim()) return unescape(spacedKey[1]);
+
+  // When the key is split across quoted fragments (e.g. `" "query "` and `"…weather…"`),
+  // scan quoted segments after `"arguments":` and prefer segments with CJK text.
+  const argsMatch = /"arguments"\s*:\s*/i.exec(normalized);
+  const scanFrom = argsMatch ? normalized.slice(argsMatch.index + argsMatch[0].length) : normalized;
+  const quoted = [...scanFrom.matchAll(/"((?:[^"\\]|\\.)*)"/g)]
+    .map(m => unescape(m[1]))
+    .filter(Boolean);
+
+  const skip = new Set(['web_search', 'name', 'arguments', 'query', 'function', 'type']);
+  for (const seg of quoted) {
+    if (seg.length < 4) continue;
+    if (skip.has(seg)) continue;
+    if (/^query$/i.test(seg)) continue;
+    if (/^[\s{}:[\],.0-9|]+$/i.test(seg)) continue;
+    if (/[\u4e00-\u9fff]{2,}/.test(seg)) return seg;
+  }
+
+  for (const seg of quoted) {
+    if (seg.length < 4) continue;
+    if (skip.has(seg)) continue;
+    if (/^query$/i.test(seg)) continue;
+    if (/[\u4e00-\u9fff]/.test(seg)) return seg;
+  }
+
+  return undefined;
+}
+
+/**
+ * Some models (e.g. Qwen2.5 via OpenAI-compatible APIs) leak tool intent into `content`
+ * without `<tool_call>...</tool_call>` wrappers and with invalid JSON (extra braces,
+ * broken `arguments`, or split `"query"` fragments). When tools are enabled on the
+ * first round, recover a `web_search` call if we can extract a reliable `query` string.
+ */
+function parseLeakedWebSearchToolCall(content: string): ToolCall[] | undefined {
+  const normalized = content
+    .replace(/^\s*<tool_call>\s*/i, '')
+    .replace(/\s*<\/tool_call>\s*$/i, '')
+    .trim();
+  if (!normalized.includes('web_search')) return undefined;
+
+  const nameMatch = /"name"\s*:\s*"web_search"/.test(normalized);
+  if (!nameMatch) return undefined;
+
+  const query = extractLeakedWebSearchQuery(normalized);
+  if (!query) return undefined;
+
+  logger.info(
+    { queryPreview: query.slice(0, 120) },
+    'Recovered web_search from malformed model content',
+  );
+
+  return [
+    {
+      id: 'recovered_web_search_0',
+      type: 'function',
+      function: {
+        name: 'web_search',
+        arguments: JSON.stringify({ query }),
+      },
+    },
+  ];
+}
+
 // ---------------------------------------------------------------------------
 // Tool calling orchestration
 // ---------------------------------------------------------------------------
@@ -181,7 +253,13 @@ async function* streamWithToolSupport(
     let lastModel: string | undefined;
     let lastCreatedAt: string | undefined;
 
-    for await (const chunk of chatCompletionStream({ messages: currentMessages, tools })) {
+    // Pass `tools` only on the first round. After `role: tool` results are appended,
+    // keeping `tools` enabled makes some models (e.g. Qwen) keep emitting pseudo-tool
+    // JSON in `delta.content`, which surfaces as garbage or a stream of quote characters.
+    for await (const chunk of chatCompletionStream({
+      messages: currentMessages,
+      tools: isFirstRound ? tools : undefined,
+    })) {
       if (chunk.model) lastModel = chunk.model;
       if (chunk.createdAt) lastCreatedAt = chunk.createdAt;
 
@@ -199,7 +277,10 @@ async function* streamWithToolSupport(
       }
     }
 
-    const detectedToolCalls = structuredToolCalls ?? parseToolCallsFromContent(bufferedContent);
+    const detectedToolCalls =
+      structuredToolCalls ??
+      parseToolCallsFromContent(bufferedContent) ??
+      parseLeakedWebSearchToolCall(bufferedContent);
 
     if (detectedToolCalls?.length) {
       logger.info(
