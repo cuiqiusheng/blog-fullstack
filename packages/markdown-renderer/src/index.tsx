@@ -1,4 +1,5 @@
 import '@blog-fullstack/content-theme/code-highlight.css';
+import '@blog-fullstack/content-theme/nested-ordered-lists.css';
 import { type JSX, lazy, Suspense } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
