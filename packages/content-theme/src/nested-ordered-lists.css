@@ -1,0 +1,36 @@
+/**
+ * Nested <ol> markers for prose rendered as semantic HTML (Tiptap, react-markdown, etc.).
+ *
+ * CommonMark does not encode per-level marker types; browsers default to decimal at every
+ * depth. These rules follow a typical outline pattern (decimal → alpha → roman → …).
+ *
+ * Scope: `.content-theme-host` is applied by @blog-fullstack/editor and @blog-fullstack/markdown-renderer.
+ */
+.content-theme-host ol {
+  list-style-type: decimal;
+}
+
+.content-theme-host ol ol {
+  list-style-type: lower-alpha;
+}
+
+.content-theme-host ol ol ol {
+  list-style-type: lower-roman;
+}
+
+.content-theme-host ol ol ol ol {
+  list-style-type: upper-alpha;
+}
+
+.content-theme-host ol ol ol ol ol {
+  list-style-type: upper-roman;
+}
+
+/* Deeper nesting: repeat the cycle (levels 7+ share this rule). */
+.content-theme-host ol ol ol ol ol ol {
+  list-style-type: decimal;
+}
+
+.content-theme-host ol ol ol ol ol ol ol {
+  list-style-type: lower-alpha;
+}

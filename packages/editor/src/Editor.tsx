@@ -1,4 +1,5 @@
 import '@blog-fullstack/content-theme/code-highlight.css';
+import '@blog-fullstack/content-theme/nested-ordered-lists.css';
 import { useEditor, EditorContent } from '@tiptap/react';
 import type { Editor as TiptapEditor } from '@tiptap/core';
 import { useRef, useCallback, useState, useEffect } from 'react';

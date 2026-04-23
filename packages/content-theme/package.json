@@ -5,6 +5,7 @@
   "type": "module",
   "main": "src/code-highlight.css",
   "exports": {
-    "./code-highlight.css": "./src/code-highlight.css"
+    "./code-highlight.css": "./src/code-highlight.css",
+    "./nested-ordered-lists.css": "./src/nested-ordered-lists.css"
   }
 }
