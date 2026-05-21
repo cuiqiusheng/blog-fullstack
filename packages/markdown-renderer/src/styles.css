@@ -95,3 +95,35 @@
   border-color: #303030;
   box-shadow: none;
 }
+
+/* Horizontal rule */
+.markdown-renderer hr {
+  border: none;
+  border-top: 1px solid var(--ant-color-border-secondary, #f0f0f0);
+  margin: 1.5rem 0;
+}
+
+[data-theme='dark'] .markdown-renderer hr {
+  border-top-color: #303030;
+}
+
+/* Blockquote */
+.markdown-renderer blockquote {
+  margin: 1rem 0;
+  padding: 0.6rem 1rem;
+  border-left: 3px solid var(--ant-color-primary, #1677ff);
+  background: color-mix(in srgb, var(--ant-color-primary-bg, #e6f4ff) 60%, transparent);
+  border-radius: 0 6px 6px 0;
+  color: var(--ant-color-text-secondary, #595959);
+}
+
+.markdown-renderer blockquote p {
+  margin: 0;
+  line-height: 1.7;
+}
+
+[data-theme='dark'] .markdown-renderer blockquote {
+  border-left-color: var(--ant-color-primary, #1668dc);
+  background: color-mix(in srgb, var(--ant-color-primary-bg, #111d2c) 80%, transparent);
+  color: var(--ant-color-text-secondary, #8c8c8c);
+}
