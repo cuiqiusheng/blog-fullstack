@@ -49,7 +49,13 @@ export interface PostListPanelProps {
   title: string;
 }
 
-const PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 10;
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
+
+function parsePageSize(raw: string | null): number {
+  const n = Number(raw);
+  return PAGE_SIZE_OPTIONS.some(size => size === n) ? n : DEFAULT_PAGE_SIZE;
+}
 
 const statusOptions = [
   { value: PostStatus.Published, labelKey: 'posts.status.published' },
@@ -76,6 +82,7 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const paramPrefix = mode === 'mine' ? 'mine' : 'all';
   const pageKey = `${paramPrefix}Page`;
+  const pageSizeKey = `${paramPrefix}PageSize`;
   const searchKey = `${paramPrefix}Search`;
   const topicKey = `${paramPrefix}Topic`;
   const subtopicKey = `${paramPrefix}Subtopic`;
@@ -121,9 +128,11 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
     const raw = Number(searchParams.get(pageKey) ?? 1);
     return Number.isFinite(raw) && raw > 0 ? raw : 1;
   });
+  const [pageSize, setPageSize] = useState(() => parsePageSize(searchParams.get(pageSizeKey)));
 
   const applyParams = (patch: {
     page?: number;
+    pageSize?: number;
     search?: string;
     topic?: string;
     subtopic?: string;
@@ -133,6 +142,7 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
   }) => {
     const next = new URLSearchParams(searchParams);
     const nextPage = patch.page ?? page;
+    const nextPageSize = patch.pageSize ?? pageSize;
     const nextSearch = patch.search ?? search;
     const nextTopic = patch.topic ?? topic;
     const nextSubtopic = patch.subtopic ?? subtopic;
@@ -150,6 +160,11 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
       next.set(pageKey, String(nextPage));
     } else {
       next.delete(pageKey);
+    }
+    if (nextPageSize !== DEFAULT_PAGE_SIZE) {
+      next.set(pageSizeKey, String(nextPageSize));
+    } else {
+      next.delete(pageSizeKey);
     }
     if (nextSearch) {
       next.set(searchKey, nextSearch);
@@ -254,7 +269,7 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
     setSearchParams,
   ]);
 
-  const offset = (page - 1) * PAGE_SIZE;
+  const offset = (page - 1) * pageSize;
   const baseVariables = {
     mine: mode === 'mine',
     topic: topic || undefined,
@@ -268,7 +283,7 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
   const { data, loading } = useQuery(PostsDocument, {
     variables: {
       ...baseVariables,
-      limit: PAGE_SIZE,
+      limit: pageSize,
       offset,
     },
     fetchPolicy: 'cache-and-network',
@@ -509,11 +524,16 @@ export function PostListPanel({ mode, title }: PostListPanelProps) {
         <Pagination
           current={page}
           total={totalData?.postsTotal ?? 0}
-          pageSize={PAGE_SIZE}
-          showSizeChanger={false}
-          onChange={nextPage => {
-            setPage(nextPage);
-            applyParams({ page: nextPage });
+          pageSize={pageSize}
+          pageSizeOptions={PAGE_SIZE_OPTIONS.map(String)}
+          showSizeChanger
+          onChange={(nextPage, nextPageSize) => {
+            const size = nextPageSize ?? pageSize;
+            const sizeChanged = size !== pageSize;
+            const resolvedPage = sizeChanged ? 1 : nextPage;
+            setPage(resolvedPage);
+            setPageSize(size);
+            applyParams({ page: resolvedPage, pageSize: size });
           }}
         />
       </div>
