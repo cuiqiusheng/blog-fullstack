@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card, Typography } from 'antd';
+import { useTranslation } from 'react-i18next';
 import type { TocHeading } from '@blog-fullstack/content-utils';
 import './postToc.css';
 
@@ -26,6 +27,7 @@ function getActiveId(headings: TocHeading[]): string {
 }
 
 export function PostToc({ headings }: PostTocProps) {
+  const { t } = useTranslation();
   const [activeId, setActiveId] = useState('');
   const rafRef = useRef<number | null>(null);
 
@@ -62,7 +64,7 @@ export function PostToc({ headings }: PostTocProps) {
   return (
     <Card size="small" className="post-toc-card">
       <Text strong className="post-toc__title">
-        目录
+        {t('posts.detail.toc')}
       </Text>
       <nav className="post-toc">
         {headings.map(h => (

@@ -160,7 +160,8 @@
       "delete": "删除",
       "deleteConfirm": "确定要删除这篇文章吗？",
       "deleteSuccess": "已删除",
-      "publishSuccess": "发布成功"
+      "publishSuccess": "发布成功",
+      "toc": "目录"
     },
     "actions": {
       "edit": "编辑",
