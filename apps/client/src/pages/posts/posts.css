@@ -21,10 +21,13 @@
 .post-markdown h1,
 .post-markdown h2,
 .post-markdown h3,
-.post-markdown h4 {
+.post-markdown h4,
+.post-markdown h5,
+.post-markdown h6 {
   margin-top: 24px;
   margin-bottom: 12px;
   line-height: 1.35;
+  scroll-margin-top: 80px;
 }
 
 .post-markdown p {
@@ -59,4 +62,38 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
+}
+
+/* TOC sidebar layout */
+.post-detail__layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  max-width: 1264px;
+  margin: 0 auto;
+}
+
+.post-detail__main {
+  flex: 1;
+  min-width: 0;
+  max-width: 960px;
+}
+
+.post-detail__toc {
+  flex: 0 0 280px;
+  width: 280px;
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+@media (max-width: 1100px) {
+  .post-detail__toc {
+    display: none;
+  }
+
+  .post-detail__layout {
+    max-width: 960px;
+  }
 }

@@ -330,12 +330,21 @@ importers:
       '@blog-fullstack/content-theme':
         specifier: workspace:*
         version: link:../content-theme
+      '@blog-fullstack/content-utils':
+        specifier: workspace:*
+        version: link:../content-utils
       '@types/react':
         specifier: ^19.2.5
         version: 19.2.13
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.13)
+      hast-util-heading-rank:
+        specifier: ^3.0.0
+        version: 3.0.0
+      hast-util-to-string:
+        specifier: ^3.0.0
+        version: 3.0.1
       highlight.js:
         specifier: ^11.11.0
         version: 11.11.1
@@ -357,15 +366,19 @@ importers:
       rehype-sanitize:
         specifier: ^6.0.0
         version: 6.0.0
-      rehype-slug:
-        specifier: ^6.0.0
-        version: 6.0.0
       remark-breaks:
         specifier: ^4.0.0
         version: 4.0.0
       remark-gfm:
         specifier: ^4.0.0
         version: 4.0.1
+      unist-util-visit:
+        specifier: ^5.0.0
+        version: 5.1.0
+    devDependencies:
+      '@types/hast':
+        specifier: ^3.0.0
+        version: 3.0.4
 
 packages:
 
@@ -3625,9 +3638,6 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
-  github-slugger@2.0.0:
-    resolution: {integrity: sha512-IaOQ9puYtjrkq7Y0Ygl9KDZnrf/aiUJYUpVf89y8kyaxbRG7Y1SrX/jaumrv81vc61+kiMempujsM3Yw7w5qcw==}
-
   glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
@@ -5318,9 +5328,6 @@ packages:
 
   rehype-sanitize@6.0.0:
     resolution: {integrity: sha512-CsnhKNsyI8Tub6L4sm5ZFsme4puGfc6pYylvXo1AeqaGbjOYyzNv3qZPwvs0oMJ39eryyeOdmxwUIo94IpEhqg==}
-
-  rehype-slug@6.0.0:
-    resolution: {integrity: sha512-lWyvf/jwu+oS5+hL5eClVd3hNdmwM1kAC0BUvEGD19pajQMIzcNUd/k9GsfQ+FfECvX+JE+e9/btsKH0EjJT6A==}
 
   relay-runtime@12.0.0:
     resolution: {integrity: sha512-QU6JKr1tMsry22DXNy9Whsq5rmvwr3LSZiiWV/9+DFpuTWvp+WFhobWMc8TC4OjKFfNhEZy7mOiqUAn5atQtug==}
@@ -10113,8 +10120,6 @@ snapshots:
       meow: 12.1.1
       split2: 4.2.0
 
-  github-slugger@2.0.0: {}
-
   glob-parent@5.1.2:
     dependencies:
       is-glob: 4.0.3
@@ -12275,14 +12280,6 @@ snapshots:
     dependencies:
       '@types/hast': 3.0.4
       hast-util-sanitize: 5.0.2
-
-  rehype-slug@6.0.0:
-    dependencies:
-      '@types/hast': 3.0.4
-      github-slugger: 2.0.0
-      hast-util-heading-rank: 3.0.0
-      hast-util-to-string: 3.0.1
-      unist-util-visit: 5.1.0
 
   relay-runtime@12.0.0:
     dependencies:

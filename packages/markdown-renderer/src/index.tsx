@@ -4,9 +4,9 @@ import { type JSX, lazy, Suspense } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSanitize from 'rehype-sanitize';
-import rehypeSlug from 'rehype-slug';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
+import { rehypeTocSlug } from './rehypeTocSlug';
 import './styles.css';
 
 /**
@@ -60,8 +60,8 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkBreaks]}
         rehypePlugins={[
-          rehypeSlug,
           rehypeSanitize,
+          rehypeTocSlug,
           [
             rehypeHighlight,
             {
