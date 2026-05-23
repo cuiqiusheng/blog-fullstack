@@ -1,7 +1,8 @@
 from dataclasses import dataclass
-from app.config import settings
 
 import httpx
+
+from app.config import settings
 
 
 @dataclass
@@ -37,6 +38,6 @@ async def search_tavily(query: str) -> list[TavilyResult]:
             title=r.get('title', ''),
             url=r.get('url', ''),
             content=r.get('content', ''),
-            score=r.get('score', None),
+            score=r.get('score'),
         ) for r in results
     ]

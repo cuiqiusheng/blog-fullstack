@@ -197,8 +197,8 @@ uv run alembic upgrade head
 
 **目标**：每日自动抓取 AI 前沿信息，生成结构化文章，存入数据库
 
-- [ ] **2.1** 接入 Tavily API，实现关键词搜索抓取
-- [ ] **2.2** 接入 arXiv API，抓取热门论文摘要
+- [x] **2.1** 接入 Tavily API，实现关键词搜索抓取
+- [x] **2.2** 接入 arXiv API，抓取热门论文摘要
 - [ ] **2.3** LangGraph Agent：筛选去重 → 归类 → 生成摘要 → 质量校验
 - [ ] **2.4** APScheduler 每日定时任务（如 6:00）
 - [ ] **2.5** REST API：`GET /articles`、`GET /articles/{id}`（前缀 `/ai-api` 由 Nginx 代理）

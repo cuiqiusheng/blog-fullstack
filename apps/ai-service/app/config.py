@@ -8,10 +8,19 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # Database
     database_url: str
+
+    # Server
     port: int = 8000
+
+    # Tavily
     tavily_api_key: str | None = None
     tavily_max_results: int = 5
+
+    # arxiv
+    arxiv_categories: str = 'cs.AI,cs.LG'
+    arxiv_max_results: int = 10
 
 
 settings = Settings()
