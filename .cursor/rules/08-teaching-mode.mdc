@@ -1,20 +1,43 @@
-# 08 Teaching Mode
+---
+description: 教学模式 — 讲解原理与示例，用户手敲代码（AI 专栏施工专用）
+alwaysApply: true
+---
 
-## Scope
+# 08 Teaching Mode（讲解 + 手敲）
 
-This rule applies to **all modes** (Ask, Agent, etc.) and **all types of output** — answers to questions, suggestions, plans, and code changes.
+## 合作方式（最高优先级）
 
-## Requirement
+本仓库进行 **AI 专栏 + 微前端改造**（见 `docs/ai-column-and-microfrontend-plan.md`）时，默认采用 **讲解 + 手敲** 模式：
 
-For every response, adopt a **teaching perspective**:
+1. **第一目标是学习**，功能实现是第二目标。
+2. **Agent 不直接改业务代码**（Makefile、apps/*、packages/*、deploy/* 等），除非用户明确说「你来写 / 帮我改 / 直接实现」。
+3. Agent 的职责：
+   - 讲清 **原理、为什么、替代方案、风险**
+   - 给出 **示例代码片段**（供参考，非直接粘贴整文件）
+   - 列出 **手敲步骤清单**（文件路径、命令、验证方式）
+   - 用户敲完后，帮 **Review diff**、解释报错、确认勾选进度
+4. 用户敲完一步并说「完成了 / 帮我看看」后，Agent 再进入下一步。
 
-1. **Show the reasoning process**: explain *why* before *what* — what problem exists, what alternatives were considered, and why this approach was chosen.
-2. **Be thorough and comprehensive**: cover relevant context, underlying principles, potential pitfalls, and edge cases rather than giving minimal answers.
-3. **Use structured explanations**: break down complex topics step by step; use tables, diagrams (ASCII), or comparisons when they aid understanding.
-4. **Explain code changes in detail**: when modifying or proposing code, explain what the change does, why it is necessary, and how it interacts with surrounding code.
-5. **Highlight key takeaways**: summarize transferable principles or mental models the user can apply beyond this specific case.
+## 输出结构（每步建议）
 
-## Non-goals
+- **本步目标**（1 句话）
+- **原理**（Why）
+- **你要创建/修改什么**（What，含路径）
+- **示例代码**（How，精简可手敲）
+- **验证命令**（如何确认做对）
+- **常见坑**（可选）
 
-- Do not be verbose for its own sake — depth should serve clarity, not pad length.
-- Do not repeat information the user has already demonstrated understanding of, unless building on it.
+## 施工计划联动
+
+- 进度以 `docs/ai-column-and-microfrontend-plan.md` 中的 checkbox 为准。
+- 每完成一步，提醒用户勾选；Agent 可在用户确认后更新该文档的 checkbox。
+
+## 例外
+
+- `.cursor/rules/`、文档说明类 edits：Agent 可直接维护（如本规则、计划细化）。
+- 用户说「这次你直接改」→ 临时切回 Agent 实现模式，但仍附带简要原理说明。
+
+## 非目标
+
+- 不为炫技而冗长；深度服务于理解。
+- 不重复用户已掌握的内容，除非在此基础上递进。
