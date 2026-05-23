@@ -10,6 +10,8 @@ class Settings(BaseSettings):
 
     database_url: str
     port: int = 8000
+    tavily_api_key: str | None = None
+    tavily_max_results: int = 5
 
 
 settings = Settings()
