@@ -43,3 +43,9 @@ Thumbs.db
 
 # Security
 *.pem
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+apps/ai-service/.env

@@ -125,16 +125,71 @@ blog-fullstack/
 
 **目标**：跑通 FastAPI 服务，能连接数据库，有一个可用的 `/health` 接口
 
-- [ ] **1.1** 在 `apps/ai-service/` 执行 `uv init`，配置 `pyproject.toml`（FastAPI、uvicorn、sqlalchemy、alembic、psycopg）
-- [ ] **1.2** 创建 `app/main.py`，挂载 `/health` 路由
-- [ ] **1.3** 配置 SQLAlchemy 连接 `DATABASE_URL`（复用 PostgreSQL，库名不变）
-- [ ] **1.4** `uv run alembic init alembic`，配置 `alembic.ini` + `env.py`
-- [ ] **1.5** 定义模型：`ai_sources`、`ai_articles`、`ai_digests`（表名带 `ai_` 前缀）
-- [ ] **1.6** 生成并执行首次迁移：`alembic revision --autogenerate` + `alembic upgrade head`
-- [ ] **1.7** 本地启动：`uv run uvicorn app.main:app --reload --port 8000`
-- [ ] **1.8** 验证：`curl http://localhost:8000/health` 返回 200
-- [ ] **1.9** 根 `Makefile` 加入 `dev-python` target
-- [ ] **1.10** `apps/ai-service/Makefile`：`dev` / `migrate` / `lint` / `test`
+- [x] **1.1** 在 `apps/ai-service/` 执行 `uv init`，配置 `pyproject.toml`（FastAPI、uvicorn、sqlalchemy、alembic、psycopg）
+- [x] **1.2** 创建 `app/main.py`，挂载 `/health` 路由
+- [x] **1.3** 配置 SQLAlchemy 连接 `DATABASE_URL`（复用 PostgreSQL，库名不变）
+- [x] **1.4** `uv run alembic init alembic`，配置 `alembic.ini` + `env.py`
+- [x] **1.4.1** ⚠️ 在 `alembic/env.py` 配置 `include_name`，**仅处理 `ai_*` 表**（见下方「共享库迁移安全」）
+- [x] **1.5** 定义模型：`ai_sources`、`ai_articles`、`ai_digests`（表名带 `ai_` 前缀）
+- [x] **1.6** 生成并执行首次迁移：`alembic revision --autogenerate` + `alembic upgrade head`
+- [x] **1.6.1** ⚠️ **升级前人工审查** migration 文件：不得出现对 Prisma 表的 `drop_table` / `drop_index`
+- [x] **1.7** 本地启动：`uv run uvicorn app.main:app --reload --port 8000`
+- [x] **1.8** 验证：`curl http://localhost:8000/health` 返回 200
+- [x] **1.9** 根 `Makefile` 加入 `dev-python` target
+- [x] **1.10** `apps/ai-service/Makefile`：`dev` / `migrate` / `lint` / `test`
+
+#### ⚠️ 共享库 Alembic 迁移安全（必读）
+
+Python 与 Node **共用同一个 `blog` 数据库**：Prisma 管 `User`、`Post`、`_prisma_migrations` 等；Alembic 只管 `ai_*` 表。**这是高危操作场景**——配置不当或跳过审查，可能**误删 Prisma 表，导致博客数据丢失（等同删库）**。
+
+**原因：`alembic revision --autogenerate` 的默认行为**
+
+Autogenerate 对比两侧：
+
+| 来源 A | 来源 B |
+|---|---|
+| Python `Base.metadata`（仅 `ai_*` model） | 数据库中**全部**已有表（含 Prisma） |
+
+默认规则：「库里有、metadata 里没有」→ 生成 `op.drop_table(...)`。  
+因此未隔离时，migration 可能包含 `drop_table('User')`、`drop_table('_prisma_migrations')` 等。**执行 `alembic upgrade head` 会直接破坏现有博客数据。**
+
+**强制防护 1：`alembic/env.py` 配置 `include_name`**
+
+在 `run_migrations_offline` 与 `run_migrations_online` 的 `context.configure(...)` 中传入：
+
+```python
+AI_TABLE_PREFIX = 'ai_'
+
+def include_name(name, type_, parent_names):
+    """共享 blog 库时，只让 Alembic 处理 ai_* 表，不碰 Prisma 表"""
+    if type_ == 'table':
+        return name.startswith(AI_TABLE_PREFIX)
+    return True
+
+context.configure(..., include_name=include_name)
+```
+
+**强制防护 2：升级前人工审查 migration 文件**
+
+每次 autogenerate 后、**执行 upgrade 前**，打开 `alembic/versions/*.py` 检查：
+
+- ✅ 只允许：`create_table` / `alter_table` / `drop_table` 等针对 **`ai_` 前缀** 的对象
+- 🛑 若出现：`drop_table('User')`、`drop_table('Post')`、`drop_table('_prisma_migrations')` 或任何非 `ai_` 表 → **禁止 upgrade**，先修复 `env.py` 或手写 migration
+
+推荐工作流：
+
+```bash
+uv run alembic revision --autogenerate -m "describe change"
+# 1. 打开新生成的 versions/*.py 逐行审查
+# 2. 确认无危险 drop 后再执行：
+uv run alembic upgrade head
+```
+
+**其他可选隔离方案**（了解即可，当前采用表名前缀 + `include_name`）：
+
+- 独立 PostgreSQL schema（如 Python 用 `ai` schema）
+- 独立 database（如 `blog_ai`）
+- 完全手写 migration、不用 autogenerate
 
 ---
 
@@ -199,6 +254,7 @@ blog-fullstack/
 
 | 风险 | 应对 |
 |---|---|
+| **Alembic autogenerate 误删 Prisma 表（共享库，极高危）** | `env.py` 配置 `include_name` 仅处理 `ai_*`；**每次 upgrade 前审查** migration，禁止对非 `ai_` 表执行 `drop_table` |
 | 微前端改造影响现有博客功能 | Phase 4 最后做，改造期间 `apps/blog/` 保持独立可运行 |
 | Module Federation 共享依赖版本冲突 | 统一在 shell 声明 shared，子应用标记 singleton |
 | Python 服务内存占用影响 ECS | 先用 APScheduler 轻量方案，如有压力再迁移到独立队列 |

@@ -2,7 +2,7 @@
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install dev dev-blog dev-server build lint migrate test
+.PHONY: help install dev dev-blog dev-server build lint migrate test dev-python
 
 help: ## Show all commands
 	@grep -E '^[a-zA-Z0-9_.-]+:.*##' $(MAKEFILE_LIST) | sort | \
@@ -31,3 +31,6 @@ migrate: ## Prisma migrate dev (apps/server)
 
 test: ## run test
 	pnpm -r test
+
+dev-python: ## start the Python development server (apps/ai-service)
+	$(MAKE) -C apps/ai-service dev
