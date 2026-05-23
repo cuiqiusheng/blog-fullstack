@@ -28,6 +28,7 @@
 | Web 框架 | FastAPI | 异步原生，自动生成 OpenAPI 文档，类型友好 |
 | 包管理 | uv | 极速依赖解析，替代 pip/poetry |
 | Agent 框架 | LangGraph | 支持有状态的多步 Agent，适合抓取+生成流程 |
+| LLM 可观测 | Langfuse | 与 LangChain / LangGraph 集成，按 trace 查看各节点 prompt、延迟与 token |
 | 数据库迁移 | Alembic | SQLAlchemy 生态标配 |
 | 任务调度 | APScheduler | 轻量，适合定时抓取任务，无需额外 broker |
 | 数据源 | Tavily API + arXiv API + RSS | 前沿信息、论文、博客订阅 |
@@ -199,9 +200,17 @@ uv run alembic upgrade head
 
 - [x] **2.1** 接入 Tavily API，实现关键词搜索抓取
 - [x] **2.2** 接入 arXiv API，抓取热门论文摘要
-- [ ] **2.3** LangGraph Agent：筛选去重 → 归类 → 生成摘要 → 质量校验
-- [ ] **2.4** APScheduler 每日定时任务（如 6:00）
-- [ ] **2.5** REST API：`GET /articles`、`GET /articles/{id}`（前缀 `/ai-api` 由 Nginx 代理）
+- [x] **2.3** LangGraph Agent：筛选去重 → 归类 → 生成摘要 → 质量校验
+- [ ] **2.4** 接入 Langfuse：可观测 LangGraph 流水线内每一步 LLM 调用
+  - [ ] **2.4.1** 理解：Langfuse 用 **trace**（一次 pipeline）与 **generation/span**（单次 LLM）分层记录；便于按 `classify` / `summarize` / `quality_check` 排查 prompt 与 token
+  - [ ] **2.4.2** 注册 Langfuse Cloud（或自建），拿到 `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY`
+  - [ ] **2.4.3** `uv add langfuse`，在 `app/config.py` + `.env.example` 增加 `LANGFUSE_HOST`（Cloud 默认）、`LANGFUSE_ENABLED`（本地可关）
+  - [ ] **2.4.4** 在 `app/lib/llm.py` 为 `ChatOpenAI` 挂载 Langfuse Callback（LangChain 集成），确保 `ainvoke_prompt` 的每次调用自动上报
+  - [ ] **2.4.5** 在 `classify` / `summarize` / `quality_check` 调用处传入 metadata（如 `langfuse_tags=["ai-column"]`, `metadata={"node": "classify"}`），UI 中可按节点筛选
+  - [ ] **2.4.6** （推荐）在 `run_pipeline` 外包一层 Langfuse **trace**（如 `name=daily-pipeline`），将单次 test/定时任务下的多步 LLM 归到同一 trace
+  - [ ] **2.4.7** 验证：跑 `scripts/test_pipeline.py`，在 Langfuse UI 看到 1 条 trace、多条 generation，且能区分节点名
+- [ ] **2.5** APScheduler 每日定时任务（如 6:00）
+- [ ] **2.6** REST API：`GET /articles`、`GET /articles/{id}`（前缀 `/ai-api` 由 Nginx 代理）
 
 ---
 
@@ -259,6 +268,7 @@ uv run alembic upgrade head
 | Module Federation 共享依赖版本冲突 | 统一在 shell 声明 shared，子应用标记 singleton |
 | Python 服务内存占用影响 ECS | 先用 APScheduler 轻量方案，如有压力再迁移到独立队列 |
 | 每日抓取内容质量不稳定 | Agent 加质量校验节点，低质量内容标记为草稿而非直接发布 |
+| Langfuse trace 含原文/摘要 | 生产注意脱敏与 retention；`LANGFUSE_*` 仅放 `.env`，勿提交仓库 |
 | CI 构建时间变长 | Python 依赖用 uv 缓存，Module Federation 各子应用可并行构建 |
 
 ---
