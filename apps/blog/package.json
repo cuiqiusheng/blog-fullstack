@@ -1,5 +1,5 @@
 {
-  "name": "@blog-fullstack/client",
+  "name": "@blog-fullstack/blog",
   "private": true,
   "version": "0.0.0",
   "type": "module",

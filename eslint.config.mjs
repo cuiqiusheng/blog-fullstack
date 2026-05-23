@@ -12,7 +12,7 @@ export default defineConfig([
     '**/build/**',
     '**/generated/**',
     '**/graphql/__generated__/**',
-    'apps/client/public/**',
+    'apps/blog/public/**',
     'apps/server/prisma/**',
     'eslint.config.mjs',
     'commitlint.config.js',
@@ -39,7 +39,7 @@ export default defineConfig([
 
   // Client: React plugins + browser globals
   {
-    files: ['apps/client/**/*.{ts,tsx}'],
+    files: ['apps/blog/**/*.{ts,tsx}'],
     extends: [reactHooks.configs.flat.recommended, reactRefresh.configs.vite],
     languageOptions: {
       globals: globals.browser,

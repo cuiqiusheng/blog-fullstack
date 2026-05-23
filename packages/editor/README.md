@@ -2,7 +2,7 @@
 
 [中文文档](./README.zh-CN.md)
 
-A Markdown-oriented rich text editor built on [Tiptap](https://tiptap.dev/), shipped as a shared monorepo package for `apps/client`.
+A Markdown-oriented rich text editor built on [Tiptap](https://tiptap.dev/), shipped as a shared monorepo package for `apps/blog`.
 
 ## Design Philosophy
 
@@ -21,7 +21,7 @@ The editor package is **solely responsible for the editing experience** and cont
 | Concern | Owner |
 |---|---|
 | Rich text editing, formatting, keyboard shortcuts | `@blog-fullstack/editor` |
-| Saving, publishing, image upload | Consumer (`apps/client`) |
+| Saving, publishing, image upload | Consumer (`apps/blog`) |
 | Content rendering (read view) | `@blog-fullstack/markdown-renderer` |
 
 This separation allows the editor to be reused across different contexts (article editing, comments, messaging) without carrying any domain-specific assumptions.

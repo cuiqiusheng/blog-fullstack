@@ -29,5 +29,5 @@ jobs:
       - name: Build server
         run: pnpm --filter server build
 
-      - name: Build client
-        run: pnpm --filter client build
+      - name: Build blog
+        run: pnpm --filter blog build

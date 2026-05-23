@@ -116,7 +116,7 @@ pnpm dev:server
 
 ```bash
 # From repo root (after pnpm install)
-pnpm dev:client
+pnpm dev:blog
 # App: http://localhost:5173
 ```
 

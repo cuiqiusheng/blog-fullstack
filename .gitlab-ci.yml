@@ -45,10 +45,10 @@ deploy:
     #   1) 确保已启用 2GB swap：在 ECS 上执行 scripts/setup-ecs.sh（推荐）
     #   2) 若实例 ≥3GB 内存，可改为 --max-old-space-size=1536 或 2048
     #   3) 在 Docker 中构建以隔离内存（宿主机 4GB 时给容器 2.5G 常可避免宿主机 OOM）：
-    #      - docker run --rm -v "$(pwd)":/app -w /app --memory=2.5g -e NODE_OPTIONS=--max-old-space-size=1536 -e VITE_GRAPHQL_URI=/graphql -e CI=true node:20-alpine sh -c "corepack enable pnpm && pnpm install --frozen-lockfile && pnpm --filter @blog-fullstack/client build"
-    #      - 然后下面 rsync 步骤不变（产物在 apps/client/dist）
+    #      - docker run --rm -v "$(pwd)":/app -w /app --memory=2.5g -e NODE_OPTIONS=--max-old-space-size=1536 -e VITE_GRAPHQL_URI=/graphql -e CI=true node:20-alpine sh -c "corepack enable pnpm && pnpm install --frozen-lockfile && pnpm --filter @blog-fullstack/blog build"
+    #      - 然后下面 rsync 步骤不变（产物在 apps/blog/dist）
     #   4) 升级 ECS 实例（建议构建机至少 2GB 内存，推荐 4GB）
-    - NODE_OPTIONS=--max-old-space-size=1024 VITE_GRAPHQL_URI=/graphql pnpm --filter @blog-fullstack/client build
+    - NODE_OPTIONS=--max-old-space-size=1024 VITE_GRAPHQL_URI=/graphql pnpm --filter @blog-fullstack/blog build
 
     # ── 部署前端 ──────────────────────────────────────────────────────
     # rsync 只传输变更的文件，比 cp 更高效。
@@ -56,7 +56,7 @@ deploy:
     #   --delete : 删除目标目录中源没有的文件，保持完全一致
     #   --exclude .well-known/ : 保留 Nginx/Certbot 的 ACME 校验目录；该目录常为 root
     #   所有且不在前端构建产物中，若被 --delete 尝试清除会因权限失败导致 rsync 退出码 23
-    - rsync -av --delete --exclude='.well-known/' apps/client/dist/ /var/www/blog/
+    - rsync -av --delete --exclude='.well-known/' apps/blog/dist/ /var/www/blog/
 
     # ── 数据库备份 + 迁移 + 后端部署 ─────────────────────────────────────
     # 1. 复制 .env 到 deploy/，并导出环境变量（供 Prisma migrate 使用）
