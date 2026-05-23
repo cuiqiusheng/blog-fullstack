@@ -15,7 +15,7 @@ dev: ## start client and server concurrently
 	pnpm dev
 
 dev-blog: ## start client only
-	pnpm dev:client
+	pnpm dev:blog
 
 dev-server: ## start graphql server only
 	pnpm dev:server

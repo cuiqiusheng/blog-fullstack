@@ -77,7 +77,7 @@ GraphQL Schema → Resolvers → Service → Prisma (数据库)
 
 ---
 
-### 五、前端架构（`apps/client`）
+### 五、前端架构（`apps/blog`）
 
 #### 目录组织
 

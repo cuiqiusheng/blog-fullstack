@@ -10,11 +10,11 @@ alwaysApply: true
 When adding new code, choose location in this order:
 
 1. **Is this app-specific?**
-   - Frontend only -> `apps/client`
+   - Frontend only -> `apps/blog`
    - Backend only -> `apps/server`
 2. **Is this reused by both apps (or expected to be)?**
    - Yes -> `packages/*` (shared package), only with clear reuse evidence.
-3. **Client placement inside `apps/client/src`:**
+3. **Client placement inside `apps/blog/src`:**
    - Route-level UI -> `pages/<domain>/`
    - Business feature UI/logic reused by multiple pages -> `features/<domain>/`
    - Cross-feature generic logic/hooks -> `shared/`

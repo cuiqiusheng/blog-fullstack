@@ -103,21 +103,21 @@ blog-fullstack/
 
 #### 0.2 重命名 client → blog（Phase 4 微前端前置，但目录名先统一）
 
-- [ ] **0.2.1** 理解：rename 影响 package name、CI 路径、eslint glob；**先 grep 再改**
-- [ ] **0.2.2** `git mv apps/client apps/blog`
-- [ ] **0.2.3** 修改 `apps/blog/package.json`：`name` → `@blog-fullstack/blog`
-- [ ] **0.2.4** 修改根 `package.json`：`dev:client` → `dev:blog`，filter 改为 `@blog-fullstack/blog`
-- [ ] **0.2.5** 修改 `eslint.config.mjs`：`apps/client` → `apps/blog`
-- [ ] **0.2.6** 修改 `.gitlab-ci.yml`：build filter + `apps/blog/dist` rsync 路径
-- [ ] **0.2.7** 修改 `.prettierignore` / `.dockerignore`（如有 `apps/client` 引用）
-- [ ] **0.2.8** 运行 `pnpm install` 刷新 lockfile 中的 workspace 路径
-- [ ] **0.2.9** 验证：`pnpm dev:blog` + `pnpm dev:server`，博客功能正常
+- [x] **0.2.1** 理解：rename 影响 package name、CI 路径、eslint glob；**先 grep 再改**
+- [x] **0.2.2** `git mv apps/client apps/blog`
+- [x] **0.2.3** 修改 `apps/blog/package.json`：`name` → `@blog-fullstack/blog`
+- [x] **0.2.4** 修改根 `package.json`：`dev:client` → `dev:blog`，filter 改为 `@blog-fullstack/blog`
+- [x] **0.2.5** 修改 `eslint.config.mjs`：`apps/client` → `apps/blog`
+- [x] **0.2.6** 修改 `.gitlab-ci.yml`：build filter + `apps/blog/dist` rsync 路径
+- [x] **0.2.7** 修改 `.prettierignore` / `.dockerignore`（如有 `apps/client` 引用）
+- [x] **0.2.8** 运行 `pnpm install` 刷新 lockfile 中的 workspace 路径
+- [x] **0.2.9** 验证：`pnpm dev:blog` + `pnpm dev:server`，博客功能正常
 
 #### 0.3 本地 Python 环境
 
-- [ ] **0.3.1** 确认 Python ≥ 3.12：`python3 --version`
-- [ ] **0.3.2** 安装 uv：`curl -LsSf https://astral.sh/uv/install.sh | sh`（或 `brew install uv`）
-- [ ] **0.3.3** 验证：`uv --version`
+- [x] **0.3.1** 确认 Python ≥ 3.12：`python3 --version`
+- [x] **0.3.2** 安装 uv：`curl -LsSf https://astral.sh/uv/install.sh | sh`（或 `brew install uv`）
+- [x] **0.3.3** 验证：`uv --version`
 
 ---
 

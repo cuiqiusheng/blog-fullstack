@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Development
 ```bash
 pnpm dev              # Start both client and server concurrently
-pnpm dev:client       # Frontend only (Vite, port 5173)
+pnpm dev:blog         # Frontend only (Vite, port 5173)
 pnpm dev:server       # Backend only (nodemon, port 4000)
 ```
 
@@ -46,7 +46,7 @@ This is a pnpm monorepo with two apps and four shared packages.
 
 ### Workspace Layout
 ```
-apps/client/     — React 19 + Vite 7 frontend
+apps/blog/     — React 19 + Vite 7 frontend
 apps/server/     — Express 5 + Apollo Server 5 backend
 packages/editor/              — Tiptap-based rich text editor
 packages/markdown-renderer/   — Markdown rendering component
@@ -76,7 +76,7 @@ Requests flow through: **GraphQL resolver → Service → Prisma**
 - `server.ts` — Express app setup, Apollo middleware, WebSocket server for subscriptions
 - `cli/batchGenerate.ts` — Standalone CLI entrypoint for bulk article generation
 
-### Client Architecture (`apps/client/src/`)
+### Client Architecture (`apps/blog/src/`)
 
 - `main.tsx` — Bootstrap: i18n init, Apollo Provider, React Router
 - `app/App.tsx` — Root: Ant Design theme/locale provider, error boundary, session-invalidation navigation
@@ -100,7 +100,7 @@ The client uses **React 19** with the **React Compiler** (via Babel plugin in Vi
 
 Schema is defined in `apps/server/src/graphql/schema/`. After any `.graphql` file changes, run `pnpm codegen` from the root. This generates:
 - Server: `apps/server/src/generated/` — resolver type signatures (`@graphql-codegen/typescript-resolvers`)
-- Client: `apps/client/src/graphql/` — typed hooks and document nodes (`@graphql-codegen/client-preset`)
+- Client: `apps/blog/src/graphql/` — typed hooks and document nodes (`@graphql-codegen/client-preset`)
 
 ### Authentication
 

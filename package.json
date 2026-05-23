@@ -6,7 +6,7 @@
   "description": "A full-stack blog system built with React, Node.js, GraphQL, and PostgreSQL.",
   "scripts": {
     "dev": "pnpm -r dev",
-    "dev:client": "pnpm --filter @blog-fullstack/client dev",
+    "dev:blog": "pnpm --filter @blog-fullstack/blog dev",
     "dev:server": "pnpm --filter @blog-fullstack/server dev",
     "batch:generate": "pnpm --filter @blog-fullstack/server batch:generate",
     "codegen": "pnpm -r codegen",

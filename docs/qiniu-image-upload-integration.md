@@ -194,7 +194,7 @@ app.post('/upload/token', uploadLimiter, async (req, res) => {
 
 ### Client 端：通用上传函数
 
-创建一个通用的上传函数（`apps/client/src/lib/upload.ts`），不引入七牛 JS SDK，直接用 `fetch` + `FormData`，减少包体积：
+创建一个通用的上传函数（`apps/blog/src/lib/upload.ts`），不引入七牛 JS SDK，直接用 `fetch` + `FormData`，减少包体积：
 
 ```typescript
 export async function uploadImage(file: File): Promise<string> {

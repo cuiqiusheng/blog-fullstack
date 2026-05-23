@@ -1,7 +1,7 @@
 ---
-description: Client app rules (apps/client)
+description: Client app rules (apps/blog)
 globs:
-  - apps/client/**
+  - apps/blog/**
 ---
 
 # 02 Client Rules

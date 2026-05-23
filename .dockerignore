@@ -5,7 +5,7 @@ node_modules
 *.log
 .git
 .github
-apps/client
+apps/blog
 packages
 docs
 .cursor

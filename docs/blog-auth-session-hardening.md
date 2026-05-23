@@ -54,14 +54,14 @@
 
 ## 施工时文件大概怎么动（按顺序）
 
-1. [`apps/client/src/lib/auth.ts`](../apps/client/src/lib/auth.ts)：`subscribeAuth`、`getAuthTokenSnapshot`，`setToken` / `clearToken` 里通知监听方。
-2. [`apps/client/src/shared/hooks/useAuth.ts`](../apps/client/src/shared/hooks/useAuth.ts)：`useSyncExternalStore` 订阅上述快照。
-3. [`apps/client/src/lib/authSessionBridge.ts`](../apps/client/src/lib/authSessionBridge.ts)：给 ErrorLink 一个**脱离 React hooks** 的入口，在 `BrowserRouter` 里注册 `navigate`。
-4. [`apps/client/src/lib/apolloErrorLink.ts`](../apps/client/src/lib/apolloErrorLink.ts)：Apollo 4 里用 `CombinedGraphQLErrors.is` 判断 GraphQL 错误，再扫 `extensions.code`。
-5. [`apps/client/src/lib/apollo.ts`](../apps/client/src/lib/apollo.ts)：把 `ErrorLink` 接在整条链最前面（相对 split/http），用 ref 持有 `ApolloClient` 实例，避免初始化顺序踩 TDZ。
-6. [`apps/client/src/app/SessionInvalidatedNavigation.tsx`](../apps/client/src/app/SessionInvalidatedNavigation.tsx)：挂在 `App` 里注册跳转；已在登录/注册页则不再 `navigate`，避免无意义跳转。
-7. [`apps/client/src/pages/auth/LoginPage.tsx`](../apps/client/src/pages/auth/LoginPage.tsx)：用路由 `state` 带一个 `session_expired`，配合 i18n 文案做一次性的提示条。
-8. [`apps/client/src/shared/hooks/useCurrentUser.ts`](../apps/client/src/shared/hooks/useCurrentUser.ts)：`skip` + `fetchPolicy`。
+1. [`apps/blog/src/lib/auth.ts`](../apps/blog/src/lib/auth.ts)：`subscribeAuth`、`getAuthTokenSnapshot`，`setToken` / `clearToken` 里通知监听方。
+2. [`apps/blog/src/shared/hooks/useAuth.ts`](../apps/blog/src/shared/hooks/useAuth.ts)：`useSyncExternalStore` 订阅上述快照。
+3. [`apps/blog/src/lib/authSessionBridge.ts`](../apps/blog/src/lib/authSessionBridge.ts)：给 ErrorLink 一个**脱离 React hooks** 的入口，在 `BrowserRouter` 里注册 `navigate`。
+4. [`apps/blog/src/lib/apolloErrorLink.ts`](../apps/blog/src/lib/apolloErrorLink.ts)：Apollo 4 里用 `CombinedGraphQLErrors.is` 判断 GraphQL 错误，再扫 `extensions.code`。
+5. [`apps/blog/src/lib/apollo.ts`](../apps/blog/src/lib/apollo.ts)：把 `ErrorLink` 接在整条链最前面（相对 split/http），用 ref 持有 `ApolloClient` 实例，避免初始化顺序踩 TDZ。
+6. [`apps/blog/src/app/SessionInvalidatedNavigation.tsx`](../apps/blog/src/app/SessionInvalidatedNavigation.tsx)：挂在 `App` 里注册跳转；已在登录/注册页则不再 `navigate`，避免无意义跳转。
+7. [`apps/blog/src/pages/auth/LoginPage.tsx`](../apps/blog/src/pages/auth/LoginPage.tsx)：用路由 `state` 带一个 `session_expired`，配合 i18n 文案做一次性的提示条。
+8. [`apps/blog/src/shared/hooks/useCurrentUser.ts`](../apps/blog/src/shared/hooks/useCurrentUser.ts)：`skip` + `fetchPolicy`。
 
 ## 实现过程中几个小坑
 

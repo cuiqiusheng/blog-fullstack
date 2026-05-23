@@ -2,7 +2,7 @@
 
 [English](./README.md)
 
-基于 [Tiptap](https://tiptap.dev/) 封装的 Markdown 富文本编辑器，作为 monorepo 共享包供 `apps/client` 消费。
+基于 [Tiptap](https://tiptap.dev/) 封装的 Markdown 富文本编辑器，作为 monorepo 共享包供 `apps/blog` 消费。
 
 ## 设计思想
 
@@ -21,7 +21,7 @@
 | 关注点 | 归属 |
 |---|---|
 | 富文本编辑、格式化、快捷键 | `@blog-fullstack/editor` |
-| 文章保存、发布、图片上传 | 消费方（`apps/client`） |
+| 文章保存、发布、图片上传 | 消费方（`apps/blog`） |
 | 内容渲染（阅读视图） | `@blog-fullstack/markdown-renderer` |
 
 这种分层使编辑器可以在不同场景复用（文章编辑、评论、即时通讯），而不会携带任何特定业务假设。

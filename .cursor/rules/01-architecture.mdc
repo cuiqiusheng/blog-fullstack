@@ -24,7 +24,7 @@ All work must optimize for:
 
 - Package manager: `pnpm` monorepo (`pnpm-workspace.yaml`).
 - Workspaces:
-  - `apps/client` (React + Vite + Apollo + antd + i18n)
+  - `apps/blog` (React + Vite + Apollo + antd + i18n)
   - `apps/server` (Node.js + Express + Apollo GraphQL BFF + Prisma)
   - `packages/*` reserved for shared packages.
 - Root orchestration uses workspace scripts (`pnpm -r`, `pnpm --filter`).
@@ -32,7 +32,7 @@ All work must optimize for:
 ## Architectural Boundaries
 
 - Do not mix frontend and backend concerns in one app.
-- Keep app-specific code inside `apps/client` or `apps/server`.
+- Keep app-specific code inside `apps/blog` or `apps/server`.
 - Add shared logic to `packages/*` only when actually reused cross-app.
 - Avoid ad-hoc folder creation that bypasses current layering.
 

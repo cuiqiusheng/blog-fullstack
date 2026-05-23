@@ -122,7 +122,7 @@ pnpm dev:server
 ### 3.3 前端运行
 ```bash
 # 根目录已安装依赖后
-pnpm dev:client
+pnpm dev:blog
 # 访问：http://localhost:5173
 ```
 
