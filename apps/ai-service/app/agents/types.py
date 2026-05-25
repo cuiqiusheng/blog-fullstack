@@ -12,9 +12,9 @@ ArticleStatus = Literal['draft', 'published', 'archived']
 
 @dataclass
 class RowItem:
-    '''
+    """
     Row material to be processed
-    '''
+    """
     title: str
     url: str
     content: str

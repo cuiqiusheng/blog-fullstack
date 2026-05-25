@@ -8,7 +8,7 @@ from app.lib.llm import ainvoke_prompt
 from app.config import settings
 
 
-'''
+"""
 langgraph flow: 去重 -> 归类 -> 摘要 -> 质检 -> 生成文章
 
 data flow:
@@ -21,7 +21,7 @@ summarize_node ->
 articles first draft, score = 0 ->
 quality_check_node ->
 articles final draft/published
-'''
+"""
 
 
 _CATEGORIES: tuple[Category, ...] = ('news', 'paper', 'tool', 'other')
@@ -105,7 +105,7 @@ def _build_classify_prompt(batch: list[RowItem]) -> str:
             f'  snippet: {snippet}',
         )
     items_text = '\n\n'.join(blocks)
-    return f'''你是一个 AI 资讯编辑。将下列条目各归为一类：
+    return f"""你是一个 AI 资讯编辑。将下列条目各归为一类：
 
 - news: 行业新闻、产品发布、融资、政策
 - paper: 学术论文、预印本
@@ -117,7 +117,7 @@ def _build_classify_prompt(batch: list[RowItem]) -> str:
 
 条目：
 {items_text}
-'''
+"""
 
 
 async def classify_node(state: AgentState) -> dict:
@@ -127,7 +127,11 @@ async def classify_node(state: AgentState) -> dict:
     for start in range(0, len(items), _CLASSIFY_BATCH_SIZE):
         batch = items[start:start + _CLASSIFY_BATCH_SIZE]
         try:
-            raw = await ainvoke_prompt(_build_classify_prompt(batch))
+            raw = await ainvoke_prompt(
+                _build_classify_prompt(batch),
+                run_name='classify',
+                metadata={'node': 'classify', 'batch_start': start},
+            )
             rows = _parse_json_array(raw)
             index_to_cat: dict[int, Category] = {}
             for row in rows:
@@ -154,7 +158,7 @@ async def classify_node(state: AgentState) -> dict:
 # Node3: Summarize items, llm item by item
 def _build_summarize_prompt(item: RowItem, category: Category) -> str:
     content = (item.content or '').strip()[:2000]
-    return f'''你是 AI 专栏作者。根据素材写中文摘要。
+    return f"""你是 AI 专栏作者。根据素材写中文摘要。
 
 要求：
 1. title: 可微调原标题，不超过 80 字
@@ -170,7 +174,7 @@ url: {item.url}
 只输出 JSON 对象，不要 markdown 代码块：
 {{"title": "...", "summary": "...", "body": "..."}}
 body 可为 null。
-'''
+"""
 
 
 async def summarize_node(state: AgentState) -> dict:
@@ -180,7 +184,15 @@ async def summarize_node(state: AgentState) -> dict:
     for item in state['filtered_items']:
         category = item.category or _default_category(item)
         try:
-            raw = await ainvoke_prompt(_build_summarize_prompt(item, category))
+            raw = await ainvoke_prompt(
+                _build_summarize_prompt(item, category),
+                run_name='summarize',
+                metadata={
+                    'node': 'summarize',
+                    'source': item.source,
+                    'url': item.url,
+                },
+            )
             obj = _parse_json_object(raw)
             title = str(obj.get('title') or item.title).strip()
             summary = str(obj.get('summary') or '').strip()
@@ -209,7 +221,7 @@ async def summarize_node(state: AgentState) -> dict:
 
 # Node4: Quality check articles, llm score item by item
 def _build_quality_prompt(article: ProcessedArticle) -> str:
-    return f'''你是内容质量审核员。对下列 AI 专栏摘要打分（1-10 整数）。
+    return f"""你是内容质量审核员。对下列 AI 专栏摘要打分（1-10 整数）。
 
 维度：准确性、信息密度、可读性、与 category 是否匹配。
 请客观打分；质量一般也应给中低分。
@@ -219,7 +231,7 @@ category: {article.category}
 summary: {article.summary}
 
 只输出 JSON：{{"score": 8, "reason": "一句话理由"}}
-'''
+"""
 
 
 async def quality_check_node(state: AgentState) -> dict:
@@ -229,7 +241,15 @@ async def quality_check_node(state: AgentState) -> dict:
 
     for article in state['articles']:
         try:
-            raw = await ainvoke_prompt(_build_quality_prompt(article))
+            raw = await ainvoke_prompt(
+                _build_quality_prompt(article),
+                run_name='quality_check',
+                metadata={
+                    'node': 'quality_check',
+                    'category': article.category,
+                    'url': article.url,
+                },
+            )
             obj = _parse_json_object(raw)
             score = int(obj.get('score', 0))
             reason = str(obj.get('reason') or '').strip() or 'no reason'

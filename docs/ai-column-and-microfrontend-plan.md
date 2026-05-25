@@ -201,16 +201,31 @@ uv run alembic upgrade head
 - [x] **2.1** 接入 Tavily API，实现关键词搜索抓取
 - [x] **2.2** 接入 arXiv API，抓取热门论文摘要
 - [x] **2.3** LangGraph Agent：筛选去重 → 归类 → 生成摘要 → 质量校验
-- [ ] **2.4** 接入 Langfuse：可观测 LangGraph 流水线内每一步 LLM 调用
-  - [ ] **2.4.1** 理解：Langfuse 用 **trace**（一次 pipeline）与 **generation/span**（单次 LLM）分层记录；便于按 `classify` / `summarize` / `quality_check` 排查 prompt 与 token
-  - [ ] **2.4.2** 注册 Langfuse Cloud（或自建），拿到 `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY`
-  - [ ] **2.4.3** `uv add langfuse`，在 `app/config.py` + `.env.example` 增加 `LANGFUSE_HOST`（Cloud 默认）、`LANGFUSE_ENABLED`（本地可关）
-  - [ ] **2.4.4** 在 `app/lib/llm.py` 为 `ChatOpenAI` 挂载 Langfuse Callback（LangChain 集成），确保 `ainvoke_prompt` 的每次调用自动上报
-  - [ ] **2.4.5** 在 `classify` / `summarize` / `quality_check` 调用处传入 metadata（如 `langfuse_tags=["ai-column"]`, `metadata={"node": "classify"}`），UI 中可按节点筛选
-  - [ ] **2.4.6** （推荐）在 `run_pipeline` 外包一层 Langfuse **trace**（如 `name=daily-pipeline`），将单次 test/定时任务下的多步 LLM 归到同一 trace
-  - [ ] **2.4.7** 验证：跑 `scripts/test_pipeline.py`，在 Langfuse UI 看到 1 条 trace、多条 generation，且能区分节点名
-- [ ] **2.5** APScheduler 每日定时任务（如 6:00）
+- [x] **2.4** 接入 Langfuse v4：可观测 LangGraph 流水线内每一步 LLM 调用
+  - [x] **2.4.1** 理解：Langfuse 用 **trace**（一次 pipeline）与 **observation**（span / generation 等，单次 LLM 为 generation）分层记录；便于按 `classify` / `summarize` / `quality_check` 排查 prompt 与 token
+  - [x] **2.4.2** 注册 Langfuse Cloud（或自建），拿到 `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY`
+  - [x] **2.4.3** `uv add langfuse`（当前 **v4.x**），在 `app/config.py` + `.env.example` 增加 `LANGFUSE_BASE_URL`（Cloud 默认 `https://cloud.langfuse.com`）、`LANGFUSE_ENABLED`（本地可关）、`LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY`
+  - [x] **2.4.4** `uv add langchain`（v4 的 `langfuse.langchain.CallbackHandler` 依赖 `langchain` 元包）；在 `app/lib/llm.py` 初始化 `Langfuse(base_url=...)` + 于 `ainvoke_prompt` 的 `model.ainvoke(..., config={'callbacks': [...]})` 挂载 Callback，每次 LLM 调用自动上报并在末尾 `flush()`
+  - [x] **2.4.5** 扩展 `ainvoke_prompt(run_name=..., metadata=...)`；在 `classify` / `summarize` / `quality_check` 传入 `metadata={'node': '...', 'langfuse_tags': ['ai-column']}`，UI 中可按节点名 / tag 筛选
+  - [x] **2.4.6** （推荐）在 `run_pipeline` 外包一层 Langfuse v4 **trace**：`start_as_current_observation(name='daily-pipeline')` + `propagate_attributes(tags=['ai-column'])`，将单次 test/定时任务下的多步 LLM 归到同一 trace
+  - [x] **2.4.7** 验证：跑 `scripts/test_pipeline.py`，在 Langfuse UI 看到 1 条 trace、多条 generation，且能区分节点名
+
+  > **Langfuse v4 备忘**（相对 v3）：Client 用 `base_url`（非 `LANGFUSE_HOST`）；外层 trace 用 `start_as_current_observation()`（非 `start_as_current_span()`）；trace 级 `user_id` / `tags` 用 `propagate_attributes()`（非 `update_current_trace()`）；`CallbackHandler(update_trace=...)` 已移除。
+- [ ] **2.5** APScheduler 每日定时任务（如 6:00）+ 流水线结果入库
+  - [x] **2.5.1** `uv add "apscheduler>=3.10.4,<4"`；`config` + `.env.example` 增加 `SCHEDULER_*`、`TAVILY_DAILY_QUERY`（本地默认 `SCHEDULER_ENABLED=false`）
+  - [x] **2.5.2** `app/services/daily_job.py`：Tavily（可选）+ arXiv → `run_pipeline` → 返回 `stats`
+  - [x] **2.5.2a** arXiv 抓取优化（`arxiv_client.py`）：进程内单例 `Client`、`ARXIV_DELAY_SECONDS` / `ARXIV_NUM_RETRIES`；**按日内存缓存**（调度时区日桶，换日 `clear()`，仅保留当天；命中须 `return cached`）
+  - [ ] **2.5.3** `app/services/article_store.py`：`ProcessedArticle` → `ai_sources` / `ai_articles`（按 `source + url` 去重；`url` 暂写入 `body` 尾部，见下「表结构缺口」）
+  - [ ] **2.5.4** `app/services/scheduler.py` + `main.py` lifespan：`AsyncIOScheduler` cron 触发 `run_daily_job`（`max_instances=1`）
+  - [ ] **2.5.5** `scripts/run_daily_job.py`：不启服务也可手动跑完整链路（含入库）
+  - [ ] **2.5.6** 验证：跑脚本后 DB 有新增 `ai_articles`；`SCHEDULER_ENABLED=true` 时启动 uvicorn 可见 scheduler 注册日志
+
+  > **表结构缺口（2.5.3 → 2.6 衔接）**：当前 `ai_articles` 无 `url` / `category` / `quality_score` 列。2.5.3 先用现有列入库；**2.6 前**用 Alembic 补列（推荐 `url` 唯一或 `(source_id, url)` 唯一），REST 与去重更干净。`ai_digests` 关联可放在 2.5 之后迭代。
 - [ ] **2.6** REST API：`GET /articles`、`GET /articles/{id}`（前缀 `/ai-api` 由 Nginx 代理）
+  - [ ] **2.6.0** （推荐）Alembic：`ai_articles` 增加 `url`、`category`、`quality_score` 等（autogenerate 后审查，仅 `ai_*`）
+  - [ ] **2.6.1** `app/routers/articles.py` + `main.py` 挂载路由
+  - [ ] **2.6.2** 列表分页 / 按 `status` 筛选；详情 404 处理
+  - [ ] **2.6.3** 本地验证：`curl http://localhost:8000/articles`（或统一前缀 `/ai-api/articles` 与 Nginx 一致）
 
 ---
 
@@ -269,6 +284,9 @@ uv run alembic upgrade head
 | Python 服务内存占用影响 ECS | 先用 APScheduler 轻量方案，如有压力再迁移到独立队列 |
 | 每日抓取内容质量不稳定 | Agent 加质量校验节点，低质量内容标记为草稿而非直接发布 |
 | Langfuse trace 含原文/摘要 | 生产注意脱敏与 retention；`LANGFUSE_*` 仅放 `.env`，勿提交仓库 |
+| **arXiv API 429 / 限流** | 遵守 [API 手册](https://info.arxiv.org/help/api/user-manual.html)（≥3s 间隔、同 query 每天约 1 次）；单例 `Client` + 按日缓存 + 开发勿连跑脚本；**勿伪造 UA 绕限速** |
+| 进程内 arXiv 缓存 | 仅当日、仅本进程；多副本部署时各进程各缓存，或改 DB 缓存 |
+| 重复跑 daily job 重复发文 | 2.5.3 按 `url`（或 title+source）去重；补 Alembic `url` 列后可用 DB 唯一约束 |
 | CI 构建时间变长 | Python 依赖用 uv 缓存，Module Federation 各子应用可并行构建 |
 
 ---
@@ -277,4 +295,4 @@ uv run alembic upgrade head
 
 | 日期 | 完成步骤 | 备注 |
 |---|---|---|
-| | | |
+| 2026-05-24 | 2.4、2.5.1–2.5.2a | Langfuse trace；daily_job；arXiv 日桶缓存 |
