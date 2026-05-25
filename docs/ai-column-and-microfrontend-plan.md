@@ -215,7 +215,7 @@ uv run alembic upgrade head
   - [x] **2.5.1** `uv add "apscheduler>=3.10.4,<4"`；`config` + `.env.example` 增加 `SCHEDULER_*`、`TAVILY_DAILY_QUERY`（本地默认 `SCHEDULER_ENABLED=false`）
   - [x] **2.5.2** `app/services/daily_job.py`：Tavily（可选）+ arXiv → `run_pipeline` → 返回 `stats`
   - [x] **2.5.2a** arXiv 抓取优化（`arxiv_client.py`）：进程内单例 `Client`、`ARXIV_DELAY_SECONDS` / `ARXIV_NUM_RETRIES`；**按日内存缓存**（调度时区日桶，换日 `clear()`，仅保留当天；命中须 `return cached`）
-  - [ ] **2.5.3** `app/services/article_store.py`：`ProcessedArticle` → `ai_sources` / `ai_articles`（按 `source + url` 去重；`url` 暂写入 `body` 尾部，见下「表结构缺口」）
+  - [x] **2.5.3** `app/services/article_store.py`：`ProcessedArticle` → `ai_sources` / `ai_articles`（按 `source + url` 去重；`url` 暂写入 `body` 尾部，见下「表结构缺口」）
   - [ ] **2.5.4** `app/services/scheduler.py` + `main.py` lifespan：`AsyncIOScheduler` cron 触发 `run_daily_job`（`max_instances=1`）
   - [ ] **2.5.5** `scripts/run_daily_job.py`：不启服务也可手动跑完整链路（含入库）
   - [ ] **2.5.6** 验证：跑脚本后 DB 有新增 `ai_articles`；`SCHEDULER_ENABLED=true` 时启动 uvicorn 可见 scheduler 注册日志

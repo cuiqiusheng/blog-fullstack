@@ -3,6 +3,7 @@ import logging
 from app.agents.graph import run_pipeline
 from app.agents.types import from_arxiv, from_tavily
 from app.config import settings
+from app.services.article_store import save_processed_articles
 from app.services.fetch.arxiv_client import search_arxiv
 from app.services.fetch.tavily_client import search_tavily
 
@@ -38,16 +39,22 @@ async def run_daily_job() -> dict:
             'row_count': 0,
             'filtered_count': 0,
             'article_count': 0,
+            'saved_count': 0,
+            'skipped_count': 0,
             'error_count': 0,
             'errors': [],
         }
 
     result = await run_pipeline(row_items)
 
+    persist = save_processed_articles(result['articles'])
+
     stats = {
         'row_count': len(row_items),
         'filtered_count': len(result['filtered_items']),
         'article_count': len(result['articles']),
+        'saved_count': persist['saved'],
+        'skipped_count': persist['skipped'],
         'error_count': len(result['errors']),
         'errors': result['errors'],
     }
