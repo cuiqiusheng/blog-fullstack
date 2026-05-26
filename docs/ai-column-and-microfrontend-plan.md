@@ -222,10 +222,10 @@ uv run alembic upgrade head
 
   > **表结构缺口（2.5.3 → 2.6 衔接）**：当前 `ai_articles` 无 `url` / `category` / `quality_score` 列。2.5.3 先用现有列入库；**2.6 前**用 Alembic 补列（推荐 `url` 唯一或 `(source_id, url)` 唯一），REST 与去重更干净。`ai_digests` 关联可放在 2.5 之后迭代。
 - [ ] **2.6** REST API：`GET /articles`、`GET /articles/{id}`（前缀 `/ai-api` 由 Nginx 代理）
-  - [ ] **2.6.0** （推荐）Alembic：`ai_articles` 增加 `url`、`category`、`quality_score` 等（autogenerate 后审查，仅 `ai_*`）
-  - [ ] **2.6.1** `app/routers/articles.py` + `main.py` 挂载路由
-  - [ ] **2.6.2** 列表分页 / 按 `status` 筛选；详情 404 处理
-  - [ ] **2.6.3** 本地验证：`curl http://localhost:8000/articles`（或统一前缀 `/ai-api/articles` 与 Nginx 一致）
+  - [x] **2.6.0** （推荐）Alembic：`ai_articles` 增加 `url`、`category`、`quality_score` 等（autogenerate 后审查，仅 `ai_*`）
+  - [x] **2.6.1** `app/routers/articles.py` + `main.py` 挂载路由
+  - [x] **2.6.2** 列表分页 / 按 `status` 筛选；详情 404 处理
+  - [x] **2.6.3** 本地验证：`curl http://localhost:8000/articles`（或统一前缀 `/ai-api/articles` 与 Nginx 一致）
 
 ---
 

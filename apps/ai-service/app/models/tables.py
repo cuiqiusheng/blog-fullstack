@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, ForeignKey, String, Text, func
+from sqlalchemy import Date, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -22,12 +22,18 @@ class AiSource(Base):
 
 class AiArticle(Base):
     __tablename__ = 'ai_articles'
+    __table_args__ = (
+        UniqueConstraint('source_id', 'url', name='uq_ai_article_source_url'),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(500))
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     body: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(String(32), default='draft') # draft | published | archived
+    url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    category: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    quality_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
     source_id: Mapped[int | None] = mapped_column(ForeignKey('ai_sources.id'), nullable=True)
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(

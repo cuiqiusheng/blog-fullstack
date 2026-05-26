@@ -7,6 +7,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.routers.articles import router as articles_router
 from app.services.scheduler import start_scheduler, shutdown_scheduler
 
 
@@ -31,6 +32,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title='AI Service', version='0.1.0', lifespan=lifespan)
+
+app.include_router(articles_router, prefix='/articles', tags=['articles'])
 
 
 @app.get('/health')
