@@ -1,10 +1,36 @@
-from fastapi import Depends,FastAPI
+import logging
+
+from contextlib import asynccontextmanager
+
+from fastapi import Depends, FastAPI
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.services.scheduler import start_scheduler, shutdown_scheduler
 
-app = FastAPI(title='AI Service', version='0.1.0')
+
+def configure_app_logging() -> None:
+    app_log = logging.getLogger('app')
+    app_log.setLevel(logging.INFO)
+    if app_log.handlers:
+        return
+    handler = logging.StreamHandler()
+    handler.setFormatter(
+        logging.Formatter('%(levelname)s:\t%(name)s - %(message)s')
+    )
+    app_log.addHandler(handler)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    configure_app_logging()
+    start_scheduler()
+    yield
+    shutdown_scheduler()
+
+
+app = FastAPI(title='AI Service', version='0.1.0', lifespan=lifespan)
 
 
 @app.get('/health')
