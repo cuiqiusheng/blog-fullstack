@@ -221,7 +221,7 @@ uv run alembic upgrade head
   - [x] **2.5.6** 验证：跑脚本后 DB 有新增 `ai_articles`；`SCHEDULER_ENABLED=true` 时启动 uvicorn 可见 scheduler 注册日志
 
   > **表结构缺口（2.5.3 → 2.6 衔接）**：当前 `ai_articles` 无 `url` / `category` / `quality_score` 列。2.5.3 先用现有列入库；**2.6 前**用 Alembic 补列（推荐 `url` 唯一或 `(source_id, url)` 唯一），REST 与去重更干净。`ai_digests` 关联可放在 2.5 之后迭代。
-- [ ] **2.6** REST API：`GET /articles`、`GET /articles/{id}`（前缀 `/ai-api` 由 Nginx 代理）
+- [x] **2.6** REST API：`GET /articles`、`GET /articles/{id}`（前缀 `/ai-api` 由 Nginx 代理）
   - [x] **2.6.0** （推荐）Alembic：`ai_articles` 增加 `url`、`category`、`quality_score` 等（autogenerate 后审查，仅 `ai_*`）
   - [x] **2.6.1** `app/routers/articles.py` + `main.py` 挂载路由
   - [x] **2.6.2** 列表分页 / 按 `status` 筛选；详情 404 处理
@@ -233,11 +233,11 @@ uv run alembic upgrade head
 
 **目标**：独立的 `apps/ai-portal/` 子应用，展示 AI 专栏内容
 
-- [ ] **3.1** `pnpm create vite apps/ai-portal --template react-ts`，升级到 React 19
-- [ ] **3.2** 加入 `pnpm-workspace.yaml`（`apps/*` 已覆盖则只需 `pnpm install`）
-- [ ] **3.3** 文章列表页 + 详情页
-- [ ] **3.4** 对接 ai-service REST API
-- [ ] **3.5** 独立 SPA 跑通（暂不接 Module Federation）
+- [x] **3.1** `pnpm create vite apps/ai-portal --template react-ts`，升级到 React 19
+- [x] **3.2** 加入 `pnpm-workspace.yaml`（`apps/*` 已覆盖则只需 `pnpm install`）
+- [x] **3.3** 文章列表页 + 详情页
+- [x] **3.4** 对接 ai-service REST API
+- [x] **3.5** 独立 SPA 跑通（暂不接 Module Federation）
 
 ---
 
@@ -245,9 +245,9 @@ uv run alembic upgrade head
 
 **目标**：`apps/shell/` 作为宿主，`apps/blog/` 和 `apps/ai-portal/` 作为子应用
 
-- [ ] **4.1** 安装 `@module-federation/vite`（shell / blog / ai-portal）
-- [ ] **4.2** 创建 `apps/shell/`：Layout + 路由 `/` → blog、`/ai` → ai-portal
-- [ ] **4.3** 改造 `apps/blog/` 为 remote，暴露根组件
+- [x] **4.1** 安装 `@module-federation/vite`（shell / blog / ai-portal）
+- [x] **4.2** 创建 `apps/shell/`：Layout + 路由 `/` → blog、`/ai` → ai-portal
+- [x] **4.3** 改造 `apps/blog/` 为 remote，暴露根组件
 - [ ] **4.4** 改造 `apps/ai-portal/` 为 remote，暴露根组件
 - [ ] **4.5** 配置 shared 依赖（react、react-dom、antd singleton）
 - [ ] **4.6** 本地联调：shell 加载两个子应用
