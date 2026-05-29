@@ -1,6 +1,7 @@
+import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
+import { federation } from '@module-federation/vite';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -9,6 +10,20 @@ export default defineConfig({
       babel: {
         plugins: ['babel-plugin-react-compiler'],
       },
+    }),
+    federation({
+      name: 'blog',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './App': './src/BlogRemoteApp.tsx',
+      },
+      shared: {
+        react: { singleton: true },
+        'react-dom': { singleton: true },
+        'react-router-dom': { singleton: true },
+        antd: { singleton: true },
+      },
+      dts: false,
     }),
   ],
   resolve: {
