@@ -56,7 +56,6 @@ model User {
   posts Post[]
   chatTopics ChatTopic[]
 
-  roles     Role[]     @relation("UserRoles")
   userRoles UserRole[]
 
   likes      PostLike[]
@@ -78,7 +77,6 @@ model Role {
   name        String  @unique
   description String?
 
-  users     User[]     @relation("UserRoles")
   userRoles UserRole[]
 
   @@map("roles")

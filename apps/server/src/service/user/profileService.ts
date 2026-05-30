@@ -3,7 +3,13 @@ import { prisma } from '../../lib/prisma';
 import { hashPassword, comparePassword } from '../../utils/encrypt';
 
 const USER_INCLUDE = {
-  roles: { select: { id: true, name: true, description: true } },
+  userRoles: {
+    include: {
+      role: {
+        select: { id: true, name: true, description: true },
+      },
+    },
+  },
 } as const;
 
 export async function updateUserProfile(

@@ -15,14 +15,14 @@ export async function assignRoleToUser(userId: string, roleId: string) {
 export async function getUserRoles(userId: string) {
   return prisma.user.findUnique({
     where: { id: userId },
-    include: { roles: true },
+    include: { userRoles: { include: { role: true } } },
   });
 }
 
 export async function getRoleUsers(roleId: string) {
   return prisma.role.findUnique({
     where: { id: roleId },
-    include: { users: true },
+    include: { userRoles: { include: { user: true } } },
   });
 }
 

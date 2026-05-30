@@ -9,7 +9,13 @@ const USER_SELECT = {
   nickname: true,
   avatarUrl: true,
   createdAt: true,
-  roles: { select: { id: true, name: true, description: true } },
+  userRoles: {
+    include: {
+      role: {
+        select: { id: true, name: true, description: true },
+      },
+    },
+  },
 } as const;
 
 export async function toggleFollow(followerId: string, followingId: string) {
@@ -65,6 +71,7 @@ export async function getFollowing(userId: string, limit = 20, offset = 0) {
   return rows.map(r => ({
     ...r.following,
     createdAt: r.following.createdAt.toISOString(),
+    roles: r.following.userRoles.map(ur => ur.role),
   }));
 }
 
@@ -79,6 +86,7 @@ export async function getFollowers(userId: string, limit = 20, offset = 0) {
   return rows.map(r => ({
     ...r.follower,
     createdAt: r.follower.createdAt.toISOString(),
+    roles: r.follower.userRoles.map(ur => ur.role),
   }));
 }
 
@@ -90,5 +98,9 @@ export async function getUserProfile(userId: string) {
   if (!user) {
     throw new GraphQLError('User not found', { extensions: { code: 'NOT_FOUND' } });
   }
-  return { ...user, createdAt: user.createdAt.toISOString() };
+  return {
+    ...user,
+    createdAt: user.createdAt.toISOString(),
+    roles: user.userRoles.map(ur => ur.role),
+  };
 }
