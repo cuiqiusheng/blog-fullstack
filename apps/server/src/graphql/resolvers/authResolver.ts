@@ -14,7 +14,13 @@ import type {
 } from '../__generated__/types';
 
 const USER_INCLUDE = {
-  roles: { select: { id: true, name: true, description: true } },
+  userRoles: {
+    include: {
+      role: {
+        select: { id: true, name: true, description: true },
+      },
+    },
+  },
 } as const;
 
 function toUserPayload(user: {
@@ -23,7 +29,7 @@ function toUserPayload(user: {
   nickname: string | null;
   avatarUrl: string | null;
   createdAt: Date;
-  roles: Array<{ id: string; name: string; description: string | null }>;
+  userRoles: Array<{ role: { id: string; name: string; description: string | null } }>;
 }) {
   return {
     id: user.id,
@@ -31,7 +37,7 @@ function toUserPayload(user: {
     nickname: user.nickname,
     avatarUrl: user.avatarUrl,
     createdAt: user.createdAt.toISOString(),
-    roles: user.roles,
+    roles: user.userRoles.map(ur => ur.role),
   };
 }
 

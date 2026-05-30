@@ -22,8 +22,12 @@ async function buildAuthContextFromToken(token: string): Promise<AuthContext> {
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       include: {
-        roles: {
-          select: { id: true, name: true, description: true },
+        userRoles: {
+          include: {
+            role: {
+              select: { id: true, name: true, description: true },
+            },
+          },
         },
       },
     });
@@ -38,7 +42,7 @@ async function buildAuthContextFromToken(token: string): Promise<AuthContext> {
         email: user.email,
         nickname: user.nickname,
         avatarUrl: user.avatarUrl,
-        roles: user.roles,
+        roles: user.userRoles.map(ur => ur.role),
       },
       isAuthenticated: true,
     };

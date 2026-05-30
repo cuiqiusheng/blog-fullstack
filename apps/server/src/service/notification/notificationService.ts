@@ -8,7 +8,13 @@ const NOTIFICATION_ACTOR_SELECT = {
   nickname: true,
   avatarUrl: true,
   createdAt: true,
-  roles: { select: { id: true, name: true, description: true } },
+  userRoles: {
+    include: {
+      role: {
+        select: { id: true, name: true, description: true },
+      },
+    },
+  },
 } as const;
 
 const NOTIFICATION_INCLUDE = {
@@ -27,7 +33,11 @@ function mapNotification(row: NotificationRow) {
     commentContent: row.commentContent,
     read: row.read,
     createdAt: row.createdAt.toISOString(),
-    actor: { ...row.actor, createdAt: row.actor.createdAt.toISOString() },
+    actor: {
+      ...row.actor,
+      createdAt: row.actor.createdAt.toISOString(),
+      roles: row.actor.userRoles.map(ur => ur.role),
+    },
   };
 }
 

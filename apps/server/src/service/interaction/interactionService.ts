@@ -11,7 +11,13 @@ const COMMENT_AUTHOR_SELECT = {
   nickname: true,
   avatarUrl: true,
   createdAt: true,
-  roles: { select: { id: true, name: true, description: true } },
+  userRoles: {
+    include: {
+      role: {
+        select: { id: true, name: true, description: true },
+      },
+    },
+  },
 } as const;
 
 const REPLIES_PREVIEW_LIMIT = 3;
@@ -28,7 +34,7 @@ function mapComment(r: {
     nickname: string | null;
     avatarUrl: string | null;
     createdAt: Date;
-    roles: { id: string; name: string; description: string | null }[];
+    userRoles: { role: { id: string; name: string; description: string | null } }[];
   };
 }) {
   return {
@@ -37,7 +43,11 @@ function mapComment(r: {
     parentId: r.parentId,
     createdAt: r.createdAt.toISOString(),
     updatedAt: r.updatedAt.toISOString(),
-    author: { ...r.user, createdAt: r.user.createdAt.toISOString() },
+    author: {
+      ...r.user,
+      createdAt: r.user.createdAt.toISOString(),
+      roles: r.user.userRoles.map(ur => ur.role),
+    },
   };
 }
 

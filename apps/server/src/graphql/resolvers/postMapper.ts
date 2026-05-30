@@ -41,6 +41,7 @@ export function toGqlPost(row: PostWithAuthor) {
     author: {
       ...row.author,
       createdAt: row.author.createdAt.toISOString(),
+      roles: row.author.userRoles.map(ur => ur.role),
     },
   };
 }

@@ -8,11 +8,15 @@ export const postAuthorInclude = {
       nickname: true,
       avatarUrl: true,
       createdAt: true,
-      roles: {
-        select: {
-          id: true,
-          name: true,
-          description: true,
+      userRoles: {
+        include: {
+          role: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+            },
+          },
         },
       },
     },
